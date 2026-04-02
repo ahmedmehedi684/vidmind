@@ -104,7 +104,7 @@ const UserNotes = () => {
     return matchCh && matchSearch;
   });
 
-  const formatDate = (iso: string) => new Date(iso).toLocaleDateString("bn-BD", { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" });
+  const formatDate = (iso: string) => new Date(iso).toLocaleDateString("en-US", { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" });
 
   return (
     <div className="max-w-3xl mx-auto px-4 py-8 space-y-6">
