@@ -196,7 +196,7 @@ const Index = () => {
             {mode === "link" && !transcriptReady && (
               <>
                 <p className="text-center text-sm text-muted-foreground">
-                  YouTube video এর link paste করুন — আমরা automatically transcript বের করার চেষ্টা করবো
+                  Paste a YouTube video link — we'll automatically try to extract the transcript
                 </p>
                 <Input
                   placeholder="https://www.youtube.com/watch?v=..."
