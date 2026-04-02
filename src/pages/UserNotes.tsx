@@ -63,7 +63,7 @@ const UserNotes = () => {
     if (error) { toast.error("Failed to save note"); return; }
     if (data) setNotes([data as unknown as Note, ...notes]);
     setNewNote(""); setNewNoteTitle(""); setNewNoteChannelId("all"); setNewNoteVideoUrl("");
-    toast.success("Note যোগ হয়েছে");
+    toast.success("Note added");
   };
 
   const deleteNote = async (id: string) => {
