@@ -92,7 +92,7 @@ const Auth = () => {
         <Card>
           <CardHeader>
             <CardTitle className="text-center text-lg" style={{ fontFamily: "'DM Sans', sans-serif" }}>
-              {isLogin ? "Login করুন" : "Account তৈরি করুন"}
+              {isLogin ? "Login" : "Create Account"}
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
