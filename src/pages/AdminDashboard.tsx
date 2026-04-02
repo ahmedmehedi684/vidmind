@@ -399,8 +399,8 @@ const AdminDashboard = () => {
       setNotes(notes.map(n => n.id === selectedNote.id ? updated : n));
       setSelectedNote(updated);
       setIsEditingInDialog(false);
-      toast.success("Note আপডেট হয়েছে");
-    } catch (e) { toast.error("Note আপডেট করতে সমস্যা হয়েছে"); }
+      toast.success("Note updated");
+    } catch (e) { toast.error("Failed to update note"); }
   };
 
   const getChannelName = (channelId: string | null) => {
