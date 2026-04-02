@@ -540,11 +540,11 @@ const TaskManager = () => {
             </DialogDescription>
           </DialogHeader>
           <DialogFooter className="flex-col-reverse gap-2 sm:flex-row sm:justify-end">
-            <Button variant="outline" onClick={() => void handleTaskDecision("todo")}>
-              No, Not Done
+            <Button variant="destructive" onClick={() => void handleTaskDecision("not_done" as any)}>
+              ❌ Not Done
             </Button>
-            <Button onClick={() => void handleTaskDecision("done")}>
-              Yes, Done
+            <Button className="bg-green-600 hover:bg-green-700" onClick={() => void handleTaskDecision("done")}>
+              ✅ Yes, Done
             </Button>
           </DialogFooter>
         </DialogContent>
