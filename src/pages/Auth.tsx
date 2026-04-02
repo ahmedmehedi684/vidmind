@@ -190,7 +190,7 @@ const Auth = () => {
             </form>
 
             <p className="text-center text-sm text-muted-foreground" style={{ fontFamily: "'DM Sans', sans-serif" }}>
-              {isLogin ? "Account নেই?" : "Already account আছে?"}{" "}
+              {isLogin ? "Don't have an account?" : "Already have an account?"}{" "}
               <button
                 type="button"
                 onClick={() => setIsLogin(!isLogin)}
