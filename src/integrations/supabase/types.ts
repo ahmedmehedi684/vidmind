@@ -319,33 +319,39 @@ export type Database = {
       subscription_plans: {
         Row: {
           created_at: string
+          currency: string
           description: string | null
           duration_days: number
           features: Json
           id: string
           is_active: boolean
+          limits: Json
           name: string
           price: number
           sort_order: number
         }
         Insert: {
           created_at?: string
+          currency?: string
           description?: string | null
           duration_days?: number
           features?: Json
           id?: string
           is_active?: boolean
+          limits?: Json
           name: string
           price?: number
           sort_order?: number
         }
         Update: {
           created_at?: string
+          currency?: string
           description?: string | null
           duration_days?: number
           features?: Json
           id?: string
           is_active?: boolean
+          limits?: Json
           name?: string
           price?: number
           sort_order?: number
@@ -523,6 +529,33 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      team_members: {
+        Row: {
+          created_at: string
+          created_by: string
+          email: string
+          id: string
+          name: string
+          role: string
+        }
+        Insert: {
+          created_at?: string
+          created_by: string
+          email: string
+          id?: string
+          name: string
+          role?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          email?: string
+          id?: string
+          name?: string
+          role?: string
+        }
+        Relationships: []
       }
       transactions: {
         Row: {
