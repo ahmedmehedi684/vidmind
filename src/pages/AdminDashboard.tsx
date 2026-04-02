@@ -493,8 +493,8 @@ const AdminDashboard = () => {
     try {
       const { error } = await supabase.from("profiles").update({ name: profileName.trim() } as any).eq("id", user.id);
       if (error) throw error;
-      toast.success("প্রোফাইল আপডেট হয়েছে!");
-    } catch (e) { toast.error("প্রোফাইল আপডেট করতে সমস্যা হয়েছে"); }
+      toast.success("Profile updated!");
+    } catch (e) { toast.error("Failed to update profile"); }
     finally { setProfileSaving(false); }
   };
 
