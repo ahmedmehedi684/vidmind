@@ -60,7 +60,7 @@ const Auth = () => {
         toast.success("Account created! Please verify your email.");
       }
     } catch (error: any) {
-      toast.error(error.message || "কিছু ভুল হয়েছে");
+      toast.error(error.message || "Something went wrong");
     } finally {
       setLoading(false);
     }
