@@ -40,6 +40,7 @@ const navItems = [
   { title: "Subscription", path: "/admin-subscription-plans", icon: CreditCard },
   { title: "Pay Methods", path: "/admin-payment-methods", icon: CreditCard },
   { title: "Support", path: "/admin-support", icon: HeadphonesIcon },
+  { title: "Team", path: "/admin-team", icon: UserCog },
   { title: "Profile", path: "/admin-profile", icon: User },
   { title: "Settings", path: "/admin-settings", icon: Settings },
 ];

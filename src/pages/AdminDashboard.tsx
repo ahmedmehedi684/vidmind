@@ -151,6 +151,7 @@ const AdminDashboard = () => {
     "/admin-subscription-plans": "subscription-plans",
     "/admin-payment-methods": "payment-methods",
     "/admin-support": "support",
+    "/admin-team": "team",
   };
   const activeTab = TAB_MAP[location.pathname] || "dashboard";
   const setActiveTab = (tab: string) => {
