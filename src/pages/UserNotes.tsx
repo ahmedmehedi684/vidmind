@@ -221,7 +221,7 @@ const UserNotes = () => {
             {selectedNote && editing && (
               <div className="flex gap-2 w-full">
                 <Button className="gap-2" onClick={saveEdit} disabled={!editText.trim()}><Check className="h-4 w-4" /> Save</Button>
-                <Button variant="outline" onClick={() => setEditing(false)}>বাতিল</Button>
+                <Button variant="outline" onClick={() => setEditing(false)}>Cancel</Button>
               </div>
             )}
           </DialogFooter>
