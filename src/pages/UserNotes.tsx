@@ -130,7 +130,7 @@ const UserNotes = () => {
         <CardContent className="pt-6 space-y-3">
           <Input placeholder="Note title..." value={newNoteTitle} onChange={e => setNewNoteTitle(e.target.value)} className="font-semibold" />
           <Select value={newNoteChannelId} onValueChange={setNewNoteChannelId}>
-            <SelectTrigger><SelectValue placeholder="Channel select করুন" /></SelectTrigger>
+            <SelectTrigger><SelectValue placeholder="Select Channel" /></SelectTrigger>
             <SelectContent>
               <SelectItem value="all">কোনো Channel নেই</SelectItem>
               {channels.map(ch => <SelectItem key={ch.id} value={ch.id}>{ch.name}</SelectItem>)}
