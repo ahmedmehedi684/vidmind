@@ -36,6 +36,8 @@ import AdminSupport from "@/components/AdminSupport";
 import AdminAnalytics from "@/components/AdminAnalytics";
 import AdminUserManagement from "@/components/AdminUserManagement";
 import AdminNotifications from "@/components/AdminNotifications";
+import AdminPaymentMethods from "@/components/AdminPaymentMethods";
+import AdminSubscriptionPlans from "@/components/AdminSubscriptionPlans";
 
 interface SummaryRow {
   id: string; user_id: string; input_type: string; input_value: string;
@@ -1014,6 +1016,8 @@ const AdminDashboard = () => {
       case "goals": return <GoalTracker />;
       case "money": return <MoneyManager />;
       case "payments": return <AdminPayments />;
+      case "subscription-plans": return <AdminSubscriptionPlans />;
+      case "payment-methods": return <AdminPaymentMethods />;
       case "support": return <AdminSupport />;
       case "analytics": return <AdminAnalytics />;
       case "user-mgmt": return <AdminUserManagement />;

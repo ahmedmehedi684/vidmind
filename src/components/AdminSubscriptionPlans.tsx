@@ -1,0 +1,164 @@
+import { useState, useEffect } from "react";
+import {
+  CreditCard, Check, Plus, Loader2, Edit2, Trash2
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
+
+interface Plan {
+  id: string; name: string; description: string; price: number;
+  duration_days: number; features: string[]; is_active: boolean; sort_order: number;
+}
+
+const AdminSubscriptionPlans = () => {
+  const [plans, setPlans] = useState<Plan[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [editPlan, setEditPlan] = useState<Plan | null>(null);
+  const [pName, setPName] = useState("");
+  const [pDesc, setPDesc] = useState("");
+  const [pPrice, setPPrice] = useState("");
+  const [pDays, setPDays] = useState("30");
+  const [pFeatures, setPFeatures] = useState("");
+  const [pOrder, setPOrder] = useState("0");
+
+  useEffect(() => { loadPlans(); }, []);
+
+  const loadPlans = async () => {
+    setLoading(true);
+    try {
+      const { data } = await supabase.from("subscription_plans").select("*").order("sort_order");
+      if (data) setPlans(data as any[]);
+    } catch (e) { console.error(e); }
+    finally { setLoading(false); }
+  };
+
+  const openAdd = () => {
+    setEditPlan(null); setPName(""); setPDesc(""); setPPrice(""); setPDays("30"); setPFeatures(""); setPOrder("0"); setDialogOpen(true);
+  };
+
+  const openEdit = (plan: Plan) => {
+    setEditPlan(plan); setPName(plan.name); setPDesc(plan.description); setPPrice(plan.price.toString());
+    setPDays(plan.duration_days.toString()); setPFeatures((plan.features as string[]).join("\n")); setPOrder(plan.sort_order.toString());
+    setDialogOpen(true);
+  };
+
+  const save = async () => {
+    if (!pName.trim()) return;
+    const features = pFeatures.split("\n").map(f => f.trim()).filter(Boolean);
+    const planData: any = {
+      name: pName.trim(), description: pDesc.trim(), price: parseFloat(pPrice) || 0,
+      duration_days: parseInt(pDays) || 30, features, sort_order: parseInt(pOrder) || 0, is_active: true,
+    };
+    try {
+      if (editPlan) {
+        const { error } = await supabase.from("subscription_plans").update(planData).eq("id", editPlan.id);
+        if (error) throw error;
+        setPlans(plans.map(p => p.id === editPlan.id ? { ...p, ...planData } : p));
+        toast.success("Plan updated!");
+      } else {
+        const { data, error } = await supabase.from("subscription_plans").insert(planData).select().single();
+        if (error) throw error;
+        if (data) setPlans([...plans, data as any]);
+        toast.success("Plan created!");
+      }
+      setDialogOpen(false);
+    } catch (e) { toast.error("Failed to save plan"); }
+  };
+
+  const deletePlan = async (id: string) => {
+    try {
+      await supabase.from("subscription_plans").delete().eq("id", id);
+      setPlans(plans.filter(p => p.id !== id));
+      toast.success("Plan deleted!");
+    } catch (e) { toast.error("Failed to delete plan"); }
+  };
+
+  if (loading) return <div className="flex justify-center py-12"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>;
+
+  return (
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <h2 className="text-2xl font-bold text-foreground flex items-center gap-2">
+          <CreditCard className="h-6 w-6 text-primary" /> Subscription Plans
+        </h2>
+        <Button onClick={openAdd} size="sm" className="gap-1"><Plus className="h-4 w-4" /> Add Plan</Button>
+      </div>
+
+      <p className="text-sm text-muted-foreground">
+        এখানে আপনার subscription plans তৈরি ও manage করুন। User দের subscription page এ এগুলো দেখাবে।
+      </p>
+
+      {plans.length === 0 ? (
+        <Card><CardContent className="py-12 text-center text-muted-foreground">No plans yet. Create your first plan!</CardContent></Card>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {plans.map(plan => (
+            <Card key={plan.id} className="hover:border-primary/30 transition-colors">
+              <CardContent className="pt-5 space-y-3">
+                <div className="flex items-center justify-between">
+                  <h4 className="font-bold text-foreground text-lg">{plan.name}</h4>
+                  <Badge variant={plan.is_active ? "default" : "secondary"}>{plan.is_active ? "Active" : "Inactive"}</Badge>
+                </div>
+                {plan.description && <p className="text-sm text-muted-foreground">{plan.description}</p>}
+                <p className="text-2xl font-bold text-primary">
+                  ৳{plan.price} <span className="text-sm text-muted-foreground font-normal">/ {plan.duration_days} days</span>
+                </p>
+                <ul className="space-y-1.5">
+                  {(plan.features as string[]).map((f, i) => (
+                    <li key={i} className="flex items-start gap-2 text-sm text-muted-foreground">
+                      <Check className="h-4 w-4 text-primary shrink-0 mt-0.5" />{f}
+                    </li>
+                  ))}
+                </ul>
+                <div className="flex gap-2 pt-2">
+                  <Button variant="outline" size="sm" className="gap-1 flex-1" onClick={() => openEdit(plan)}>
+                    <Edit2 className="h-3 w-3" /> Edit
+                  </Button>
+                  <Button variant="destructive" size="sm" className="gap-1 flex-1" onClick={() => deletePlan(plan.id)}>
+                    <Trash2 className="h-3 w-3" /> Delete
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      )}
+
+      {/* Dialog */}
+      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{editPlan ? "Edit Plan" : "Create Plan"}</DialogTitle>
+            <DialogDescription className="sr-only">Plan form</DialogDescription>
+          </DialogHeader>
+          <div className="space-y-3">
+            <div className="space-y-1.5"><Label>Plan Name *</Label><Input value={pName} onChange={e => setPName(e.target.value)} placeholder="e.g. Pro Plan" /></div>
+            <div className="space-y-1.5"><Label>Description</Label><Input value={pDesc} onChange={e => setPDesc(e.target.value)} placeholder="Short description" /></div>
+            <div className="grid grid-cols-3 gap-3">
+              <div className="space-y-1.5"><Label>Price (৳)</Label><Input type="number" value={pPrice} onChange={e => setPPrice(e.target.value)} /></div>
+              <div className="space-y-1.5"><Label>Duration (days)</Label><Input type="number" value={pDays} onChange={e => setPDays(e.target.value)} /></div>
+              <div className="space-y-1.5"><Label>Sort Order</Label><Input type="number" value={pOrder} onChange={e => setPOrder(e.target.value)} /></div>
+            </div>
+            <div className="space-y-1.5">
+              <Label>Features (one per line)</Label>
+              <Textarea value={pFeatures} onChange={e => setPFeatures(e.target.value)} placeholder="Unlimited summaries&#10;Priority support&#10;..." rows={5} />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button onClick={save} disabled={!pName.trim()} className="gap-2"><Check className="h-4 w-4" /> {editPlan ? "Update" : "Create"}</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </div>
+  );
+};
+
+export default AdminSubscriptionPlans;
