@@ -1016,6 +1016,8 @@ const AdminDashboard = () => {
       case "goals": return <GoalTracker />;
       case "money": return <MoneyManager />;
       case "payments": return <AdminPayments />;
+      case "subscription-plans": return <AdminSubscriptionPlans />;
+      case "payment-methods": return <AdminPaymentMethods />;
       case "support": return <AdminSupport />;
       case "analytics": return <AdminAnalytics />;
       case "user-mgmt": return <AdminUserManagement />;
