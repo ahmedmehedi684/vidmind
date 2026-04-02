@@ -149,7 +149,7 @@ const UserNotes = () => {
       {loading ? (
         <div className="flex justify-center py-12"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>
       ) : filtered.length === 0 ? (
-        <Card><CardContent className="py-12 text-center text-muted-foreground">কোনো note পাওয়া যায়নি।</CardContent></Card>
+        <Card><CardContent className="py-12 text-center text-muted-foreground">No notes found.</CardContent></Card>
       ) : (
         <div className="space-y-2">
           {filtered.map(note => (
