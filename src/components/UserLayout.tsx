@@ -1,7 +1,7 @@
 import { useLocation } from "react-router-dom";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { UserSidebar } from "@/components/UserSidebar";
-import { UserNotificationBell } from "@/components/UserNotificationBell";
+import UserNotificationBell from "@/components/UserNotificationBell";
 
 const UserLayout = ({ children }: { children: React.ReactNode }) => {
   const location = useLocation();
