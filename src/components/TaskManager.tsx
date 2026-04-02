@@ -367,7 +367,8 @@ const TaskManager = () => {
         <div className="space-y-1.5 py-2">
           <div className="flex items-center justify-between text-xs">
             <span className="text-green-400 font-semibold">✅ Done {donePercent}% ({doneTasks})</span>
-            <span className="text-red-400 font-semibold">❌ Not Done {undonePercent}% ({totalForDate - doneTasks})</span>
+            <span className="text-muted-foreground font-semibold">Remaining {remainingPercent}% ({totalForDate - doneTasks - notDoneTasks})</span>
+            <span className="text-red-400 font-semibold">❌ Not Done {notDonePercent}% ({notDoneTasks})</span>
           </div>
           <div className="flex h-3 w-full rounded-full overflow-hidden bg-muted/30">
             <div
@@ -376,7 +377,7 @@ const TaskManager = () => {
             />
             <div
               className="bg-gradient-to-r from-red-400 to-red-500 transition-all duration-500"
-              style={{ width: `${undonePercent}%` }}
+              style={{ width: `${notDonePercent}%` }}
             />
           </div>
         </div>
