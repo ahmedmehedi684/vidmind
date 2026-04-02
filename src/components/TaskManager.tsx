@@ -204,7 +204,8 @@ const TaskManager = () => {
   const notDoneTasks = tasksForDate.filter(t => isTaskNotDoneForDate(t)).length;
   const totalForDate = tasksForDate.length;
   const donePercent = totalForDate > 0 ? Math.round((doneTasks / totalForDate) * 100) : 0;
-  const undonePercent = 100 - donePercent;
+  const notDonePercent = totalForDate > 0 ? Math.round((notDoneTasks / totalForDate) * 100) : 0;
+  const remainingPercent = 100 - donePercent - notDonePercent;
 
   const openAddDialog = () => {
     setEditTask(null); setTitle(""); setDescription(""); setCategory("Personal");
@@ -261,7 +262,7 @@ const TaskManager = () => {
     setConfirmTask(task);
   };
 
-  const handleTaskDecision = async (status: "done" | "todo") => {
+  const handleTaskDecision = async (status: "done" | "todo" | "not_done") => {
     if (!confirmTask) return;
     try {
       const { error } = await supabase
@@ -366,7 +367,8 @@ const TaskManager = () => {
         <div className="space-y-1.5 py-2">
           <div className="flex items-center justify-between text-xs">
             <span className="text-green-400 font-semibold">✅ Done {donePercent}% ({doneTasks})</span>
-            <span className="text-red-400 font-semibold">❌ Not Done {undonePercent}% ({totalForDate - doneTasks})</span>
+            <span className="text-muted-foreground font-semibold">Remaining {remainingPercent}% ({totalForDate - doneTasks - notDoneTasks})</span>
+            <span className="text-red-400 font-semibold">❌ Not Done {notDonePercent}% ({notDoneTasks})</span>
           </div>
           <div className="flex h-3 w-full rounded-full overflow-hidden bg-muted/30">
             <div
@@ -375,7 +377,7 @@ const TaskManager = () => {
             />
             <div
               className="bg-gradient-to-r from-red-400 to-red-500 transition-all duration-500"
-              style={{ width: `${undonePercent}%` }}
+              style={{ width: `${notDonePercent}%` }}
             />
           </div>
         </div>
@@ -545,7 +547,7 @@ const TaskManager = () => {
             </DialogDescription>
           </DialogHeader>
           <DialogFooter className="flex-col-reverse gap-2 sm:flex-row sm:justify-end">
-            <Button variant="destructive" onClick={() => void handleTaskDecision("not_done" as any)}>
+            <Button variant="destructive" onClick={() => void handleTaskDecision("not_done")}>
               ❌ Not Done
             </Button>
             <Button className="bg-green-600 hover:bg-green-700" onClick={() => void handleTaskDecision("done")}>
