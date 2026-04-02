@@ -66,7 +66,7 @@ const Profile = () => {
     try {
       const { error } = await supabase.auth.updateUser({ password: newPassword });
       if (error) throw error;
-      toast.success("Password পরিবর্তন হয়েছে!");
+      toast.success("Password changed!");
       setNewPassword("");
       setConfirmPassword("");
     } catch (e: any) {
@@ -104,13 +104,13 @@ const Profile = () => {
       <Card>
         <CardHeader>
           <CardTitle className="text-lg text-primary flex items-center gap-2">
-            <User className="h-4 w-4" /> নাম
+            <User className="h-4 w-4" /> Name
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-3">
           <div className="space-y-2">
             <Label>Your Nmae</Label>
-            <Input placeholder="আপনার নাম লিখুন..." value={name} onChange={(e) => setName(e.target.value)} />
+            <Input placeholder="Enter your name..." value={name} onChange={(e) => setName(e.target.value)} />
           </div>
           <Button onClick={handleSaveProfile} disabled={saving} className="gap-2">
             {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />} Save Profile
@@ -121,7 +121,7 @@ const Profile = () => {
       <Card>
         <CardHeader>
           <CardTitle className="text-lg text-primary flex items-center gap-2">
-            <Lock className="h-4 w-4" /> Password পরিবর্তন
+            <Lock className="h-4 w-4" /> Change Password
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-3">
@@ -129,7 +129,7 @@ const Profile = () => {
             <Label>New Password</Label>
             <Input
               type="password"
-              placeholder="নতুন password..."
+              placeholder="New password..."
               value={newPassword}
               onChange={(e) => setNewPassword(e.target.value)}
             />
