@@ -813,7 +813,7 @@ const AdminDashboard = () => {
                   {selectedNote && isEditingInDialog && (
                     <div className="flex gap-2 w-full">
                       <Button className="gap-2" onClick={saveEditNote} disabled={!editNoteText.trim()}><Check className="h-4 w-4" /> Save</Button>
-                      <Button variant="outline" onClick={() => setIsEditingInDialog(false)}>বাতিল</Button>
+                      <Button variant="outline" onClick={() => setIsEditingInDialog(false)}>Cancel</Button>
                     </div>
                   )}
                 </DialogFooter>
