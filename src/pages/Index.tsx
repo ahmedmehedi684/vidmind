@@ -237,9 +237,9 @@ const Index = () => {
             {mode === "transcript" && (
               <>
                 <p className="text-center text-sm text-muted-foreground">
-                  YouTube ভিডিওর transcript paste করুন। YouTube-এ ভিডিওর নিচে "...more" → "Show transcript" click করে transcript copy করুন।
+                  Paste the YouTube video transcript. On YouTube, click "...more" below the video → "Show transcript" → copy all text.
                 </p>
-                <Textarea placeholder="Transcript paste করুন..." value={inputValue} onChange={(e) => setInputValue(e.target.value)} rows={6} />
+                <Textarea placeholder="Paste transcript here..." value={inputValue} onChange={(e) => setInputValue(e.target.value)} rows={6} />
                 <Button className="w-full text-base font-semibold h-12" onClick={handleSubmit} disabled={isLoading}>
                   {isLoading ? (
                     <span className="flex items-center gap-2"><Loader2 className="h-5 w-5 animate-spin" /> AI বিশ্লেষণ করছে...</span>
