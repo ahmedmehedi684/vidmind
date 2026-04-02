@@ -110,9 +110,12 @@ const AdminPaymentMethods = () => {
             {bdtMethods.map(m => (
               <Card key={m.id} className="hover:border-primary/30 transition-colors">
                 <CardContent className="pt-5 space-y-2">
-                  <div className="flex items-center justify-between">
+                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
-                      <span className="text-2xl">{m.icon}</span>
+                      {(() => {
+                        const logo = getPaymentLogo(m.name);
+                        return logo ? <img src={logo} alt={m.name} className="h-8 w-8 object-contain rounded" /> : <span className="text-2xl">{m.icon}</span>;
+                      })()}
                       <h4 className="font-bold text-foreground">{m.name}</h4>
                     </div>
                     <Badge variant={m.is_active ? "default" : "secondary"}>{m.is_active ? "Active" : "Inactive"}</Badge>
