@@ -613,7 +613,7 @@ const AdminDashboard = () => {
                       <p className="text-xs text-muted-foreground">Joined: {formatDate(u.created_at)}</p>
                     </div>
                     <div className="flex items-center gap-3 shrink-0">
-                      <Badge variant={u.hasApiKey ? "default" : "destructive"} className="gap-1"><KeyRound className="h-3 w-3" />{u.hasApiKey ? "Key আছে" : "Key নেই"}</Badge>
+                      <Badge variant={u.hasApiKey ? "default" : "destructive"} className="gap-1"><KeyRound className="h-3 w-3" />{u.hasApiKey ? "Has Key" : "No Key"}</Badge>
                       <Badge variant="outline" className="gap-1"><FileText className="h-3 w-3" />{u.summaryCount} summaries</Badge>
                     </div>
                   </CardContent>
