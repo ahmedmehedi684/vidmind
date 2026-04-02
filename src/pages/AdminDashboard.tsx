@@ -356,8 +356,8 @@ const AdminDashboard = () => {
       if (error) throw error;
       if (data) setNotes([data as unknown as AdminNote, ...notes]);
       setNewNote(""); setNewNoteTitle(""); setNewNoteChannelId("all"); setNewNoteVideoUrl("");
-      toast.success("Note যোগ হয়েছে");
-    } catch (e) { toast.error("Note সেভ করতে সমস্যা হয়েছে"); }
+      toast.success("Note added");
+    } catch (e) { toast.error("Failed to save note"); }
   };
 
   const deleteNote = async (id: string) => {
