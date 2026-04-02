@@ -581,7 +581,7 @@ const AdminDashboard = () => {
                 </CardContent>
               </Card>
             )}
-            {done && <div className="flex justify-center gap-3"><Button variant="outline" onClick={handleReset} className="gap-2"><RefreshCw className="h-4 w-4" /> নতুন Summary করুন</Button></div>}
+            {done && <div className="flex justify-center gap-3"><Button variant="outline" onClick={handleReset} className="gap-2"><RefreshCw className="h-4 w-4" /> New Summary</Button></div>}
             {error && <Alert variant="destructive"><AlertDescription>{error}</AlertDescription></Alert>}
             {result && (
               <div className="space-y-5 animate-in fade-in-0 slide-in-from-bottom-4 duration-500">
