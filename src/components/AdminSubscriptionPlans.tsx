@@ -73,6 +73,15 @@ const AdminSubscriptionPlans = () => {
     } catch (e) { toast.error("Failed to save plan"); }
   };
 
+  const toggleActive = async (plan: Plan) => {
+    try {
+      const { error } = await supabase.from("subscription_plans").update({ is_active: !plan.is_active }).eq("id", plan.id);
+      if (error) throw error;
+      setPlans(plans.map(p => p.id === plan.id ? { ...p, is_active: !plan.is_active } : p));
+      toast.success(plan.is_active ? "Plan deactivated!" : "Plan activated!");
+    } catch (e) { toast.error("Failed to update plan"); }
+  };
+
   const deletePlan = async (id: string) => {
     try {
       await supabase.from("subscription_plans").delete().eq("id", id);
