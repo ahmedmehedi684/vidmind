@@ -70,6 +70,14 @@ const AdminSubscriptionPlans = () => {
     setPLimits({ ...pLimits, [key]: isNaN(num) ? 0 : num });
   };
 
+  const toggleUnlimitedLimit = (key: keyof PlanLimits) => {
+    setPLimits({ ...pLimits, [key]: pLimits[key] === -1 ? 5 : -1 });
+  };
+
+  const toggleUnlimitedDuration = () => {
+    setPDays(pDays === "-1" ? "30" : "-1");
+  };
+
   const save = async () => {
     if (!pName.trim()) return;
     const features = pFeatures.split("\n").map(f => f.trim()).filter(Boolean);
