@@ -282,7 +282,7 @@ const Index = () => {
             </CardContent>
           </Card>
           <Card>
-            <CardHeader><CardTitle className="text-xl text-primary">এই ভিডিও থেকে কী শিখলাম / কী করবো?</CardTitle></CardHeader>
+            <CardHeader><CardTitle className="text-xl text-primary">What I Learned / Action Items</CardTitle></CardHeader>
             <CardContent className="space-y-4">
               {(result.howToApply || []).map((item, i) => (
                 <div key={i} className="border-l-2 border-primary pl-4">
