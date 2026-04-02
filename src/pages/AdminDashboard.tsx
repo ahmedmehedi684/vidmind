@@ -826,7 +826,7 @@ const AdminDashboard = () => {
         return (
           <div className="space-y-4">
             <h2 className="text-xl font-semibold text-foreground flex items-center gap-2"><LayoutGrid className="h-5 w-5 text-primary" /> Landing Page Showcase</h2>
-            <p className="text-sm text-muted-foreground">এখান থেকে Landing Page-এর "Your Learning Journey" section manage করুন।</p>
+            <p className="text-sm text-muted-foreground">Manage the "Your Learning Journey" section on the Landing Page.</p>
 
             {/* Add Form */}
             <Card>
