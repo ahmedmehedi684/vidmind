@@ -14,6 +14,7 @@ import { Progress } from "@/components/ui/progress";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
+import { getPaymentLogo } from "@/lib/payment-logos";
 
 interface Plan {
   id: string; name: string; description: string; price: number;
