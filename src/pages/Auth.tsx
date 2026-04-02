@@ -57,7 +57,7 @@ const Auth = () => {
         if (data.user) {
           await supabase.from("profiles").update({ name: name.trim() } as any).eq("id", data.user.id);
         }
-        toast.success("Account তৈরি হয়েছে! Email verify করুন।");
+        toast.success("Account created! Please verify your email.");
       }
     } catch (error: any) {
       toast.error(error.message || "কিছু ভুল হয়েছে");
