@@ -1,8 +1,9 @@
-import { useState, useEffect, useMemo, useRef } from "react";
+import { useState, useEffect } from "react";
+import { format } from "date-fns";
 import {
-  Plus, Trash2, Check, Clock, Flag, ChevronDown, ChevronRight, ChevronLeft,
-  Loader2, StickyNote, Calendar, Timer, ListChecks,
-  Sun, Brain, Briefcase, Moon, Headphones, Heart, Tag, Edit2,
+  Plus, Trash2, Check,
+  Loader2, StickyNote, Calendar as CalendarIcon, Timer, ListChecks,
+  Sun, Brain, Briefcase, Moon, Headphones, Heart, Edit2,
   Bell, Home, BookOpen, Coffee, Dumbbell, Music, ShoppingCart,
   Utensils, Plane, Laptop, Gamepad2, Palette, Camera, Mic,
   GraduationCap, Stethoscope, Car, MapPin, Phone, Mail,
@@ -18,7 +19,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, Di
 import { Progress } from "@/components/ui/progress";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
-import { AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogDescription, AlertDialogFooter, AlertDialogCancel, AlertDialogAction } from "@/components/ui/alert-dialog";
+import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
@@ -78,6 +80,8 @@ const PRIORITIES = [
   { id: "low", label: "Low", color: "bg-green-500/20 text-green-400 border-green-500/30" },
 ];
 
+const formatDateKey = (date: Date) => format(date, "yyyy-MM-dd");
+
 const getTaskIcon = (title: string, iconIndex?: number) => {
   const t = title.toLowerCase();
   if (iconIndex !== undefined && iconIndex >= 0 && iconIndex < TASK_ICONS.length) return TASK_ICONS[iconIndex];
@@ -128,14 +132,13 @@ const TaskManager = () => {
 
   // Confirmation dialog
   const [confirmTask, setConfirmTask] = useState<Task | null>(null);
-  const [confirmAction, setConfirmAction] = useState<"done" | "undone">("done");
 
   // Form
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [category, setCategory] = useState("Personal");
   const [priority, setPriority] = useState("medium");
-  const [dueDate, setDueDate] = useState(new Date().toISOString().split("T")[0]);
+  const [dueDate, setDueDate] = useState(formatDateKey(new Date()));
   const [dueTime, setDueTime] = useState("09:00");
   const [dueEndTime, setDueEndTime] = useState("10:00");
   const [estimatedMinutes, setEstimatedMinutes] = useState<number | null>(60);
@@ -152,23 +155,9 @@ const TaskManager = () => {
 
   // Calendar
   const [selectedDate, setSelectedDate] = useState(new Date());
-  const [calendarMonth, setCalendarMonth] = useState(new Date());
-  const [showFullCalendar, setShowFullCalendar] = useState(false);
-
-  // Scroll ref for week strip
-  const weekStripRef = useRef<HTMLDivElement>(null);
+  const [datePickerOpen, setDatePickerOpen] = useState(false);
 
   useEffect(() => { if (user) loadTasks(); }, [user]);
-
-  // Auto-scroll to today in week strip
-  useEffect(() => {
-    if (!showFullCalendar && weekStripRef.current) {
-      const todayBtn = weekStripRef.current.querySelector('[data-today="true"]');
-      if (todayBtn) {
-        todayBtn.scrollIntoView({ inline: "center", behavior: "smooth" });
-      }
-    }
-  }, [showFullCalendar, tasks]);
 
   const loadTasks = async () => {
     if (!user) return;
@@ -183,7 +172,7 @@ const TaskManager = () => {
   const parentTasks = tasks.filter(t => !t.parent_task_id);
   const getSubtasks = (parentId: string) => tasks.filter(t => t.parent_task_id === parentId);
 
-  const selectedDateStr = selectedDate.toISOString().split("T")[0];
+  const selectedDateStr = formatDateKey(selectedDate);
 
   const tasksForDate = parentTasks.filter(t => {
     if (t.notes?.includes("[DAILY]")) return true;
@@ -211,57 +200,6 @@ const TaskManager = () => {
   const totalForDate = tasksForDate.length;
   const donePercent = totalForDate > 0 ? Math.round((doneTasks / totalForDate) * 100) : 0;
   const undonePercent = 100 - donePercent;
-
-  // Calendar helpers
-  const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
-  const dayNames = ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"];
-  const dayNamesShort = ["S", "M", "T", "W", "T", "F", "S"];
-
-  const calendarDays = useMemo(() => {
-    const year = calendarMonth.getFullYear();
-    const month = calendarMonth.getMonth();
-    const firstDay = new Date(year, month, 1).getDay();
-    const daysInMonth = new Date(year, month + 1, 0).getDate();
-    const days: (Date | null)[] = [];
-    for (let i = 0; i < firstDay; i++) days.push(null);
-    for (let i = 1; i <= daysInMonth; i++) days.push(new Date(year, month, i));
-    return days;
-  }, [calendarMonth]);
-
-  const weekDays = useMemo(() => {
-    const days: Date[] = [];
-    const start = new Date(selectedDate);
-    start.setDate(start.getDate() - 14);
-    for (let i = 0; i < 42; i++) {
-      const day = new Date(start);
-      day.setDate(start.getDate() + i);
-      days.push(day);
-    }
-    return days;
-  }, [selectedDate]);
-
-  const dayHasTasks = (date: Date) => {
-    const ds = date.toISOString().split("T")[0];
-    return parentTasks.some(t => t.due_date === ds || t.notes?.includes("[DAILY]"));
-  };
-
-  const dayTasksDone = (date: Date) => {
-    const ds = date.toISOString().split("T")[0];
-    const dayTasks = parentTasks.filter(t => {
-      if (t.notes?.includes("[DAILY]")) return true;
-      return t.due_date === ds;
-    });
-    if (dayTasks.length === 0) return false;
-    return dayTasks.every(t => {
-      if (t.notes?.includes("[DAILY]")) {
-        return t.status === "done" && t.due_date === ds;
-      }
-      return t.status === "done";
-    });
-  };
-
-  const prevMonth = () => setCalendarMonth(new Date(calendarMonth.getFullYear(), calendarMonth.getMonth() - 1, 1));
-  const nextMonth = () => setCalendarMonth(new Date(calendarMonth.getFullYear(), calendarMonth.getMonth() + 1, 1));
 
   const openAddDialog = () => {
     setEditTask(null); setTitle(""); setDescription(""); setCategory("Personal");
@@ -315,19 +253,26 @@ const TaskManager = () => {
 
   // Confirmation-based toggle
   const handleToggleClick = (task: Task) => {
-    const isDone = isTaskDoneForDate(task);
     setConfirmTask(task);
-    setConfirmAction(isDone ? "undone" : "done");
   };
 
-  const confirmToggle = async () => {
+  const handleTaskDecision = async (status: "done" | "todo") => {
     if (!confirmTask) return;
-    const newStatus = confirmAction === "done" ? "done" : "todo";
     try {
-      await supabase.from("tasks").update({ status: newStatus, updated_at: new Date().toISOString() }).eq("id", confirmTask.id);
-      setTasks(tasks.map(t => t.id === confirmTask.id ? { ...t, status: newStatus } : t));
-      toast.success(confirmAction === "done" ? "✅ Task completed!" : "Task marked as undone");
-    } catch (e) { toast.error("Failed to update"); }
+      const { error } = await supabase
+        .from("tasks")
+        .update({ status, updated_at: new Date().toISOString() })
+        .eq("id", confirmTask.id);
+      if (error) throw error;
+      setTasks((currentTasks) => currentTasks.map((task) => (
+        task.id === confirmTask.id ? { ...task, status } : task
+      )));
+      toast.success(status === "done" ? "Task marked as done." : "Task marked as not done.");
+    } catch (e) {
+      toast.error("Failed to update task status.");
+      console.error(e);
+      return;
+    }
     setConfirmTask(null);
   };
 
@@ -373,108 +318,43 @@ const TaskManager = () => {
   if (loading) return <div className="flex justify-center py-12"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>;
 
   return (
-    <div className="flex flex-col h-full overflow-hidden">
+    <div className="flex h-full min-h-0 flex-col overflow-hidden">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-bold text-foreground">
-          <span className="text-primary">To-do</span> List
-        </h2>
-        <div className="flex items-center gap-2">
-          <Button variant="outline" size="sm" onClick={() => setShowFullCalendar(!showFullCalendar)} className="gap-1">
-            <Calendar className="h-4 w-4" /> {showFullCalendar ? "Strip" : "Calendar"}
-          </Button>
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <h2 className="text-2xl font-bold text-foreground">
+            <span className="text-primary">To-do</span> List
+          </h2>
+          <p className="text-sm text-muted-foreground">{format(selectedDate, "EEEE, MMMM d, yyyy")}</p>
+        </div>
+        <div className="flex flex-wrap items-center justify-end gap-2">
+          <Popover open={datePickerOpen} onOpenChange={setDatePickerOpen}>
+            <PopoverTrigger asChild>
+              <Button variant="outline" size="sm" className="min-w-[220px] justify-start text-left font-normal">
+                <CalendarIcon className="mr-2 h-4 w-4" />
+                {format(selectedDate, "PPP")}
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-auto p-0" align="end">
+              <Calendar
+                mode="single"
+                selected={selectedDate}
+                onSelect={(date) => {
+                  if (date) {
+                    setSelectedDate(date);
+                    setDatePickerOpen(false);
+                  }
+                }}
+                initialFocus
+                className="p-3 pointer-events-auto"
+              />
+            </PopoverContent>
+          </Popover>
           <Badge variant="outline" className="text-sm px-3 py-1">
             {doneTasks}/{totalForDate} done
           </Badge>
         </div>
       </div>
-
-      {/* Full Calendar View */}
-      {showFullCalendar ? (
-        <Card>
-          <CardContent className="pt-4">
-            <div className="flex items-center justify-between mb-4">
-              <Button variant="ghost" size="icon" onClick={prevMonth}><ChevronLeft className="h-5 w-5" /></Button>
-              <h3 className="font-bold text-foreground">{monthNames[calendarMonth.getMonth()]} {calendarMonth.getFullYear()}</h3>
-              <Button variant="ghost" size="icon" onClick={nextMonth}><ChevronRight className="h-5 w-5" /></Button>
-            </div>
-            <div className="grid grid-cols-7 gap-1">
-              {dayNamesShort.map((d, i) => (
-                <div key={i} className="text-center text-xs font-medium text-muted-foreground py-1">{d}</div>
-              ))}
-              {calendarDays.map((day, i) => {
-                if (!day) return <div key={`empty-${i}`} />;
-                const isSelected = day.toDateString() === selectedDate.toDateString();
-                const isToday = day.toDateString() === new Date().toDateString();
-                const hasTasks = dayHasTasks(day);
-                const allDone = dayTasksDone(day);
-                return (
-                  <button
-                    key={i}
-                    onClick={() => { setSelectedDate(new Date(day)); }}
-                    className={`relative aspect-square flex flex-col items-center justify-center rounded-lg text-sm transition-all ${
-                      isSelected ? "bg-primary text-primary-foreground font-bold" :
-                      isToday ? "bg-primary/10 text-primary font-semibold" :
-                      "hover:bg-muted/50 text-foreground"
-                    }`}
-                  >
-                    {day.getDate()}
-                    {hasTasks && (
-                      <div className={`absolute bottom-0.5 w-1.5 h-1.5 rounded-full ${
-                        allDone ? "bg-green-400" : isSelected ? "bg-primary-foreground" : "bg-primary"
-                      }`} />
-                    )}
-                  </button>
-                );
-              })}
-            </div>
-          </CardContent>
-        </Card>
-      ) : (
-        /* Week Strip — horizontally scrollable, no page scroll */
-        <div>
-          <p className="text-sm text-muted-foreground mb-3">
-            {monthNames[selectedDate.getMonth()]} {selectedDate.getFullYear()}
-          </p>
-          <div
-            ref={weekStripRef}
-            className="flex gap-2 overflow-x-auto pb-2 -mx-4 px-4"
-            style={{ scrollbarWidth: "none", msOverflowStyle: "none", WebkitOverflowScrolling: "touch" }}
-          >
-            <style>{`.week-strip::-webkit-scrollbar { display: none; }`}</style>
-            {weekDays.map((day, i) => {
-              const isSelected = day.toDateString() === selectedDate.toDateString();
-              const isToday = day.toDateString() === new Date().toDateString();
-              const hasTasks = dayHasTasks(day);
-              const allDone = dayTasksDone(day);
-              return (
-                <button
-                  key={i}
-                  data-today={isToday ? "true" : undefined}
-                  onClick={() => setSelectedDate(new Date(day))}
-                  className={`flex flex-col items-center min-w-[52px] py-2.5 px-2 rounded-xl transition-all shrink-0 ${
-                    isSelected
-                      ? "bg-primary text-primary-foreground shadow-lg shadow-primary/25"
-                      : "hover:bg-muted/50"
-                  }`}
-                >
-                  <span className={`text-[10px] font-medium ${isSelected ? "text-primary-foreground" : "text-muted-foreground"}`}>
-                    {dayNames[day.getDay()]}
-                  </span>
-                  <span className={`text-lg font-bold mt-0.5 ${isSelected ? "text-primary-foreground" : isToday ? "text-primary" : "text-foreground"}`}>
-                    {day.getDate()}
-                  </span>
-                  {hasTasks && (
-                    <div className={`w-1.5 h-1.5 rounded-full mt-1 ${
-                      allDone ? "bg-green-400" : isSelected ? "bg-primary-foreground" : "bg-primary"
-                    }`} />
-                  )}
-                </button>
-              );
-            })}
-          </div>
-        </div>
-      )}
 
       {/* Progress Graph — Done vs Undone */}
       {totalForDate > 0 && (
@@ -518,7 +398,7 @@ const TaskManager = () => {
       )}
 
       {/* Scrollable task area */}
-      <div className="flex-1 overflow-y-auto overflow-x-hidden space-y-4 pb-20" style={{ WebkitOverflowScrolling: "touch" }}>
+      <div className="min-h-0 flex-1 overflow-hidden space-y-4 pb-20">
       {/* Category Filter Chips */}
       <div className="flex gap-2 flex-wrap pb-1">
         <button
@@ -668,27 +548,25 @@ const TaskManager = () => {
         <Plus className="h-6 w-6" />
       </button>
 
-      {/* Done/Undone Confirmation Dialog */}
-      <AlertDialog open={!!confirmTask} onOpenChange={(open) => { if (!open) setConfirmTask(null); }}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>
-              {confirmAction === "done" ? "✅ Mark as Done?" : "↩️ Mark as Undone?"}
-            </AlertDialogTitle>
-            <AlertDialogDescription>
-              {confirmAction === "done"
-                ? `"${confirmTask?.title}" — Have you completed this task?`
-                : `"${confirmTask?.title}" — Do you want to mark this task as undone?`}
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>No</AlertDialogCancel>
-            <AlertDialogAction onClick={confirmToggle}>
-              {confirmAction === "done" ? "Yes, Done ✅" : "Yes, Undone"}
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      {/* Done/Not Done Confirmation Dialog */}
+      <Dialog open={!!confirmTask} onOpenChange={(open) => { if (!open) setConfirmTask(null); }}>
+        <DialogContent className="max-w-sm">
+          <DialogHeader>
+            <DialogTitle>Task Status</DialogTitle>
+            <DialogDescription>
+              {confirmTask ? `Did you complete "${confirmTask.title}"?` : "Choose the correct status for this task."}
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="flex-col-reverse gap-2 sm:flex-row sm:justify-end">
+            <Button variant="outline" onClick={() => void handleTaskDecision("todo")}>
+              No, Not Done
+            </Button>
+            <Button onClick={() => void handleTaskDecision("done")}>
+              Yes, Done
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       {/* Task Details Dialog */}
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
@@ -784,7 +662,7 @@ const TaskManager = () => {
                 </div>
               </div>
               <div className="flex items-center gap-2 justify-center">
-                <Calendar className="h-4 w-4 text-muted-foreground" />
+                <CalendarIcon className="h-4 w-4 text-muted-foreground" />
                 <Input type="date" value={dueDate} onChange={e => setDueDate(e.target.value)} className="w-auto" />
               </div>
               <div className="flex items-center gap-3 mt-3 p-2 rounded-lg bg-muted/30">
