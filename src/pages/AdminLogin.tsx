@@ -70,7 +70,7 @@ navigate("/admin-dashboard", { replace: true });
       toast.success("Admin login successful!");
 navigate("/admin-dashboard", { replace: true });
     } catch (error: any) {
-      toast.error(error.message || "কিছু ভুল হয়েছে");
+      toast.error(error.message || "Something went wrong");
     } finally {
       setLoading(false);
     }
