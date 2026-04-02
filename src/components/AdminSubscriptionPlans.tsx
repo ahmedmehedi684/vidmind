@@ -237,7 +237,7 @@ const AdminSubscriptionPlans = () => {
           {plan.description && <p className="text-sm text-muted-foreground">{plan.description}</p>}
           <p className="text-2xl font-bold text-primary">
             {(plan.currency || "BDT") === "USD" ? "$" : "৳"}{plan.price}
-            <span className="text-sm text-muted-foreground font-normal"> / {plan.duration_days} days</span>
+            <span className="text-sm text-muted-foreground font-normal"> / {plan.duration_days === -1 ? "Unlimited" : `${plan.duration_days} days`}</span>
           </p>
           {/* Limits display */}
           {Object.keys(limits).length > 0 && (
