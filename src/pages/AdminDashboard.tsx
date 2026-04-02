@@ -776,7 +776,7 @@ const AdminDashboard = () => {
                     )}
                     {selectedNote.video_url && (
                       <a href={selectedNote.video_url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-sm text-primary hover:underline">
-                        <LinkIcon className="h-4 w-4" /> Video দেখুন
+                        <LinkIcon className="h-4 w-4" /> Watch Video
                       </a>
                     )}
                     <div className="prose prose-sm dark:prose-invert max-w-none border rounded-md p-4 bg-muted/20"
