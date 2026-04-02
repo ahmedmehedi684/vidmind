@@ -67,7 +67,7 @@ navigate("/admin-dashboard", { replace: true });
         return;
       }
 
-      toast.success("Admin login সফল!");
+      toast.success("Admin login successful!");
 navigate("/admin-dashboard", { replace: true });
     } catch (error: any) {
       toast.error(error.message || "কিছু ভুল হয়েছে");
