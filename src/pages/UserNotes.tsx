@@ -70,7 +70,7 @@ const UserNotes = () => {
     await supabase.from("admin_notes").delete().eq("id", id);
     setNotes(notes.filter(n => n.id !== id));
     setDialogOpen(false);
-    toast.success("Note মুছে ফেলা হয়েছে");
+    toast.success("Note deleted");
   };
 
   const saveEdit = async () => {
