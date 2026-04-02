@@ -14,6 +14,7 @@ import { Progress } from "@/components/ui/progress";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
+import { getPaymentLogo } from "@/lib/payment-logos";
 
 interface Plan {
   id: string; name: string; description: string; price: number;
@@ -305,9 +306,17 @@ const UserSubscription = () => {
               <Select value={paymentMethod} onValueChange={setPaymentMethod}>
                 <SelectTrigger><SelectValue placeholder="Select method" /></SelectTrigger>
                 <SelectContent>
-                  {filteredMethods.map(m => (
-                    <SelectItem key={m.id} value={m.name.toLowerCase()}>{m.icon} {m.name}</SelectItem>
-                  ))}
+                  {filteredMethods.map(m => {
+                    const logo = getPaymentLogo(m.name);
+                    return (
+                      <SelectItem key={m.id} value={m.name.toLowerCase()}>
+                        <span className="flex items-center gap-2">
+                          {logo ? <img src={logo} alt={m.name} className="h-5 w-5 object-contain rounded" /> : <span>{m.icon}</span>}
+                          {m.name}
+                        </span>
+                      </SelectItem>
+                    );
+                  })}
                 </SelectContent>
               </Select>
               {!paymentMethod && <p className="text-xs text-destructive">Please select a payment method</p>}
