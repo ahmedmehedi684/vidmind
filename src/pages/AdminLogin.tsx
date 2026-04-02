@@ -62,7 +62,7 @@ navigate("/admin-dashboard", { replace: true });
         .maybeSingle();
 
       if (!roleData) {
-        toast.error("আপনি admin নন! শুধু admin login করতে পারবেন।");
+        toast.error("You are not an admin! Only admins can login here.");
         await supabase.auth.signOut();
         return;
       }
