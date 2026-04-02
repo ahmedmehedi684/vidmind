@@ -129,6 +129,9 @@ const AdminDashboard = () => {
   // URL-based tab routing from pathname
   const TAB_MAP: Record<string, string> = {
     "/admin-dashboard": "dashboard",
+    "/admin-analytics": "analytics",
+    "/admin-user-mgmt": "user-mgmt",
+    "/admin-notifications": "notifications",
     "/admin-tasks": "tasks",
     "/admin-goals": "goals",
     "/admin-money": "money",
