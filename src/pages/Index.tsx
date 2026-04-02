@@ -206,7 +206,7 @@ const Index = () => {
                 />
                 <Button className="w-full text-base font-semibold h-12" onClick={handleFetchTranscript} disabled={isFetchingTranscript}>
                   {isFetchingTranscript ? (
-                    <span className="flex items-center gap-2"><Loader2 className="h-5 w-5 animate-spin" /> Transcript বের করছে...</span>
+                    <span className="flex items-center gap-2"><Loader2 className="h-5 w-5 animate-spin" /> Extracting transcript...</span>
                   ) : (
                     <span className="flex items-center gap-1">Get Transcript <ChevronRight className="h-5 w-5" /></span>
                   )}
