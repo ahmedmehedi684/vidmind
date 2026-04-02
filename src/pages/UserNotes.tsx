@@ -60,7 +60,7 @@ const UserNotes = () => {
     const insertData: any = { text: newNote.trim(), title: newNoteTitle.trim(), user_id: user.id, video_url: newNoteVideoUrl.trim() };
     if (newNoteChannelId !== "all") insertData.channel_id = newNoteChannelId;
     const { data, error } = await supabase.from("admin_notes").insert(insertData).select().single();
-    if (error) { toast.error("Note সেভ করতে সমস্যা হয়েছে"); return; }
+    if (error) { toast.error("Failed to save note"); return; }
     if (data) setNotes([data as unknown as Note, ...notes]);
     setNewNote(""); setNewNoteTitle(""); setNewNoteChannelId("all"); setNewNoteVideoUrl("");
     toast.success("Note যোগ হয়েছে");
