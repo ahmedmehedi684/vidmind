@@ -736,7 +736,7 @@ const AdminDashboard = () => {
 
             {/* Notes List - show only channel name + title, click to open popup */}
             {notesLoading ? <div className="flex justify-center py-12"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div> : filteredNotes.length === 0 ? (
-              <Card><CardContent className="py-12 text-center text-muted-foreground">{noteSearch || noteFilterChannel !== "all" ? "কোনো note পাওয়া যায়নি।" : "কোনো note নেই।"}</CardContent></Card>
+              <Card><CardContent className="py-12 text-center text-muted-foreground">{noteSearch || noteFilterChannel !== "all" ? "No notes found." : "No notes yet."}</CardContent></Card>
             ) : (
               <div className="space-y-2">
                 {filteredNotes.map(note => (
