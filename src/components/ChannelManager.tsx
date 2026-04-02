@@ -42,9 +42,9 @@ const ChannelManager = ({ channels, onChannelsChange, loading }: ChannelManagerP
       onChannelsChange([data as unknown as Channel, ...channels]);
       setNewName("");
       setNewUrl("");
-      toast.success("Channel যোগ হয়েছে");
+      toast.success("Channel added");
     } catch {
-      toast.error("Channel যোগ করতে সমস্যা হয়েছে");
+      toast.error("There was a problem adding the channel.ে");
     }
   };
 
@@ -52,9 +52,9 @@ const ChannelManager = ({ channels, onChannelsChange, loading }: ChannelManagerP
     try {
       await supabase.from("channels").delete().eq("id", id);
       onChannelsChange(channels.filter((c) => c.id !== id));
-      toast.success("Channel মুছে ফেলা হয়েছে");
+      toast.success("Channel deleted");
     } catch {
-      toast.error("Channel মুছতে সমস্যা হয়েছে");
+      toast.error("There was a problem deleting the channel.");
     }
   };
 
@@ -76,9 +76,9 @@ const ChannelManager = ({ channels, onChannelsChange, loading }: ChannelManagerP
         channels.map((c) => (c.id === editingId ? { ...c, name: editName.trim(), url: editUrl.trim() } : c)),
       );
       setEditingId(null);
-      toast.success("Channel আপডেট হয়েছে");
+      toast.success("Channel updated");
     } catch {
-      toast.error("Channel আপডেট করতে সমস্যা হয়েছে");
+      toast.error("There was a problem updating the channel.");
     }
   };
 
@@ -88,8 +88,12 @@ const ChannelManager = ({ channels, onChannelsChange, loading }: ChannelManagerP
         <CardContent className="pt-6 space-y-3">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div className="space-y-1.5">
-              <Label className="text-xs">Channel নাম</Label>
-              <Input placeholder="যেমন: Noman Ali Khan" value={newName} onChange={(e) => setNewName(e.target.value)} />
+              <Label className="text-xs">Channel Name</Label>
+              <Input
+                placeholder="Example: Noman Ali Khan"
+                value={newName}
+                onChange={(e) => setNewName(e.target.value)}
+              />
             </div>
             <div className="space-y-1.5">
               <Label className="text-xs">YouTube Link</Label>
@@ -101,14 +105,14 @@ const ChannelManager = ({ channels, onChannelsChange, loading }: ChannelManagerP
             </div>
           </div>
           <Button onClick={addChannel} disabled={!newName.trim()} className="gap-2">
-            <Plus className="h-4 w-4" /> Channel যোগ করুন
+            <Plus className="h-4 w-4" /> Add Channel
           </Button>
         </CardContent>
       </Card>
 
       {channels.length === 0 ? (
         <Card>
-          <CardContent className="py-8 text-center text-muted-foreground">কোনো channel নেই।</CardContent>
+          <CardContent className="py-8 text-center text-muted-foreground">No channel।</CardContent>
         </Card>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -120,7 +124,7 @@ const ChannelManager = ({ channels, onChannelsChange, loading }: ChannelManagerP
                     <Input
                       value={editName}
                       onChange={(e) => setEditName(e.target.value)}
-                      placeholder="Channel নাম"
+                      placeholder="Channel Name"
                       className="text-sm"
                     />
                     <Input
