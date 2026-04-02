@@ -1002,7 +1002,7 @@ const AdminDashboard = () => {
         return (
           <div className="space-y-6 max-w-2xl mx-auto">
             <Card>
-              <CardHeader><CardTitle className="text-lg text-primary">AI Provider ও Model</CardTitle></CardHeader>
+              <CardHeader><CardTitle className="text-lg text-primary">AI Provider & Model</CardTitle></CardHeader>
               <CardContent className="space-y-5">
                 <div className="space-y-2"><Label>Provider নির্বাচন করুন</Label><Select value={settings.provider} onValueChange={handleProviderChange}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent>{PROVIDERS.map(p => <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>)}</SelectContent></Select></div>
                 <div className="space-y-2"><Label>Model নির্বাচন করুন</Label><Select value={settings.model} onValueChange={(v) => setSettingsState(prev => ({ ...prev, model: v }))}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent>{currentProvider.models.map(m => <SelectItem key={m.id} value={m.id}>{m.name}</SelectItem>)}</SelectContent></Select></div>
