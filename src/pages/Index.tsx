@@ -266,7 +266,7 @@ const Index = () => {
       {result && (
         <div className="space-y-5 animate-in fade-in-0 slide-in-from-bottom-4 duration-500">
           <Card>
-            <CardHeader><CardTitle className="text-xl text-primary">মূল বিষয়</CardTitle></CardHeader>
+            <CardHeader><CardTitle className="text-xl text-primary">Main Story</CardTitle></CardHeader>
             <CardContent><p className="text-secondary-foreground leading-relaxed">{result.mainStory}</p></CardContent>
           </Card>
           <Card>
