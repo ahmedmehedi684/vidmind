@@ -244,7 +244,7 @@ const Index = () => {
                   {isLoading ? (
                     <span className="flex items-center gap-2"><Loader2 className="h-5 w-5 animate-spin" /> AI is analyzing...</span>
                   ) : (
-                    <span className="flex items-center gap-1">Summarize করো <ChevronRight className="h-5 w-5" /></span>
+                    <span className="flex items-center gap-1">Summarize <ChevronRight className="h-5 w-5" /></span>
                   )}
                 </Button>
               </>
