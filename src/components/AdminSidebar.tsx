@@ -37,6 +37,8 @@ const navItems = [
   { title: "Notes", path: "/admin-notes", icon: StickyNote },
   { title: "Showcase", path: "/admin-showcase", icon: LayoutGrid },
   { title: "Payments", path: "/admin-payments", icon: CreditCard },
+  { title: "Plans", path: "/admin-subscription-plans", icon: CreditCard },
+  { title: "Pay Methods", path: "/admin-payment-methods", icon: CreditCard },
   { title: "Support", path: "/admin-support", icon: HeadphonesIcon },
   { title: "Profile", path: "/admin-profile", icon: User },
   { title: "Settings", path: "/admin-settings", icon: Settings },
