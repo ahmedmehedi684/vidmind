@@ -465,7 +465,7 @@ const AdminDashboard = () => {
         const id = await addToHistory({ inputType: "transcript", inputValue, mainStory: summary.mainStory, bulletPoints: summary.bulletPoints || [], howToApply: summary.howToApply || [] }, user.id);
         setHistoryId(id);
       }
-    } catch (e) { setError(e instanceof Error ? e.message : "কিছু একটা ভুল হয়েছে"); }
+    } catch (e) { setError(e instanceof Error ? e.message : "Something went wrong"); }
     finally { setIsLoading(false); }
   };
 
