@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { Loader2, Mail, Lock, Eye, EyeOff, LogIn } from "lucide-react";
+import { Loader2, Mail, Lock, Eye, EyeOff, LogIn, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -16,6 +16,7 @@ const Auth = () => {
   const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [name, setName] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
 
@@ -30,6 +31,10 @@ const Auth = () => {
       toast.error("Email ও Password দিন");
       return;
     }
+    if (!isLogin && !name.trim()) {
+      toast.error("আপনার নাম দিন");
+      return;
+    }
 
     setLoading(true);
     try {
@@ -39,12 +44,19 @@ const Auth = () => {
         toast.success("Login সফল!");
         navigate(getRedirectPath());
       } else {
-        const { error } = await supabase.auth.signUp({
+        const { data, error } = await supabase.auth.signUp({
           email,
           password,
-          options: { emailRedirectTo: window.location.origin },
+          options: {
+            emailRedirectTo: window.location.origin,
+            data: { full_name: name.trim() },
+          },
         });
         if (error) throw error;
+        // Update profile name
+        if (data.user) {
+          await supabase.from("profiles").update({ name: name.trim() } as any).eq("id", data.user.id);
+        }
         toast.success("Account তৈরি হয়েছে! Email verify করুন।");
       }
     } catch (error: any) {
@@ -57,7 +69,7 @@ const Auth = () => {
   const handleGoogleLogin = async () => {
     const { error } = await supabase.auth.signInWithOAuth({
       provider: "google",
-      options: { redirectTo: window.location.origin + "/app" },
+      options: { redirectTo: window.location.origin + getRedirectPath() },
     });
     if (error) toast.error(error.message);
   };
@@ -110,6 +122,24 @@ const Auth = () => {
 
             {/* Email form */}
             <form onSubmit={handleEmailAuth} className="space-y-4">
+              {!isLogin && (
+                <div className="space-y-2">
+                  <Label htmlFor="name" style={{ fontFamily: "'DM Sans', sans-serif" }}>Name</Label>
+                  <div className="relative">
+                    <User className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                    <Input
+                      id="name"
+                      type="text"
+                      placeholder="আপনার নাম"
+                      value={name}
+                      onChange={(e) => setName(e.target.value)}
+                      className="pl-10"
+                      disabled={loading}
+                    />
+                  </div>
+                </div>
+              )}
+
               <div className="space-y-2">
                 <Label htmlFor="email" style={{ fontFamily: "'DM Sans', sans-serif" }}>Email</Label>
                 <div className="relative">
