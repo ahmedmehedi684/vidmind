@@ -196,7 +196,7 @@ const Auth = () => {
                 onClick={() => setIsLogin(!isLogin)}
                 className="text-primary hover:underline font-medium"
               >
-                {isLogin ? "Sign Up করুন" : "Login করুন"}
+                {isLogin ? "Sign Up" : "Login"}
               </button>
             </p>
           </CardContent>
