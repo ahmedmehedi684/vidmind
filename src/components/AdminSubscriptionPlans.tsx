@@ -128,11 +128,15 @@ const AdminSubscriptionPlans = () => {
                   ))}
                 </ul>
                 <div className="flex gap-2 pt-2">
-                  <Button variant="outline" size="sm" className="gap-1 flex-1" onClick={() => openEdit(plan)}>
-                    <Edit2 className="h-3 w-3" /> Edit
+                  <Button variant={plan.is_active ? "outline" : "default"} size="sm" className="gap-1 flex-1" onClick={() => toggleActive(plan)}>
+                    {plan.is_active ? <ToggleRight className="h-3 w-3" /> : <ToggleLeft className="h-3 w-3" />}
+                    {plan.is_active ? "Deactivate" : "Activate"}
                   </Button>
-                  <Button variant="destructive" size="sm" className="gap-1 flex-1" onClick={() => deletePlan(plan.id)}>
-                    <Trash2 className="h-3 w-3" /> Delete
+                  <Button variant="outline" size="sm" className="gap-1" onClick={() => openEdit(plan)}>
+                    <Edit2 className="h-3 w-3" />
+                  </Button>
+                  <Button variant="destructive" size="sm" className="gap-1" onClick={() => deletePlan(plan.id)}>
+                    <Trash2 className="h-3 w-3" />
                   </Button>
                 </div>
               </CardContent>
