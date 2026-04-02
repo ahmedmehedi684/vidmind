@@ -205,7 +205,10 @@ const AdminSubscriptionPlans = () => {
                 {(Object.keys(pLimits) as (keyof PlanLimits)[]).map(key => (
                   <div key={key} className="space-y-1">
                     <Label className="text-xs capitalize">{key}</Label>
-                    <Input type="number" value={pLimits[key]} onChange={e => updateLimit(key, e.target.value)} className="h-8 text-sm" />
+                    <div className="flex gap-1">
+                      <Input type="number" value={pLimits[key] === -1 ? "" : pLimits[key]} onChange={e => updateLimit(key, e.target.value)} className="h-8 text-sm" disabled={pLimits[key] === -1} placeholder={pLimits[key] === -1 ? "∞" : ""} />
+                      <Button type="button" variant={pLimits[key] === -1 ? "default" : "outline"} size="sm" className="shrink-0 text-xs h-8 px-2" onClick={() => toggleUnlimitedLimit(key)}>∞</Button>
+                    </div>
                   </div>
                 ))}
               </div>
