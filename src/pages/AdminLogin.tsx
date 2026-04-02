@@ -146,7 +146,7 @@ navigate("/admin-dashboard", { replace: true });
 
               <Button type="submit" className="w-full h-11 gap-2" disabled={loading} style={{ fontFamily: "'DM Sans', sans-serif" }}>
                 {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <LogIn className="h-4 w-4" />}
-                Admin Login করুন
+                Admin Login
               </Button>
             </form>
           </CardContent>

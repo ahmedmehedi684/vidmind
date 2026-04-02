@@ -708,7 +708,7 @@ const AdminDashboard = () => {
               <Select value={noteFilterChannel} onValueChange={setNoteFilterChannel}>
                 <SelectTrigger className="w-full sm:w-[200px]"><SelectValue placeholder="Channel filter" /></SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">সব Channels</SelectItem>
+                  <SelectItem value="all">All Channels</SelectItem>
                   {channels.map(ch => <SelectItem key={ch.id} value={ch.id}>{ch.name}</SelectItem>)}
                 </SelectContent>
               </Select>
