@@ -988,11 +988,11 @@ const AdminDashboard = () => {
               </CardContent>
             </Card>
             <Card>
-              <CardHeader><CardTitle className="text-lg text-primary flex items-center gap-2"><Lock className="h-4 w-4" /> Password পরিবর্তন</CardTitle></CardHeader>
+              <CardHeader><CardTitle className="text-lg text-primary flex items-center gap-2"><Lock className="h-4 w-4" /> Change Password</CardTitle></CardHeader>
               <CardContent className="space-y-3">
-                <div className="space-y-2"><Label>নতুন Password</Label><Input type="password" placeholder="নতুন password..." value={newPassword} onChange={(e) => setNewPassword(e.target.value)} /></div>
-                <div className="space-y-2"><Label>Password নিশ্চিত করুন</Label><Input type="password" placeholder="আবার password লিখুন..." value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} /></div>
-                <Button onClick={handleChangePassword} disabled={changingPassword} className="gap-2">{changingPassword ? <Loader2 className="h-4 w-4 animate-spin" /> : <Lock className="h-4 w-4" />} Password পরিবর্তন করুন</Button>
+                <div className="space-y-2"><Label>New Password</Label><Input type="password" placeholder="New password..." value={newPassword} onChange={(e) => setNewPassword(e.target.value)} /></div>
+                <div className="space-y-2"><Label>Confirm Password</Label><Input type="password" placeholder="Confirm password..." value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} /></div>
+                <Button onClick={handleChangePassword} disabled={changingPassword} className="gap-2">{changingPassword ? <Loader2 className="h-4 w-4 animate-spin" /> : <Lock className="h-4 w-4" />} Change Password</Button>
               </CardContent>
             </Card>
           </div>
