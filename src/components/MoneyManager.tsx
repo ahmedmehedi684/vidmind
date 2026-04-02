@@ -45,7 +45,7 @@ const MoneyManager = () => {
   const [loanPersonName, setLoanPersonName] = useState("");
 
   const [filterType, setFilterType] = useState("all");
-  const [filterPeriod, setFilterPeriod] = useState("month");
+  const [filterPeriod, setFilterPeriod] = useState("lifetime");
   const [selectedCalDate, setSelectedCalDate] = useState<string | null>(null);
   const [calendarMonth, setCalendarMonth] = useState(new Date());
   const [showCalendar, setShowCalendar] = useState(false);
