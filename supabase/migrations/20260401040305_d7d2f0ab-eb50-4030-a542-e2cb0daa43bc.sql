@@ -1,0 +1,1 @@
+ALTER TABLE public.transactions ADD COLUMN IF NOT EXISTS loan_person_name text DEFAULT '';
