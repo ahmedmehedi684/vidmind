@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Plus, Trash2, ExternalLink, Youtube, Pencil, Check, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -42,9 +42,9 @@ const ChannelManager = ({ channels, onChannelsChange, loading }: ChannelManagerP
       onChannelsChange([data as unknown as Channel, ...channels]);
       setNewName("");
       setNewUrl("");
-      toast.success("Channel যোগ হয়েছে");
+      toast.success("Channel added");
     } catch {
-      toast.error("Channel যোগ করতে সমস্যা হয়েছে");
+      toast.error("Failed to add channel");
     }
   };
 
@@ -52,9 +52,9 @@ const ChannelManager = ({ channels, onChannelsChange, loading }: ChannelManagerP
     try {
       await supabase.from("channels").delete().eq("id", id);
       onChannelsChange(channels.filter(c => c.id !== id));
-      toast.success("Channel মুছে ফেলা হয়েছে");
+      toast.success("Channel deleted");
     } catch {
-      toast.error("Channel মুছতে সমস্যা হয়েছে");
+      toast.error("Failed to delete channel");
     }
   };
 
@@ -74,9 +74,9 @@ const ChannelManager = ({ channels, onChannelsChange, loading }: ChannelManagerP
       if (error) throw error;
       onChannelsChange(channels.map(c => c.id === editingId ? { ...c, name: editName.trim(), url: editUrl.trim() } : c));
       setEditingId(null);
-      toast.success("Channel আপডেট হয়েছে");
+      toast.success("Channel updated");
     } catch {
-      toast.error("Channel আপডেট করতে সমস্যা হয়েছে");
+      toast.error("Failed to update channel");
     }
   };
 
@@ -86,8 +86,8 @@ const ChannelManager = ({ channels, onChannelsChange, loading }: ChannelManagerP
         <CardContent className="pt-6 space-y-3">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div className="space-y-1.5">
-              <Label className="text-xs">Channel নাম</Label>
-              <Input placeholder="যেমন: Ali Abdaal" value={newName} onChange={(e) => setNewName(e.target.value)} />
+              <Label className="text-xs">Channel Name</Label>
+              <Input placeholder="e.g. Ali Abdaal" value={newName} onChange={(e) => setNewName(e.target.value)} />
             </div>
             <div className="space-y-1.5">
               <Label className="text-xs">YouTube Link</Label>
@@ -95,13 +95,13 @@ const ChannelManager = ({ channels, onChannelsChange, loading }: ChannelManagerP
             </div>
           </div>
           <Button onClick={addChannel} disabled={!newName.trim()} className="gap-2">
-            <Plus className="h-4 w-4" /> Channel যোগ করুন
+            <Plus className="h-4 w-4" /> Add Channel
           </Button>
         </CardContent>
       </Card>
 
       {channels.length === 0 ? (
-        <Card><CardContent className="py-8 text-center text-muted-foreground">কোনো channel নেই।</CardContent></Card>
+        <Card><CardContent className="py-8 text-center text-muted-foreground">No channels yet.</CardContent></Card>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           {channels.map((ch) => (
@@ -109,7 +109,7 @@ const ChannelManager = ({ channels, onChannelsChange, loading }: ChannelManagerP
               <CardContent className="py-3 px-4">
                 {editingId === ch.id ? (
                   <div className="space-y-2">
-                    <Input value={editName} onChange={(e) => setEditName(e.target.value)} placeholder="Channel নাম" className="text-sm" />
+                    <Input value={editName} onChange={(e) => setEditName(e.target.value)} placeholder="Channel name" className="text-sm" />
                     <Input value={editUrl} onChange={(e) => setEditUrl(e.target.value)} placeholder="YouTube Link" className="text-sm" />
                     <div className="flex gap-2">
                       <Button size="sm" onClick={saveEdit} disabled={!editName.trim()} className="gap-1 h-7 text-xs">

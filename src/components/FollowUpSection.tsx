@@ -25,10 +25,10 @@ interface FollowUpSectionProps {
 }
 
 const PRESET_COMMANDS = [
-  { label: "আরো বিস্তারিত বলো", icon: BookOpen, command: "এই ভিডিওর মূল বিষয়টি আরো বিস্তারিতভাবে ব্যাখ্যা করো" },
-  { label: "সহজ ভাষায় বলো", icon: Languages, command: "পুরো summary টা খুব সহজ ভাষায় বুঝিয়ে বলো যাতে একজন beginner ও বুঝতে পারে" },
-  { label: "Quiz বানাও", icon: HelpCircle, command: "এই ভিডিওর content থেকে ৫টি multiple choice quiz question বানাও উত্তরসহ" },
-  { label: "Action Plan দাও", icon: ListChecks, command: "এই ভিডিও থেকে শেখা জিনিসগুলো implement করার জন্য একটি step-by-step action plan দাও" },
+  { label: "Explain More", icon: BookOpen, command: "Explain the main topic of this video in more detail" },
+  { label: "Simplify", icon: Languages, command: "Explain the entire summary in very simple language so a beginner can understand" },
+  { label: "Make Quiz", icon: HelpCircle, command: "Create 5 multiple choice quiz questions from this video content with answers" },
+  { label: "Action Plan", icon: ListChecks, command: "Give me a step-by-step action plan to implement what I learned from this video" },
 ];
 
 const FollowUpSection = ({ transcript, summary, initialConversation, onConversationUpdate }: FollowUpSectionProps) => {
@@ -39,7 +39,6 @@ const FollowUpSection = ({ transcript, summary, initialConversation, onConversat
   const [isLoadingRecs, setIsLoadingRecs] = useState(!initialConversation?.length);
   const hasFetchedRecs = useRef(!!initialConversation?.length);
 
-  // Auto-fetch content-specific recommendations on mount
   useEffect(() => {
     if (hasFetchedRecs.current) return;
     hasFetchedRecs.current = true;
@@ -52,7 +51,7 @@ const FollowUpSection = ({ transcript, summary, initialConversation, onConversat
             transcript,
             summary,
             conversationHistory: [],
-            userMessage: `এই ভিডিওর content analyze করে আমাকে ৪-৫টি specific recommendation দাও যে আমি এই content নিয়ে কী কী করতে পারি। প্রতিটি recommendation এক লাইনে দাও, শুধু recommendation গুলো দাও, অন্য কিছু বলো না। প্রতিটি লাইন "•" দিয়ে শুরু করো।`,
+            userMessage: `Analyze this video content and give me 4-5 specific recommendations on what I can do with this content. Give each recommendation in one line, only provide the recommendations, nothing else. Start each line with "•".`,
             provider: aiSettings.provider,
             model: aiSettings.model,
             apiKey: aiSettings.apiKey,
@@ -112,7 +111,7 @@ const FollowUpSection = ({ transcript, summary, initialConversation, onConversat
     } catch {
       const errorMsg: ConversationMessage = {
         role: "assistant",
-        content: "দুঃখিত, AI এখন ব্যস্ত আছে। অনুগ্রহ করে ১০-১৫ সেকেন্ড পর আবার চেষ্টা করুন।",
+        content: "Sorry, the AI is currently busy. Please try again in 10-15 seconds.",
       };
       setConversation([...updatedConversation, errorMsg]);
     } finally {
@@ -125,25 +124,24 @@ const FollowUpSection = ({ transcript, summary, initialConversation, onConversat
       <CardHeader>
         <CardTitle className="text-xl text-primary flex items-center gap-2">
           <MessageSquare className="h-5 w-5" />
-          আরো জানতে চান?
+          Want to know more?
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
-        {/* AI-generated recommendations */}
         {conversation.length === 0 && (
           <div className="space-y-3">
             {isLoadingRecs ? (
               <div className="flex items-center gap-2 text-sm text-muted-foreground p-3 bg-secondary rounded-lg">
                 <Loader2 className="h-4 w-4 animate-spin" />
                 <span style={{ fontFamily: "'DM Sans', sans-serif" }}>
-                  আপনার content অনুযায়ী recommendation তৈরি করছে...
+                  Generating recommendations based on your content...
                 </span>
               </div>
             ) : recommendations.length > 0 ? (
               <div className="space-y-2">
                 <p className="text-xs font-semibold text-muted-foreground flex items-center gap-1" style={{ fontFamily: "'DM Sans', sans-serif" }}>
                   <Sparkles className="h-3 w-3" />
-                  আপনার content অনুযায়ী AI Recommendations
+                  AI Recommendations based on your content
                 </p>
                 <div className="grid gap-2">
                   {recommendations.map((rec, i) => (
@@ -163,7 +161,6 @@ const FollowUpSection = ({ transcript, summary, initialConversation, onConversat
               </div>
             ) : null}
 
-            {/* Generic preset buttons */}
             <div className="grid grid-cols-2 gap-2">
               {PRESET_COMMANDS.map((preset, i) => (
                 <Button
@@ -182,7 +179,6 @@ const FollowUpSection = ({ transcript, summary, initialConversation, onConversat
           </div>
         )}
 
-        {/* Conversation history */}
         {conversation.length > 0 && (
           <div className="space-y-3 max-h-[400px] overflow-y-auto pr-1">
             {conversation.map((msg, i) => (
@@ -196,7 +192,7 @@ const FollowUpSection = ({ transcript, summary, initialConversation, onConversat
                 style={{ fontFamily: "'DM Sans', sans-serif" }}
               >
                 <p className="text-xs font-semibold mb-1 text-muted-foreground">
-                  {msg.role === "user" ? "আপনি" : "AI"}
+                  {msg.role === "user" ? "You" : "AI"}
                 </p>
                 <p className="whitespace-pre-wrap leading-relaxed">{msg.content}</p>
               </div>
@@ -204,13 +200,12 @@ const FollowUpSection = ({ transcript, summary, initialConversation, onConversat
             {isLoading && (
               <div className="bg-secondary rounded-lg p-3 mr-4 flex items-center gap-2 text-sm text-muted-foreground">
                 <Loader2 className="h-4 w-4 animate-spin" />
-                চিন্তা করছে...
+                Thinking...
               </div>
             )}
           </div>
         )}
 
-        {/* Preset buttons after conversation */}
         {conversation.length > 0 && !isLoading && (
           <div className="flex flex-wrap gap-2">
             {PRESET_COMMANDS.map((preset, i) => (
@@ -230,10 +225,9 @@ const FollowUpSection = ({ transcript, summary, initialConversation, onConversat
           </div>
         )}
 
-        {/* Custom input */}
         <div className="flex gap-2">
           <Input
-            placeholder="নিজের command লিখুন..."
+            placeholder="Type your question..."
             value={customCommand}
             onChange={(e) => setCustomCommand(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && sendFollowUp(customCommand)}
