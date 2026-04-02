@@ -38,6 +38,7 @@ import AdminUserManagement from "@/components/AdminUserManagement";
 import AdminNotifications from "@/components/AdminNotifications";
 import AdminPaymentMethods from "@/components/AdminPaymentMethods";
 import AdminSubscriptionPlans from "@/components/AdminSubscriptionPlans";
+import AdminTeamManagement from "@/components/AdminTeamManagement";
 
 interface SummaryRow {
   id: string; user_id: string; input_type: string; input_value: string;
@@ -150,6 +151,7 @@ const AdminDashboard = () => {
     "/admin-subscription-plans": "subscription-plans",
     "/admin-payment-methods": "payment-methods",
     "/admin-support": "support",
+    "/admin-team": "team",
   };
   const activeTab = TAB_MAP[location.pathname] || "dashboard";
   const setActiveTab = (tab: string) => {
@@ -1024,6 +1026,7 @@ const AdminDashboard = () => {
       case "analytics": return <AdminAnalytics />;
       case "user-mgmt": return <AdminUserManagement />;
       case "notifications": return <AdminNotifications />;
+      case "team": return <AdminTeamManagement />;
       default: return null;
     }
   };

@@ -386,7 +386,7 @@ const LandingPage = () => {
                   <li key={f} className="flex items-center gap-2 text-sm" style={{ color: "#8892a4" }}><Check className="h-4 w-4 shrink-0" style={{ color: "#00ff87" }} />{f}</li>
                 ))}
               </ul>
-              <Link to="/auth"><Button variant="outline" className="w-full border-[#1e2535] text-[#f0f4ff] bg-transparent hover:bg-[#1e2535]">Get Started Free</Button></Link>
+              <Link to={user ? "/app-subscription" : "/auth?redirect=subscription"}><Button variant="outline" className="w-full border-[#1e2535] text-[#f0f4ff] bg-transparent hover:bg-[#1e2535]">Get Started Free</Button></Link>
             </div>
             {/* Pro */}
             <div className="rounded-xl p-6 space-y-5 relative" style={{ background: "#111827", border: "2px solid #00ff87" }}>
@@ -401,7 +401,7 @@ const LandingPage = () => {
                   <li key={f} className="flex items-center gap-2 text-sm" style={{ color: "#8892a4" }}><Check className="h-4 w-4 shrink-0" style={{ color: "#00ff87" }} />{f}</li>
                 ))}
               </ul>
-              <Link to="/auth"><Button className="w-full font-semibold text-[#0a0d14]" style={{ background: "#00ff87" }}>Start Pro <ChevronRight className="h-4 w-4 ml-1" /></Button></Link>
+              <Link to={user ? "/app-subscription" : "/auth?redirect=subscription"}><Button className="w-full font-semibold text-[#0a0d14]" style={{ background: "#00ff87" }}>Start Pro <ChevronRight className="h-4 w-4 ml-1" /></Button></Link>
             </div>
           </div>
         </div>

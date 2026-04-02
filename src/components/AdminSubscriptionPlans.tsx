@@ -8,14 +8,23 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
+interface PlanLimits {
+  tasks: number; transactions: number; summaries: number;
+  channels: number; goals: number; notes: number;
+}
+
 interface Plan {
   id: string; name: string; description: string; price: number;
-  duration_days: number; features: string[]; is_active: boolean; sort_order: number;
+  duration_days: number; features: string[]; is_active: boolean;
+  sort_order: number; currency: string; limits: PlanLimits;
 }
+
+const DEFAULT_LIMITS: PlanLimits = { tasks: 5, transactions: 10, summaries: 5, channels: 1, goals: 2, notes: 5 };
 
 const AdminSubscriptionPlans = () => {
   const [plans, setPlans] = useState<Plan[]>([]);
@@ -28,6 +37,8 @@ const AdminSubscriptionPlans = () => {
   const [pDays, setPDays] = useState("30");
   const [pFeatures, setPFeatures] = useState("");
   const [pOrder, setPOrder] = useState("0");
+  const [pCurrency, setPCurrency] = useState("BDT");
+  const [pLimits, setPLimits] = useState<PlanLimits>(DEFAULT_LIMITS);
 
   useEffect(() => { loadPlans(); }, []);
 
@@ -41,13 +52,22 @@ const AdminSubscriptionPlans = () => {
   };
 
   const openAdd = () => {
-    setEditPlan(null); setPName(""); setPDesc(""); setPPrice(""); setPDays("30"); setPFeatures(""); setPOrder("0"); setDialogOpen(true);
+    setEditPlan(null); setPName(""); setPDesc(""); setPPrice(""); setPDays("30");
+    setPFeatures(""); setPOrder("0"); setPCurrency("BDT"); setPLimits(DEFAULT_LIMITS);
+    setDialogOpen(true);
   };
 
   const openEdit = (plan: Plan) => {
     setEditPlan(plan); setPName(plan.name); setPDesc(plan.description); setPPrice(plan.price.toString());
-    setPDays(plan.duration_days.toString()); setPFeatures((plan.features as string[]).join("\n")); setPOrder(plan.sort_order.toString());
+    setPDays(plan.duration_days.toString()); setPFeatures((plan.features as string[]).join("\n"));
+    setPOrder(plan.sort_order.toString()); setPCurrency(plan.currency || "BDT");
+    setPLimits(plan.limits && Object.keys(plan.limits).length > 0 ? plan.limits : DEFAULT_LIMITS);
     setDialogOpen(true);
+  };
+
+  const updateLimit = (key: keyof PlanLimits, value: string) => {
+    const num = value === "" ? 0 : parseInt(value);
+    setPLimits({ ...pLimits, [key]: isNaN(num) ? 0 : num });
   };
 
   const save = async () => {
@@ -55,7 +75,8 @@ const AdminSubscriptionPlans = () => {
     const features = pFeatures.split("\n").map(f => f.trim()).filter(Boolean);
     const planData: any = {
       name: pName.trim(), description: pDesc.trim(), price: parseFloat(pPrice) || 0,
-      duration_days: parseInt(pDays) || 30, features, sort_order: parseInt(pOrder) || 0, is_active: true,
+      duration_days: parseInt(pDays) || 30, features, sort_order: parseInt(pOrder) || 0,
+      is_active: true, currency: pCurrency, limits: pLimits,
     };
     try {
       if (editPlan) {
@@ -92,6 +113,9 @@ const AdminSubscriptionPlans = () => {
 
   if (loading) return <div className="flex justify-center py-12"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>;
 
+  const bdtPlans = plans.filter(p => (p.currency || "BDT") === "BDT");
+  const usdPlans = plans.filter(p => (p.currency || "BDT") === "USD");
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -102,67 +126,75 @@ const AdminSubscriptionPlans = () => {
       </div>
 
       <p className="text-sm text-muted-foreground">
-        এখানে আপনার subscription plans তৈরি ও manage করুন। User দের subscription page এ এগুলো দেখাবে।
+        Plans manage করুন। Currency অনুযায়ী আলাদা plans দেখাবে। Limits set করে feature access control করুন। -1 মানে unlimited।
       </p>
 
-      {plans.length === 0 ? (
-        <Card><CardContent className="py-12 text-center text-muted-foreground">No plans yet. Create your first plan!</CardContent></Card>
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {plans.map(plan => (
-            <Card key={plan.id} className="hover:border-primary/30 transition-colors">
-              <CardContent className="pt-5 space-y-3">
-                <div className="flex items-center justify-between">
-                  <h4 className="font-bold text-foreground text-lg">{plan.name}</h4>
-                  <Badge variant={plan.is_active ? "default" : "secondary"}>{plan.is_active ? "Active" : "Inactive"}</Badge>
-                </div>
-                {plan.description && <p className="text-sm text-muted-foreground">{plan.description}</p>}
-                <p className="text-2xl font-bold text-primary">
-                  ৳{plan.price} <span className="text-sm text-muted-foreground font-normal">/ {plan.duration_days} days</span>
-                </p>
-                <ul className="space-y-1.5">
-                  {(plan.features as string[]).map((f, i) => (
-                    <li key={i} className="flex items-start gap-2 text-sm text-muted-foreground">
-                      <Check className="h-4 w-4 text-primary shrink-0 mt-0.5" />{f}
-                    </li>
-                  ))}
-                </ul>
-                <div className="flex gap-2 pt-2">
-                  <Button variant={plan.is_active ? "outline" : "default"} size="sm" className="gap-1 flex-1" onClick={() => toggleActive(plan)}>
-                    {plan.is_active ? <ToggleRight className="h-3 w-3" /> : <ToggleLeft className="h-3 w-3" />}
-                    {plan.is_active ? "Deactivate" : "Activate"}
-                  </Button>
-                  <Button variant="outline" size="sm" className="gap-1" onClick={() => openEdit(plan)}>
-                    <Edit2 className="h-3 w-3" />
-                  </Button>
-                  <Button variant="destructive" size="sm" className="gap-1" onClick={() => deletePlan(plan.id)}>
-                    <Trash2 className="h-3 w-3" />
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-      )}
+      {/* BDT Plans */}
+      <div>
+        <h3 className="text-lg font-semibold text-foreground mb-3">🇧🇩 BDT Plans</h3>
+        {bdtPlans.length === 0 ? (
+          <Card><CardContent className="py-8 text-center text-muted-foreground">No BDT plans yet.</CardContent></Card>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {bdtPlans.map(plan => renderPlanCard(plan))}
+          </div>
+        )}
+      </div>
+
+      {/* USD Plans */}
+      <div>
+        <h3 className="text-lg font-semibold text-foreground mb-3">🇺🇸 USD Plans</h3>
+        {usdPlans.length === 0 ? (
+          <Card><CardContent className="py-8 text-center text-muted-foreground">No USD plans yet.</CardContent></Card>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {usdPlans.map(plan => renderPlanCard(plan))}
+          </div>
+        )}
+      </div>
 
       {/* Dialog */}
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent>
+        <DialogContent className="max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>{editPlan ? "Edit Plan" : "Create Plan"}</DialogTitle>
             <DialogDescription className="sr-only">Plan form</DialogDescription>
           </DialogHeader>
           <div className="space-y-3">
-            <div className="space-y-1.5"><Label>Plan Name *</Label><Input value={pName} onChange={e => setPName(e.target.value)} placeholder="e.g. Pro Plan" /></div>
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-1.5"><Label>Plan Name *</Label><Input value={pName} onChange={e => setPName(e.target.value)} placeholder="e.g. Pro Plan" /></div>
+              <div className="space-y-1.5">
+                <Label>Currency *</Label>
+                <Select value={pCurrency} onValueChange={setPCurrency}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="BDT">🇧🇩 BDT (৳)</SelectItem>
+                    <SelectItem value="USD">🇺🇸 USD ($)</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
             <div className="space-y-1.5"><Label>Description</Label><Input value={pDesc} onChange={e => setPDesc(e.target.value)} placeholder="Short description" /></div>
             <div className="grid grid-cols-3 gap-3">
-              <div className="space-y-1.5"><Label>Price (৳)</Label><Input type="number" value={pPrice} onChange={e => setPPrice(e.target.value)} /></div>
+              <div className="space-y-1.5"><Label>Price ({pCurrency === "BDT" ? "৳" : "$"})</Label><Input type="number" value={pPrice} onChange={e => setPPrice(e.target.value)} /></div>
               <div className="space-y-1.5"><Label>Duration (days)</Label><Input type="number" value={pDays} onChange={e => setPDays(e.target.value)} /></div>
               <div className="space-y-1.5"><Label>Sort Order</Label><Input type="number" value={pOrder} onChange={e => setPOrder(e.target.value)} /></div>
             </div>
             <div className="space-y-1.5">
               <Label>Features (one per line)</Label>
-              <Textarea value={pFeatures} onChange={e => setPFeatures(e.target.value)} placeholder="Unlimited summaries&#10;Priority support&#10;..." rows={5} />
+              <Textarea value={pFeatures} onChange={e => setPFeatures(e.target.value)} placeholder="Unlimited summaries&#10;Priority support&#10;..." rows={4} />
+            </div>
+            {/* Feature Limits */}
+            <div className="space-y-2">
+              <Label className="text-sm font-semibold">Feature Limits (-1 = unlimited)</Label>
+              <div className="grid grid-cols-3 gap-2">
+                {(Object.keys(pLimits) as (keyof PlanLimits)[]).map(key => (
+                  <div key={key} className="space-y-1">
+                    <Label className="text-xs capitalize">{key}</Label>
+                    <Input type="number" value={pLimits[key]} onChange={e => updateLimit(key, e.target.value)} className="h-8 text-sm" />
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
           <DialogFooter>
@@ -172,6 +204,57 @@ const AdminSubscriptionPlans = () => {
       </Dialog>
     </div>
   );
+
+  function renderPlanCard(plan: Plan) {
+    const limits = plan.limits || {};
+    return (
+      <Card key={plan.id} className="hover:border-primary/30 transition-colors">
+        <CardContent className="pt-5 space-y-3">
+          <div className="flex items-center justify-between">
+            <h4 className="font-bold text-foreground text-lg">{plan.name}</h4>
+            <div className="flex items-center gap-1">
+              <Badge variant="outline" className="text-xs">{plan.currency || "BDT"}</Badge>
+              <Badge variant={plan.is_active ? "default" : "secondary"}>{plan.is_active ? "Active" : "Inactive"}</Badge>
+            </div>
+          </div>
+          {plan.description && <p className="text-sm text-muted-foreground">{plan.description}</p>}
+          <p className="text-2xl font-bold text-primary">
+            {(plan.currency || "BDT") === "USD" ? "$" : "৳"}{plan.price}
+            <span className="text-sm text-muted-foreground font-normal"> / {plan.duration_days} days</span>
+          </p>
+          {/* Limits display */}
+          {Object.keys(limits).length > 0 && (
+            <div className="flex flex-wrap gap-1">
+              {Object.entries(limits).map(([k, v]) => (
+                <Badge key={k} variant="outline" className="text-xs capitalize">
+                  {k}: {(v as number) === -1 ? "∞" : String(v)}
+                </Badge>
+              ))}
+            </div>
+          )}
+          <ul className="space-y-1.5">
+            {(plan.features as string[]).map((f, i) => (
+              <li key={i} className="flex items-start gap-2 text-sm text-muted-foreground">
+                <Check className="h-4 w-4 text-primary shrink-0 mt-0.5" />{f}
+              </li>
+            ))}
+          </ul>
+          <div className="flex gap-2 pt-2">
+            <Button variant={plan.is_active ? "outline" : "default"} size="sm" className="gap-1 flex-1" onClick={() => toggleActive(plan)}>
+              {plan.is_active ? <ToggleRight className="h-3 w-3" /> : <ToggleLeft className="h-3 w-3" />}
+              {plan.is_active ? "Deactivate" : "Activate"}
+            </Button>
+            <Button variant="outline" size="sm" className="gap-1" onClick={() => openEdit(plan)}>
+              <Edit2 className="h-3 w-3" />
+            </Button>
+            <Button variant="destructive" size="sm" className="gap-1" onClick={() => deletePlan(plan.id)}>
+              <Trash2 className="h-3 w-3" />
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
 };
 
 export default AdminSubscriptionPlans;
