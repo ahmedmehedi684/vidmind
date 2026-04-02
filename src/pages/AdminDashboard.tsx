@@ -506,9 +506,9 @@ const AdminDashboard = () => {
     try {
       const { error } = await supabase.auth.updateUser({ password: newPassword });
       if (error) throw error;
-      toast.success("Password পরিবর্তন হয়েছে!");
+      toast.success("Password changed!");
       setNewPassword(""); setConfirmPassword("");
-    } catch (e: any) { toast.error(e.message || "Password পরিবর্তন করতে সমস্যা হয়েছে"); }
+    } catch (e: any) { toast.error(e.message || "Failed to change password"); }
     finally { setChangingPassword(false); }
   };
 
