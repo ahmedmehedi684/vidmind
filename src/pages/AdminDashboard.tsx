@@ -762,7 +762,7 @@ const AdminDashboard = () => {
               <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto">
                 <DialogHeader>
                   <DialogTitle className="text-xl">
-                    {isEditingInDialog ? "Note Edit করুন" : (selectedNote?.title || "Untitled")}
+                    {isEditingInDialog ? "Edit Note" : (selectedNote?.title || "Untitled")}
                   </DialogTitle>
                   <DialogDescription className="sr-only">Note details and editing</DialogDescription>
                 </DialogHeader>
