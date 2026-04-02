@@ -478,7 +478,7 @@ const AdminDashboard = () => {
     setSettingsState(prev => ({ ...prev, provider: providerId as AIProvider, model: provider.models[0].id, apiKey: savedKeys[providerId] || "" }));
   };
   const handleSaveSettings = async () => {
-    if (!settings.apiKey.trim()) { toast.error("API Key দিতে হবে"); return; }
+    if (!settings.apiKey.trim()) { toast.error("API Key is required"); return; }
     const savedKeys = JSON.parse(localStorage.getItem("provider_api_keys") || "{}");
     savedKeys[settings.provider] = settings.apiKey;
     localStorage.setItem("provider_api_keys", JSON.stringify(savedKeys));
