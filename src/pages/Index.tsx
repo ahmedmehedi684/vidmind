@@ -256,7 +256,7 @@ const Index = () => {
       {done && (
         <div className="flex justify-center gap-3">
           <Button variant="outline" onClick={handleReset} className="gap-2">
-            <RefreshCw className="h-4 w-4" /> নতুন Summary করুন
+            <RefreshCw className="h-4 w-4" /> New Summary
           </Button>
         </div>
       )}
