@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import {
-  CreditCard, Loader2, Search, Clock,
-  CheckCircle2, X
+  CreditCard, Loader2, Search, CheckCircle2, X, Pencil, Trash2
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -14,6 +13,10 @@ import {
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter
 } from "@/components/ui/dialog";
+import {
+  AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogTitle,
+  AlertDialogDescription, AlertDialogFooter, AlertDialogCancel, AlertDialogAction
+} from "@/components/ui/alert-dialog";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
@@ -50,6 +53,18 @@ const AdminPayments = () => {
   const [actionType, setActionType] = useState<"confirmed" | "rejected">("confirmed");
   const [adminNote, setAdminNote] = useState("");
   const [noteDialogOpen, setNoteDialogOpen] = useState(false);
+
+  // Edit dialog
+  const [editOrder, setEditOrder] = useState<PaymentOrder | null>(null);
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const [editAmount, setEditAmount] = useState("");
+  const [editMethod, setEditMethod] = useState("");
+  const [editTxId, setEditTxId] = useState("");
+  const [editPayNum, setEditPayNum] = useState("");
+  const [editNote, setEditNote] = useState("");
+
+  // Delete confirm
+  const [deleteOrder, setDeleteOrder] = useState<PaymentOrder | null>(null);
 
   useEffect(() => { loadData(); }, []);
 
@@ -102,16 +117,45 @@ const AdminPayments = () => {
     } catch (e) { toast.error("Failed to update order"); }
   };
 
-  const getPlanName = (planId: string) => {
-    const plan = plans.find(p => p.id === planId);
-    return plan ? plan.name : "Unknown";
+  const openEditDialog = (order: PaymentOrder) => {
+    setEditOrder(order);
+    setEditAmount(String(order.amount));
+    setEditMethod(order.payment_method);
+    setEditTxId(order.transaction_id || "");
+    setEditPayNum(order.payment_number || "");
+    setEditNote(order.admin_note || "");
+    setEditDialogOpen(true);
   };
 
-  const getPlanCurrency = (planId: string) => {
-    const plan = plans.find(p => p.id === planId);
-    return plan?.currency || "BDT";
+  const saveEdit = async () => {
+    if (!editOrder) return;
+    try {
+      await supabase.from("payment_orders").update({
+        amount: Number(editAmount),
+        payment_method: editMethod,
+        transaction_id: editTxId,
+        payment_number: editPayNum,
+        admin_note: editNote.trim(),
+        updated_at: new Date().toISOString(),
+      } as any).eq("id", editOrder.id);
+      setEditDialogOpen(false);
+      toast.success("Order updated!");
+      loadData();
+    } catch (e) { toast.error("Failed to update"); }
   };
 
+  const confirmDelete = async () => {
+    if (!deleteOrder) return;
+    try {
+      await supabase.from("payment_orders").delete().eq("id", deleteOrder.id);
+      setDeleteOrder(null);
+      toast.success("Order deleted!");
+      loadData();
+    } catch (e) { toast.error("Failed to delete"); }
+  };
+
+  const getPlanName = (planId: string) => plans.find(p => p.id === planId)?.name || "Unknown";
+  const getPlanCurrency = (planId: string) => plans.find(p => p.id === planId)?.currency || "BDT";
   const getSubExpiry = (subId: string) => {
     const sub = subscriptions.find(s => s.id === subId);
     return sub?.expires_at ? new Date(sub.expires_at).toLocaleDateString() : "N/A";
@@ -197,18 +241,24 @@ const AdminPayments = () => {
                     </Badge>
                   </TableCell>
                   <TableCell>
-                    {o.status === "pending" ? (
-                      <div className="flex gap-1">
-                        <Button size="sm" variant="default" className="h-7 px-2 text-xs gap-1" onClick={() => startAction(o, "confirmed")}>
-                          <CheckCircle2 className="h-3 w-3" /> Confirm
-                        </Button>
-                        <Button size="sm" variant="destructive" className="h-7 px-2 text-xs gap-1" onClick={() => startAction(o, "rejected")}>
-                          <X className="h-3 w-3" /> Reject
-                        </Button>
-                      </div>
-                    ) : (
-                      <span className="text-xs text-muted-foreground">—</span>
-                    )}
+                    <div className="flex gap-1">
+                      {o.status === "pending" && (
+                        <>
+                          <Button size="sm" variant="default" className="h-7 px-2 text-xs gap-1" onClick={() => startAction(o, "confirmed")}>
+                            <CheckCircle2 className="h-3 w-3" /> Confirm
+                          </Button>
+                          <Button size="sm" variant="destructive" className="h-7 px-2 text-xs gap-1" onClick={() => startAction(o, "rejected")}>
+                            <X className="h-3 w-3" /> Reject
+                          </Button>
+                        </>
+                      )}
+                      <Button size="sm" variant="outline" className="h-7 px-2 text-xs" onClick={() => openEditDialog(o)}>
+                        <Pencil className="h-3 w-3" />
+                      </Button>
+                      <Button size="sm" variant="outline" className="h-7 px-2 text-xs text-destructive" onClick={() => setDeleteOrder(o)}>
+                        <Trash2 className="h-3 w-3" />
+                      </Button>
+                    </div>
                   </TableCell>
                 </TableRow>
               );
@@ -236,6 +286,56 @@ const AdminPayments = () => {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Edit dialog */}
+      <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
+        <DialogContent className="max-w-sm">
+          <DialogHeader>
+            <DialogTitle>Edit Order</DialogTitle>
+            <DialogDescription>Update payment order details.</DialogDescription>
+          </DialogHeader>
+          <div className="space-y-3">
+            <div className="space-y-1">
+              <Label>Amount</Label>
+              <Input type="number" value={editAmount} onChange={e => setEditAmount(e.target.value)} />
+            </div>
+            <div className="space-y-1">
+              <Label>Payment Method</Label>
+              <Input value={editMethod} onChange={e => setEditMethod(e.target.value)} />
+            </div>
+            <div className="space-y-1">
+              <Label>Transaction ID</Label>
+              <Input value={editTxId} onChange={e => setEditTxId(e.target.value)} />
+            </div>
+            <div className="space-y-1">
+              <Label>Payment Number</Label>
+              <Input value={editPayNum} onChange={e => setEditPayNum(e.target.value)} />
+            </div>
+            <div className="space-y-1">
+              <Label>Admin Note</Label>
+              <Textarea value={editNote} onChange={e => setEditNote(e.target.value)} rows={2} />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setEditDialogOpen(false)}>Cancel</Button>
+            <Button onClick={saveEdit}>Save</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete confirmation */}
+      <AlertDialog open={!!deleteOrder} onOpenChange={(open) => { if (!open) setDeleteOrder(null); }}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Order?</AlertDialogTitle>
+            <AlertDialogDescription>This will permanently delete this payment order. This action cannot be undone.</AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmDelete} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">Delete</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
