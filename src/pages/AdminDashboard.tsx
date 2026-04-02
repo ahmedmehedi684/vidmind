@@ -981,9 +981,9 @@ const AdminDashboard = () => {
               <CardContent><Input value={user?.email || ""} disabled className="bg-muted" /><p className="text-xs text-muted-foreground mt-1">Email cannot be changed.</p></CardContent>
             </Card>
             <Card>
-              <CardHeader><CardTitle className="text-lg text-primary flex items-center gap-2"><User className="h-4 w-4" /> নাম</CardTitle></CardHeader>
+              <CardHeader><CardTitle className="text-lg text-primary flex items-center gap-2"><User className="h-4 w-4" /> Name</CardTitle></CardHeader>
               <CardContent className="space-y-3">
-                <div className="space-y-2"><Label>আপনার নাম</Label><Input placeholder="আপনার নাম লিখুন..." value={profileName} onChange={(e) => setProfileName(e.target.value)} /></div>
+                <div className="space-y-2"><Label>Your Name</Label><Input placeholder="Enter your name..." value={profileName} onChange={(e) => setProfileName(e.target.value)} /></div>
                 <Button onClick={handleSaveProfile} disabled={profileSaving} className="gap-2">{profileSaving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />} Save Profile</Button>
               </CardContent>
             </Card>
