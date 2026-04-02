@@ -11,11 +11,18 @@ import { supabase } from "@/integrations/supabase/client";
 
 const Auth = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const redirectTo = searchParams.get("redirect");
   const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+
+  const getRedirectPath = () => {
+    if (redirectTo === "subscription") return "/app-subscription";
+    return "/app";
+  };
 
   const handleEmailAuth = async (e: React.FormEvent) => {
     e.preventDefault();
