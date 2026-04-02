@@ -1,7 +1,8 @@
 import {
   FileText, Users, MessageSquare, Clock, Youtube,
   StickyNote, Settings, Shield, LogOut, User, LayoutGrid, Home,
-  ListChecks, Target, DollarSign, CreditCard, HeadphonesIcon
+  ListChecks, Target, DollarSign, CreditCard, HeadphonesIcon,
+  BarChart3, UserCog, Bell
 } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 import ThemeToggle from "@/components/ThemeToggle";
@@ -22,6 +23,9 @@ import { Button } from "@/components/ui/button";
 
 const navItems = [
   { title: "Dashboard", path: "/admin-dashboard", icon: Home },
+  { title: "Analytics", path: "/admin-analytics", icon: BarChart3 },
+  { title: "User Mgmt", path: "/admin-user-mgmt", icon: UserCog },
+  { title: "Notifications", path: "/admin-notifications", icon: Bell },
   { title: "Tasks", path: "/admin-tasks", icon: ListChecks },
   { title: "Goals", path: "/admin-goals", icon: Target },
   { title: "Money", path: "/admin-money", icon: DollarSign },

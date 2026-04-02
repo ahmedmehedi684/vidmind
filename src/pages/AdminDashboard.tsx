@@ -33,6 +33,9 @@ import GoalTracker from "@/components/GoalTracker";
 import MoneyManager from "@/components/MoneyManager";
 import AdminPayments from "@/components/AdminPayments";
 import AdminSupport from "@/components/AdminSupport";
+import AdminAnalytics from "@/components/AdminAnalytics";
+import AdminUserManagement from "@/components/AdminUserManagement";
+import AdminNotifications from "@/components/AdminNotifications";
 
 interface SummaryRow {
   id: string; user_id: string; input_type: string; input_value: string;
@@ -126,6 +129,9 @@ const AdminDashboard = () => {
   // URL-based tab routing from pathname
   const TAB_MAP: Record<string, string> = {
     "/admin-dashboard": "dashboard",
+    "/admin-analytics": "analytics",
+    "/admin-user-mgmt": "user-mgmt",
+    "/admin-notifications": "notifications",
     "/admin-tasks": "tasks",
     "/admin-goals": "goals",
     "/admin-money": "money",
@@ -1009,6 +1015,9 @@ const AdminDashboard = () => {
       case "money": return <MoneyManager />;
       case "payments": return <AdminPayments />;
       case "support": return <AdminSupport />;
+      case "analytics": return <AdminAnalytics />;
+      case "user-mgmt": return <AdminUserManagement />;
+      case "notifications": return <AdminNotifications />;
       default: return null;
     }
   };
