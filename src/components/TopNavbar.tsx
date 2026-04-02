@@ -71,6 +71,7 @@ export default function TopNavbar() {
             )}
           </div>
         </div>
+      </div>
       <div className="md:hidden flex items-center gap-1 px-4 pb-2 overflow-x-auto">
         {navLinks.map((link) => (
           <Link key={link.path} to={link.path}
