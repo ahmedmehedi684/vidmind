@@ -253,7 +253,7 @@ const Dashboard = () => {
         {recentSummaries.length === 0 ? (
           <Card>
             <CardContent className="py-8 text-center text-muted-foreground" style={{ fontFamily: "'DM Sans', sans-serif" }}>
-              এখনো কোনো summary করা হয়নি। Summarizer ব্যবহার করুন!
+              No summaries yet. Try the Summarizer!
             </CardContent>
           </Card>
         ) : (
