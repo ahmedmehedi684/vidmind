@@ -677,8 +677,8 @@ const TaskManager = () => {
             </AlertDialogTitle>
             <AlertDialogDescription>
               {confirmAction === "done"
-                ? `"${confirmTask?.title}" — আপনি কি নিশ্চিত এই কাজটি সম্পন্ন করেছেন?`
-                : `"${confirmTask?.title}" — আপনি কি এই কাজটি undone করতে চান?`}
+                ? `"${confirmTask?.title}" — Have you completed this task?`
+                : `"${confirmTask?.title}" — Do you want to mark this task as undone?`}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

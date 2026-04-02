@@ -36,7 +36,7 @@ const AdminLogin = () => {
     if (data) {
 navigate("/admin-dashboard", { replace: true });
     } else {
-      toast.error("আপনি admin নন!");
+      toast.error("You are not an admin!");
       await supabase.auth.signOut();
     }
   };
@@ -44,7 +44,7 @@ navigate("/admin-dashboard", { replace: true });
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email.trim() || !password.trim()) {
-      toast.error("Email ও Password দিন");
+      toast.error("Please enter email and password");
       return;
     }
 
@@ -62,15 +62,15 @@ navigate("/admin-dashboard", { replace: true });
         .maybeSingle();
 
       if (!roleData) {
-        toast.error("আপনি admin নন! শুধু admin login করতে পারবেন।");
+        toast.error("You are not an admin! Only admins can login here.");
         await supabase.auth.signOut();
         return;
       }
 
-      toast.success("Admin login সফল!");
+      toast.success("Admin login successful!");
 navigate("/admin-dashboard", { replace: true });
     } catch (error: any) {
-      toast.error(error.message || "কিছু ভুল হয়েছে");
+      toast.error(error.message || "Something went wrong");
     } finally {
       setLoading(false);
     }
@@ -93,7 +93,7 @@ navigate("/admin-dashboard", { replace: true });
             Admin <span className="text-primary">Panel</span>
           </h1>
           <p className="mt-2 text-muted-foreground text-sm" style={{ fontFamily: "'DM Sans', sans-serif" }}>
-            শুধুমাত্র admin-দের জন্য
+            Admin access only
           </p>
         </div>
 
@@ -146,7 +146,7 @@ navigate("/admin-dashboard", { replace: true });
 
               <Button type="submit" className="w-full h-11 gap-2" disabled={loading} style={{ fontFamily: "'DM Sans', sans-serif" }}>
                 {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <LogIn className="h-4 w-4" />}
-                Admin Login করুন
+                Admin Login
               </Button>
             </form>
           </CardContent>

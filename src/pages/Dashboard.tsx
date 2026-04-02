@@ -144,7 +144,7 @@ const Dashboard = () => {
             Welcome back, <span className="text-primary">{displayName}</span>!
           </h1>
           <p className="text-muted-foreground text-sm mt-1" style={{ fontFamily: "'DM Sans', sans-serif" }}>
-            আপনার learning journey চালিয়ে যান
+            Continue your learning journey
           </p>
         </div>
       </div>
@@ -253,7 +253,7 @@ const Dashboard = () => {
         {recentSummaries.length === 0 ? (
           <Card>
             <CardContent className="py-8 text-center text-muted-foreground" style={{ fontFamily: "'DM Sans', sans-serif" }}>
-              এখনো কোনো summary করা হয়নি। Summarizer ব্যবহার করুন!
+              No summaries yet. Try the Summarizer!
             </CardContent>
           </Card>
         ) : (

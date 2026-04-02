@@ -33,22 +33,22 @@ const Profile = () => {
     try {
       const { error } = await supabase.from("profiles").update({ name: name.trim() } as any).eq("id", user.id);
       if (error) throw error;
-      toast.success("প্রোফাইল আপডেট হয়েছে!");
-    } catch (e) { toast.error("প্রোফাইল আপডেট করতে সমস্যা হয়েছে"); }
+      toast.success("Profile updated!");
+    } catch (e) { toast.error("Failed to update profile"); }
     finally { setSaving(false); }
   };
 
   const handleChangePassword = async () => {
-    if (!newPassword.trim()) { toast.error("নতুন password দিন"); return; }
-    if (newPassword.length < 6) { toast.error("Password কমপক্ষে ৬ অক্ষর হতে হবে"); return; }
-    if (newPassword !== confirmPassword) { toast.error("Password মিলছে না"); return; }
+    if (!newPassword.trim()) { toast.error("Please enter new password"); return; }
+    if (newPassword.length < 6) { toast.error("Password must be at least 6 characters"); return; }
+    if (newPassword !== confirmPassword) { toast.error("Passwords do not match"); return; }
     setChangingPassword(true);
     try {
       const { error } = await supabase.auth.updateUser({ password: newPassword });
       if (error) throw error;
-      toast.success("Password পরিবর্তন হয়েছে!");
+      toast.success("Password changed successfully!");
       setNewPassword(""); setConfirmPassword("");
-    } catch (e: any) { toast.error(e.message || "Password পরিবর্তন করতে সমস্যা হয়েছে"); }
+    } catch (e: any) { toast.error(e.message || "Failed to change password"); }
     finally { setChangingPassword(false); }
   };
 
@@ -64,16 +64,16 @@ const Profile = () => {
         <CardHeader><CardTitle className="text-lg text-primary flex items-center gap-2"><Mail className="h-4 w-4" /> Email</CardTitle></CardHeader>
         <CardContent>
           <Input value={user?.email || ""} disabled className="bg-muted" />
-          <p className="text-xs text-muted-foreground mt-1">Email পরিবর্তন করা যায় না।</p>
+          <p className="text-xs text-muted-foreground mt-1">Email cannot be changed.</p>
         </CardContent>
       </Card>
 
       <Card>
-        <CardHeader><CardTitle className="text-lg text-primary flex items-center gap-2"><User className="h-4 w-4" /> নাম</CardTitle></CardHeader>
+        <CardHeader><CardTitle className="text-lg text-primary flex items-center gap-2"><User className="h-4 w-4" /> Name</CardTitle></CardHeader>
         <CardContent className="space-y-3">
           <div className="space-y-2">
-            <Label>আপনার নাম</Label>
-            <Input placeholder="আপনার নাম লিখুন..." value={name} onChange={(e) => setName(e.target.value)} />
+            <Label>Your Name</Label>
+            <Input placeholder="Enter your name..." value={name} onChange={(e) => setName(e.target.value)} />
           </div>
           <Button onClick={handleSaveProfile} disabled={saving} className="gap-2">
             {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />} Save Profile
@@ -82,18 +82,18 @@ const Profile = () => {
       </Card>
 
       <Card>
-        <CardHeader><CardTitle className="text-lg text-primary flex items-center gap-2"><Lock className="h-4 w-4" /> Password পরিবর্তন</CardTitle></CardHeader>
+        <CardHeader><CardTitle className="text-lg text-primary flex items-center gap-2"><Lock className="h-4 w-4" /> Change Password</CardTitle></CardHeader>
         <CardContent className="space-y-3">
           <div className="space-y-2">
-            <Label>নতুন Password</Label>
-            <Input type="password" placeholder="নতুন password..." value={newPassword} onChange={(e) => setNewPassword(e.target.value)} />
+            <Label>New Password</Label>
+            <Input type="password" placeholder="New password..." value={newPassword} onChange={(e) => setNewPassword(e.target.value)} />
           </div>
           <div className="space-y-2">
-            <Label>Password নিশ্চিত করুন</Label>
-            <Input type="password" placeholder="আবার password লিখুন..." value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} />
+            <Label>Confirm Password</Label>
+            <Input type="password" placeholder="Confirm password..." value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} />
           </div>
           <Button onClick={handleChangePassword} disabled={changingPassword} className="gap-2">
-            {changingPassword ? <Loader2 className="h-4 w-4 animate-spin" /> : <Lock className="h-4 w-4" />} Password পরিবর্তন করুন
+            {changingPassword ? <Loader2 className="h-4 w-4 animate-spin" /> : <Lock className="h-4 w-4" />} Change Password
           </Button>
         </CardContent>
       </Card>

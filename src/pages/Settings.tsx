@@ -27,13 +27,13 @@ const Settings = () => {
   };
 
   const handleSave = async () => {
-    if (!settings.apiKey.trim()) { toast.error("API Key দিতে হবে"); return; }
+    if (!settings.apiKey.trim()) { toast.error("API Key is required"); return; }
     const savedKeys = JSON.parse(localStorage.getItem("provider_api_keys") || "{}");
     savedKeys[settings.provider] = settings.apiKey;
     localStorage.setItem("provider_api_keys", JSON.stringify(savedKeys));
     saveSettings(settings);
     if (user) await saveSettingsToDb(settings, user.id);
-    toast.success("Settings সেভ হয়েছে!");
+    toast.success("Settings saved!");
     if (isSetup) navigate("/", { replace: true });
   };
 
@@ -47,23 +47,23 @@ const Settings = () => {
         <Alert className="border-primary/50 bg-primary/5">
           <KeyRound className="h-4 w-4 text-primary" />
           <AlertDescription className="text-foreground">
-            <strong>স্বাগতম! 🎉</strong> শুরু করতে একটি AI Provider select করুন এবং আপনার API Key দিন।
+            <strong>Welcome! 🎉</strong> Select an AI Provider and enter your API Key to get started.
           </AlertDescription>
         </Alert>
       )}
 
       <Card>
-        <CardHeader><CardTitle className="text-lg text-primary">AI Provider ও Model</CardTitle></CardHeader>
+        <CardHeader><CardTitle className="text-lg text-primary">AI Provider & Model</CardTitle></CardHeader>
         <CardContent className="space-y-5">
           <div className="space-y-2">
-            <Label>Provider নির্বাচন করুন</Label>
+            <Label>Select Provider</Label>
             <Select value={settings.provider} onValueChange={handleProviderChange}>
               <SelectTrigger><SelectValue /></SelectTrigger>
               <SelectContent>{PROVIDERS.map(p => <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>)}</SelectContent>
             </Select>
           </div>
           <div className="space-y-2">
-            <Label>Model নির্বাচন করুন</Label>
+            <Label>Select Model</Label>
             <Select value={settings.model} onValueChange={(v) => setSettings(prev => ({ ...prev, model: v }))}>
               <SelectTrigger><SelectValue /></SelectTrigger>
               <SelectContent>{currentProvider.models.map(m => <SelectItem key={m.id} value={m.id}>{m.name}</SelectItem>)}</SelectContent>
@@ -72,7 +72,7 @@ const Settings = () => {
           <div className="space-y-2">
             <div className="flex items-center justify-between">
               <Label>{currentProvider.name} API Key</Label>
-              <a href={currentProvider.apiKeyUrl} target="_blank" rel="noopener noreferrer" className="text-xs text-primary hover:underline flex items-center gap-1">Key নিন <ExternalLink className="h-3 w-3" /></a>
+              <a href={currentProvider.apiKeyUrl} target="_blank" rel="noopener noreferrer" className="text-xs text-primary hover:underline flex items-center gap-1">Get Key <ExternalLink className="h-3 w-3" /></a>
             </div>
             <div className="flex gap-2">
               <Input type={showKey ? "text" : "password"} placeholder={currentProvider.apiKeyPlaceholder} value={settings.apiKey} onChange={(e) => setSettings(prev => ({ ...prev, apiKey: e.target.value }))} className="flex-1 font-mono text-sm" />
@@ -81,7 +81,7 @@ const Settings = () => {
               </Button>
             </div>
           </div>
-          <Button onClick={handleSave} className="w-full gap-2"><Check className="h-4 w-4" /> {isSetup ? "Save করে শুরু করুন" : "Save Settings"}</Button>
+          <Button onClick={handleSave} className="w-full gap-2"><Check className="h-4 w-4" /> {isSetup ? "Save & Get Started" : "Save Settings"}</Button>
         </CardContent>
       </Card>
     </div>

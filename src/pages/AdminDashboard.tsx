@@ -356,8 +356,8 @@ const AdminDashboard = () => {
       if (error) throw error;
       if (data) setNotes([data as unknown as AdminNote, ...notes]);
       setNewNote(""); setNewNoteTitle(""); setNewNoteChannelId("all"); setNewNoteVideoUrl("");
-      toast.success("Note যোগ হয়েছে");
-    } catch (e) { toast.error("Note সেভ করতে সমস্যা হয়েছে"); }
+      toast.success("Note added");
+    } catch (e) { toast.error("Failed to save note"); }
   };
 
   const deleteNote = async (id: string) => {
@@ -365,8 +365,8 @@ const AdminDashboard = () => {
       await supabase.from("admin_notes").delete().eq("id", id);
       setNotes(notes.filter(n => n.id !== id));
       setNoteDialogOpen(false); setSelectedNote(null);
-      toast.success("Note মুছে ফেলা হয়েছে");
-    } catch (e) { toast.error("Note মুছতে সমস্যা হয়েছে"); }
+      toast.success("Note deleted");
+    } catch (e) { toast.error("Failed to delete note"); }
   };
 
   const openNoteDialog = (note: AdminNote) => {
@@ -399,8 +399,8 @@ const AdminDashboard = () => {
       setNotes(notes.map(n => n.id === selectedNote.id ? updated : n));
       setSelectedNote(updated);
       setIsEditingInDialog(false);
-      toast.success("Note আপডেট হয়েছে");
-    } catch (e) { toast.error("Note আপডেট করতে সমস্যা হয়েছে"); }
+      toast.success("Note updated");
+    } catch (e) { toast.error("Failed to update note"); }
   };
 
   const getChannelName = (channelId: string | null) => {
@@ -450,7 +450,7 @@ const AdminDashboard = () => {
 
   const handleSubmit = async () => {
     setError(""); setResult(null); setDone(false);
-    if (!inputValue.trim()) { setError("Transcript paste করুন"); return; }
+    if (!inputValue.trim()) { setError("Please paste a transcript"); return; }
     setIsLoading(true);
     try {
       const aiSettings = getSettings();
@@ -465,7 +465,7 @@ const AdminDashboard = () => {
         const id = await addToHistory({ inputType: "transcript", inputValue, mainStory: summary.mainStory, bulletPoints: summary.bulletPoints || [], howToApply: summary.howToApply || [] }, user.id);
         setHistoryId(id);
       }
-    } catch (e) { setError(e instanceof Error ? e.message : "কিছু একটা ভুল হয়েছে"); }
+    } catch (e) { setError(e instanceof Error ? e.message : "Something went wrong"); }
     finally { setIsLoading(false); }
   };
 
@@ -478,13 +478,13 @@ const AdminDashboard = () => {
     setSettingsState(prev => ({ ...prev, provider: providerId as AIProvider, model: provider.models[0].id, apiKey: savedKeys[providerId] || "" }));
   };
   const handleSaveSettings = async () => {
-    if (!settings.apiKey.trim()) { toast.error("API Key দিতে হবে"); return; }
+    if (!settings.apiKey.trim()) { toast.error("API Key is required"); return; }
     const savedKeys = JSON.parse(localStorage.getItem("provider_api_keys") || "{}");
     savedKeys[settings.provider] = settings.apiKey;
     localStorage.setItem("provider_api_keys", JSON.stringify(savedKeys));
     saveSettings(settings);
     if (user) await saveSettingsToDb(settings, user.id);
-    toast.success("Settings সেভ হয়েছে!");
+    toast.success("Settings saved!");
   };
 
   const handleSaveProfile = async () => {
@@ -493,22 +493,22 @@ const AdminDashboard = () => {
     try {
       const { error } = await supabase.from("profiles").update({ name: profileName.trim() } as any).eq("id", user.id);
       if (error) throw error;
-      toast.success("প্রোফাইল আপডেট হয়েছে!");
-    } catch (e) { toast.error("প্রোফাইল আপডেট করতে সমস্যা হয়েছে"); }
+      toast.success("Profile updated!");
+    } catch (e) { toast.error("Failed to update profile"); }
     finally { setProfileSaving(false); }
   };
 
   const handleChangePassword = async () => {
-    if (!newPassword.trim()) { toast.error("নতুন password দিন"); return; }
-    if (newPassword.length < 6) { toast.error("Password কমপক্ষে ৬ অক্ষর হতে হবে"); return; }
-    if (newPassword !== confirmPassword) { toast.error("Password মিলছে না"); return; }
+    if (!newPassword.trim()) { toast.error("Please enter new password"); return; }
+    if (newPassword.length < 6) { toast.error("Password must be at least 6 characters"); return; }
+    if (newPassword !== confirmPassword) { toast.error("Passwords do not match"); return; }
     setChangingPassword(true);
     try {
       const { error } = await supabase.auth.updateUser({ password: newPassword });
       if (error) throw error;
-      toast.success("Password পরিবর্তন হয়েছে!");
+      toast.success("Password changed!");
       setNewPassword(""); setConfirmPassword("");
-    } catch (e: any) { toast.error(e.message || "Password পরিবর্তন করতে সমস্যা হয়েছে"); }
+    } catch (e: any) { toast.error(e.message || "Failed to change password"); }
     finally { setChangingPassword(false); }
   };
 
@@ -572,22 +572,22 @@ const AdminDashboard = () => {
             {!done && (
               <Card>
                 <CardContent className="pt-6 space-y-5">
-                  <p className="text-center text-sm text-muted-foreground">YouTube ভিডিওর transcript paste করুন।</p>
-                  <Textarea placeholder="Transcript paste করুন..." value={inputValue} onChange={(e) => setInputValue(e.target.value)} rows={6} />
+                  <p className="text-center text-sm text-muted-foreground">Paste the YouTube video transcript to summarize.</p>
+                  <Textarea placeholder="Paste transcript here..." value={inputValue} onChange={(e) => setInputValue(e.target.value)} rows={6} />
                   <Button className="w-full text-base font-semibold h-12" onClick={handleSubmit} disabled={isLoading}>
-                    {isLoading ? <span className="flex items-center gap-2"><Loader2 className="h-5 w-5 animate-spin" /> AI বিশ্লেষণ করছে...</span>
-                      : <span className="flex items-center gap-1">Summarize করো <ChevronRight className="h-5 w-5" /></span>}
+                    {isLoading ? <span className="flex items-center gap-2"><Loader2 className="h-5 w-5 animate-spin" /> AI is analyzing...</span>
+                      : <span className="flex items-center gap-1">Summarize <ChevronRight className="h-5 w-5" /></span>}
                   </Button>
                 </CardContent>
               </Card>
             )}
-            {done && <div className="flex justify-center gap-3"><Button variant="outline" onClick={handleReset} className="gap-2"><RefreshCw className="h-4 w-4" /> নতুন Summary করুন</Button></div>}
+            {done && <div className="flex justify-center gap-3"><Button variant="outline" onClick={handleReset} className="gap-2"><RefreshCw className="h-4 w-4" /> New Summary</Button></div>}
             {error && <Alert variant="destructive"><AlertDescription>{error}</AlertDescription></Alert>}
             {result && (
               <div className="space-y-5 animate-in fade-in-0 slide-in-from-bottom-4 duration-500">
-                <Card><CardHeader><CardTitle className="text-xl text-primary">মূল বিষয়</CardTitle></CardHeader><CardContent><p className="text-secondary-foreground leading-relaxed">{result.mainStory}</p></CardContent></Card>
+                <Card><CardHeader><CardTitle className="text-xl text-primary">Main Story</CardTitle></CardHeader><CardContent><p className="text-secondary-foreground leading-relaxed">{result.mainStory}</p></CardContent></Card>
                 <Card><CardHeader><CardTitle className="text-xl text-primary">Key Points</CardTitle></CardHeader><CardContent><ul className="space-y-2">{(result.bulletPoints || []).map((p, i) => <li key={i} className="flex items-start gap-2 text-secondary-foreground"><span className="mt-1.5 h-2 w-2 rounded-full bg-primary shrink-0" />{p}</li>)}</ul></CardContent></Card>
-                <Card><CardHeader><CardTitle className="text-xl text-primary">কী শিখলাম / কী করবো?</CardTitle></CardHeader><CardContent className="space-y-4">{(result.howToApply || []).map((item, i) => <div key={i} className="border-l-2 border-primary pl-4"><h4 className="font-semibold text-foreground">{item.title}</h4><p className="text-muted-foreground text-sm mt-1">{item.detail}</p></div>)}</CardContent></Card>
+                <Card><CardHeader><CardTitle className="text-xl text-primary">What I Learned / Action Items</CardTitle></CardHeader><CardContent className="space-y-4">{(result.howToApply || []).map((item, i) => <div key={i} className="border-l-2 border-primary pl-4"><h4 className="font-semibold text-foreground">{item.title}</h4><p className="text-muted-foreground text-sm mt-1">{item.detail}</p></div>)}</CardContent></Card>
               </div>
             )}
             {result && done && <FollowUpSection transcript={inputValue} summary={result} initialConversation={initialConversation} onConversationUpdate={(conv) => { if (historyId) updateHistoryConversation(historyId, conv); }} />}
@@ -601,7 +601,7 @@ const AdminDashboard = () => {
               <Card><CardContent className="pt-6 text-center"><Users className="h-8 w-8 text-primary mx-auto mb-2" /><p className="text-3xl font-bold text-foreground">{users.length}</p><p className="text-sm text-muted-foreground">Total Users</p></CardContent></Card>
               <Card><CardContent className="pt-6 text-center"><FileText className="h-8 w-8 text-primary mx-auto mb-2" /><p className="text-3xl font-bold text-foreground">{summaries.length}</p><p className="text-sm text-muted-foreground">Total Summaries</p></CardContent></Card>
             </div>
-            {loading ? <div className="flex justify-center py-12"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div> : users.length === 0 ? <Card><CardContent className="py-12 text-center text-muted-foreground">কোনো user নেই।</CardContent></Card> : (
+            {loading ? <div className="flex justify-center py-12"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div> : users.length === 0 ? <Card><CardContent className="py-12 text-center text-muted-foreground">No users yet.</CardContent></Card> : (
               <div className="space-y-3">{users.map(u => (
                 <Card key={u.id} className="hover:border-primary/30 transition-colors">
                   <CardContent className="py-4 flex items-center justify-between gap-4 flex-wrap">
@@ -613,7 +613,7 @@ const AdminDashboard = () => {
                       <p className="text-xs text-muted-foreground">Joined: {formatDate(u.created_at)}</p>
                     </div>
                     <div className="flex items-center gap-3 shrink-0">
-                      <Badge variant={u.hasApiKey ? "default" : "destructive"} className="gap-1"><KeyRound className="h-3 w-3" />{u.hasApiKey ? "Key আছে" : "Key নেই"}</Badge>
+                      <Badge variant={u.hasApiKey ? "default" : "destructive"} className="gap-1"><KeyRound className="h-3 w-3" />{u.hasApiKey ? "Has Key" : "No Key"}</Badge>
                       <Badge variant="outline" className="gap-1"><FileText className="h-3 w-3" />{u.summaryCount} summaries</Badge>
                     </div>
                   </CardContent>
@@ -626,8 +626,8 @@ const AdminDashboard = () => {
       case "summaries":
         return (
           <div className="space-y-4">
-            <h2 className="text-xl font-semibold text-foreground">সব Summaries ({summaries.length})</h2>
-            {loading ? <div className="flex justify-center py-12"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div> : summaries.length === 0 ? <Card><CardContent className="py-12 text-center text-muted-foreground">কোনো summary নেই।</CardContent></Card> : (
+            <h2 className="text-xl font-semibold text-foreground">All Summaries ({summaries.length})</h2>
+            {loading ? <div className="flex justify-center py-12"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div> : summaries.length === 0 ? <Card><CardContent className="py-12 text-center text-muted-foreground">No summaries yet.</CardContent></Card> : (
               summaries.map(item => (
                 <Card key={item.id} className="cursor-pointer hover:border-primary/50 transition-colors" onClick={() => setExpanded(expanded === item.id ? null : item.id)}>
                   <CardHeader className="pb-2">
@@ -657,10 +657,10 @@ const AdminDashboard = () => {
       case "history":
         return (
           <div className="space-y-4">
-            <h2 className="text-xl font-semibold text-foreground">আমার Summary History</h2>
+            <h2 className="text-xl font-semibold text-foreground">My Summary History</h2>
             {(() => {
               const mySummaries = summaries.filter(s => s.user_id === user?.id);
-              return mySummaries.length === 0 ? <Card><CardContent className="py-12 text-center text-muted-foreground">আপনার কোনো summary নেই।</CardContent></Card> : (
+              return mySummaries.length === 0 ? <Card><CardContent className="py-12 text-center text-muted-foreground">You have no summaries yet.</CardContent></Card> : (
                 mySummaries.map(item => (
                   <Card key={item.id} className="cursor-pointer hover:border-primary/50 transition-colors" onClick={() => setExpanded(expanded === item.id ? null : item.id)}>
                     <CardHeader className="pb-2">
@@ -676,7 +676,7 @@ const AdminDashboard = () => {
                           setDone(true); setHistoryId(item.id);
                           setInitialConversation((item.conversation as unknown as { role: "user" | "assistant"; content: string }[]) || undefined);
                           setActiveTab("summarize");
-                        }}><MessageCircle className="h-4 w-4" /> চ্যাট Continue করুন</Button>
+                        }}><MessageCircle className="h-4 w-4" /> Continue Chat</Button>
                       </CardContent>
                     )}
                   </Card>
@@ -703,12 +703,12 @@ const AdminDashboard = () => {
             <div className="flex flex-col sm:flex-row gap-3">
               <div className="relative flex-1">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                <Input placeholder="Title বা content দিয়ে search করুন..." value={noteSearch} onChange={(e) => setNoteSearch(e.target.value)} className="pl-9" />
+                <Input placeholder="Search by title or content..." value={noteSearch} onChange={(e) => setNoteSearch(e.target.value)} className="pl-9" />
               </div>
               <Select value={noteFilterChannel} onValueChange={setNoteFilterChannel}>
                 <SelectTrigger className="w-full sm:w-[200px]"><SelectValue placeholder="Channel filter" /></SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">সব Channels</SelectItem>
+                  <SelectItem value="all">All Channels</SelectItem>
                   {channels.map(ch => <SelectItem key={ch.id} value={ch.id}>{ch.name}</SelectItem>)}
                 </SelectContent>
               </Select>
@@ -719,9 +719,9 @@ const AdminDashboard = () => {
               <CardContent className="pt-6 space-y-3">
                 <Input placeholder="Note title..." value={newNoteTitle} onChange={(e) => setNewNoteTitle(e.target.value)} className="font-semibold" />
                 <Select value={newNoteChannelId} onValueChange={setNewNoteChannelId}>
-                  <SelectTrigger><SelectValue placeholder="Channel select করুন" /></SelectTrigger>
+                  <SelectTrigger><SelectValue placeholder="Select Channel" /></SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="all">কোনো Channel নেই</SelectItem>
+                    <SelectItem value="all">No Channel</SelectItem>
                     {channels.map(ch => <SelectItem key={ch.id} value={ch.id}><span className="flex items-center gap-1.5"><Youtube className="h-3.5 w-3.5 text-destructive" /> {ch.name}</span></SelectItem>)}
                   </SelectContent>
                 </Select>
@@ -730,13 +730,13 @@ const AdminDashboard = () => {
                   <Input placeholder="Video URL (optional)..." value={newNoteVideoUrl} onChange={(e) => setNewNoteVideoUrl(e.target.value)} />
                 </div>
                 <RichTextEditor value={newNote} onChange={setNewNote} />
-                <Button onClick={addNote} disabled={!newNote.trim()} className="gap-2"><Plus className="h-4 w-4" /> Note যোগ করুন</Button>
+                <Button onClick={addNote} disabled={!newNote.trim()} className="gap-2"><Plus className="h-4 w-4" /> Add Note</Button>
               </CardContent>
             </Card>
 
             {/* Notes List - show only channel name + title, click to open popup */}
             {notesLoading ? <div className="flex justify-center py-12"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div> : filteredNotes.length === 0 ? (
-              <Card><CardContent className="py-12 text-center text-muted-foreground">{noteSearch || noteFilterChannel !== "all" ? "কোনো note পাওয়া যায়নি।" : "কোনো note নেই।"}</CardContent></Card>
+              <Card><CardContent className="py-12 text-center text-muted-foreground">{noteSearch || noteFilterChannel !== "all" ? "No notes found." : "No notes yet."}</CardContent></Card>
             ) : (
               <div className="space-y-2">
                 {filteredNotes.map(note => (
@@ -762,7 +762,7 @@ const AdminDashboard = () => {
               <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto">
                 <DialogHeader>
                   <DialogTitle className="text-xl">
-                    {isEditingInDialog ? "Note Edit করুন" : (selectedNote?.title || "Untitled")}
+                    {isEditingInDialog ? "Edit Note" : (selectedNote?.title || "Untitled")}
                   </DialogTitle>
                   <DialogDescription className="sr-only">Note details and editing</DialogDescription>
                 </DialogHeader>
@@ -776,7 +776,7 @@ const AdminDashboard = () => {
                     )}
                     {selectedNote.video_url && (
                       <a href={selectedNote.video_url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-sm text-primary hover:underline">
-                        <LinkIcon className="h-4 w-4" /> Video দেখুন
+                        <LinkIcon className="h-4 w-4" /> Watch Video
                       </a>
                     )}
                     <div className="prose prose-sm dark:prose-invert max-w-none border rounded-md p-4 bg-muted/20"
@@ -791,7 +791,7 @@ const AdminDashboard = () => {
                     <Select value={editNoteChannelId} onValueChange={setEditNoteChannelId}>
                       <SelectTrigger><SelectValue /></SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="all">কোনো Channel নেই</SelectItem>
+                        <SelectItem value="all">No Channel</SelectItem>
                         {channels.map(ch => <SelectItem key={ch.id} value={ch.id}><span className="flex items-center gap-1.5"><Youtube className="h-3.5 w-3.5 text-destructive" /> {ch.name}</span></SelectItem>)}
                       </SelectContent>
                     </Select>
@@ -813,7 +813,7 @@ const AdminDashboard = () => {
                   {selectedNote && isEditingInDialog && (
                     <div className="flex gap-2 w-full">
                       <Button className="gap-2" onClick={saveEditNote} disabled={!editNoteText.trim()}><Check className="h-4 w-4" /> Save</Button>
-                      <Button variant="outline" onClick={() => setIsEditingInDialog(false)}>বাতিল</Button>
+                      <Button variant="outline" onClick={() => setIsEditingInDialog(false)}>Cancel</Button>
                     </div>
                   )}
                 </DialogFooter>
@@ -826,7 +826,7 @@ const AdminDashboard = () => {
         return (
           <div className="space-y-4">
             <h2 className="text-xl font-semibold text-foreground flex items-center gap-2"><LayoutGrid className="h-5 w-5 text-primary" /> Landing Page Showcase</h2>
-            <p className="text-sm text-muted-foreground">এখান থেকে Landing Page-এর "Your Learning Journey" section manage করুন।</p>
+            <p className="text-sm text-muted-foreground">Manage the "Your Learning Journey" section on the Landing Page.</p>
 
             {/* Add Form */}
             <Card>
@@ -978,21 +978,21 @@ const AdminDashboard = () => {
             <h2 className="text-xl font-semibold text-foreground flex items-center gap-2"><User className="h-5 w-5 text-primary" /> Profile</h2>
             <Card>
               <CardHeader><CardTitle className="text-lg text-primary flex items-center gap-2"><Mail className="h-4 w-4" /> Email</CardTitle></CardHeader>
-              <CardContent><Input value={user?.email || ""} disabled className="bg-muted" /><p className="text-xs text-muted-foreground mt-1">Email পরিবর্তন করা যায় না।</p></CardContent>
+              <CardContent><Input value={user?.email || ""} disabled className="bg-muted" /><p className="text-xs text-muted-foreground mt-1">Email cannot be changed.</p></CardContent>
             </Card>
             <Card>
-              <CardHeader><CardTitle className="text-lg text-primary flex items-center gap-2"><User className="h-4 w-4" /> নাম</CardTitle></CardHeader>
+              <CardHeader><CardTitle className="text-lg text-primary flex items-center gap-2"><User className="h-4 w-4" /> Name</CardTitle></CardHeader>
               <CardContent className="space-y-3">
-                <div className="space-y-2"><Label>আপনার নাম</Label><Input placeholder="আপনার নাম লিখুন..." value={profileName} onChange={(e) => setProfileName(e.target.value)} /></div>
+                <div className="space-y-2"><Label>Your Name</Label><Input placeholder="Enter your name..." value={profileName} onChange={(e) => setProfileName(e.target.value)} /></div>
                 <Button onClick={handleSaveProfile} disabled={profileSaving} className="gap-2">{profileSaving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />} Save Profile</Button>
               </CardContent>
             </Card>
             <Card>
-              <CardHeader><CardTitle className="text-lg text-primary flex items-center gap-2"><Lock className="h-4 w-4" /> Password পরিবর্তন</CardTitle></CardHeader>
+              <CardHeader><CardTitle className="text-lg text-primary flex items-center gap-2"><Lock className="h-4 w-4" /> Change Password</CardTitle></CardHeader>
               <CardContent className="space-y-3">
-                <div className="space-y-2"><Label>নতুন Password</Label><Input type="password" placeholder="নতুন password..." value={newPassword} onChange={(e) => setNewPassword(e.target.value)} /></div>
-                <div className="space-y-2"><Label>Password নিশ্চিত করুন</Label><Input type="password" placeholder="আবার password লিখুন..." value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} /></div>
-                <Button onClick={handleChangePassword} disabled={changingPassword} className="gap-2">{changingPassword ? <Loader2 className="h-4 w-4 animate-spin" /> : <Lock className="h-4 w-4" />} Password পরিবর্তন করুন</Button>
+                <div className="space-y-2"><Label>New Password</Label><Input type="password" placeholder="New password..." value={newPassword} onChange={(e) => setNewPassword(e.target.value)} /></div>
+                <div className="space-y-2"><Label>Confirm Password</Label><Input type="password" placeholder="Confirm password..." value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} /></div>
+                <Button onClick={handleChangePassword} disabled={changingPassword} className="gap-2">{changingPassword ? <Loader2 className="h-4 w-4 animate-spin" /> : <Lock className="h-4 w-4" />} Change Password</Button>
               </CardContent>
             </Card>
           </div>
@@ -1002,12 +1002,12 @@ const AdminDashboard = () => {
         return (
           <div className="space-y-6 max-w-2xl mx-auto">
             <Card>
-              <CardHeader><CardTitle className="text-lg text-primary">AI Provider ও Model</CardTitle></CardHeader>
+              <CardHeader><CardTitle className="text-lg text-primary">AI Provider & Model</CardTitle></CardHeader>
               <CardContent className="space-y-5">
-                <div className="space-y-2"><Label>Provider নির্বাচন করুন</Label><Select value={settings.provider} onValueChange={handleProviderChange}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent>{PROVIDERS.map(p => <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>)}</SelectContent></Select></div>
-                <div className="space-y-2"><Label>Model নির্বাচন করুন</Label><Select value={settings.model} onValueChange={(v) => setSettingsState(prev => ({ ...prev, model: v }))}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent>{currentProvider.models.map(m => <SelectItem key={m.id} value={m.id}>{m.name}</SelectItem>)}</SelectContent></Select></div>
+                <div className="space-y-2"><Label>Select Provider</Label><Select value={settings.provider} onValueChange={handleProviderChange}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent>{PROVIDERS.map(p => <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>)}</SelectContent></Select></div>
+                <div className="space-y-2"><Label>Select Model</Label><Select value={settings.model} onValueChange={(v) => setSettingsState(prev => ({ ...prev, model: v }))}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent>{currentProvider.models.map(m => <SelectItem key={m.id} value={m.id}>{m.name}</SelectItem>)}</SelectContent></Select></div>
                 <div className="space-y-2">
-                  <div className="flex items-center justify-between"><Label>{currentProvider.name} API Key</Label><a href={currentProvider.apiKeyUrl} target="_blank" rel="noopener noreferrer" className="text-xs text-primary hover:underline flex items-center gap-1">Key নিন <ExternalLink className="h-3 w-3" /></a></div>
+                  <div className="flex items-center justify-between"><Label>{currentProvider.name} API Key</Label><a href={currentProvider.apiKeyUrl} target="_blank" rel="noopener noreferrer" className="text-xs text-primary hover:underline flex items-center gap-1">Get Key <ExternalLink className="h-3 w-3" /></a></div>
                   <div className="flex gap-2"><Input type={showKey ? "text" : "password"} placeholder={currentProvider.apiKeyPlaceholder} value={settings.apiKey} onChange={(e) => setSettingsState(prev => ({ ...prev, apiKey: e.target.value }))} className="flex-1 font-mono text-sm" /><Button variant="outline" size="icon" onClick={() => setShowKey(!showKey)} type="button">{showKey ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}</Button></div>
                 </div>
                 <Button onClick={handleSaveSettings} className="w-full gap-2"><Check className="h-4 w-4" /> Save Settings</Button>

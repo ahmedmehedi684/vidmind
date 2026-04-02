@@ -141,7 +141,7 @@ const Index = () => {
 
   const handleSubmit = async () => {
     setError(""); setResult(null); setDone(false);
-    if (!inputValue.trim()) { setError("Transcript paste করুন"); return; }
+    if (!inputValue.trim()) { setError("Please paste a transcript"); return; }
     setIsLoading(true);
     try {
       const aiSettings = getSettings();
@@ -157,7 +157,7 @@ const Index = () => {
         setHistoryId(id);
       }
     } catch (e) {
-      setError(e instanceof Error ? e.message : "কিছু একটা ভুল হয়েছে");
+      setError(e instanceof Error ? e.message : "Something went wrong");
     } finally { setIsLoading(false); }
   };
 
@@ -171,7 +171,7 @@ const Index = () => {
         <h1 className="text-3xl md:text-4xl font-bold text-foreground tracking-tight">
           <span className="text-primary">Summarizer</span>
         </h1>
-        <p className="mt-2 text-muted-foreground text-base">YouTube video link দিন বা transcript paste করে সারাংশ পান</p>
+        <p className="mt-2 text-muted-foreground text-base">Paste a YouTube video link or transcript to get a summary</p>
       </div>
 
       {!done && (
@@ -196,7 +196,7 @@ const Index = () => {
             {mode === "link" && !transcriptReady && (
               <>
                 <p className="text-center text-sm text-muted-foreground">
-                  YouTube video এর link paste করুন — আমরা automatically transcript বের করার চেষ্টা করবো
+                  Paste a YouTube video link — we'll automatically try to extract the transcript
                 </p>
                 <Input
                   placeholder="https://www.youtube.com/watch?v=..."
@@ -206,7 +206,7 @@ const Index = () => {
                 />
                 <Button className="w-full text-base font-semibold h-12" onClick={handleFetchTranscript} disabled={isFetchingTranscript}>
                   {isFetchingTranscript ? (
-                    <span className="flex items-center gap-2"><Loader2 className="h-5 w-5 animate-spin" /> Transcript বের করছে...</span>
+                    <span className="flex items-center gap-2"><Loader2 className="h-5 w-5 animate-spin" /> Extracting transcript...</span>
                   ) : (
                     <span className="flex items-center gap-1">Get Transcript <ChevronRight className="h-5 w-5" /></span>
                   )}
@@ -226,9 +226,9 @@ const Index = () => {
                 </div>
                 <Button className="w-full text-base font-semibold h-12" onClick={handleSubmit} disabled={isLoading}>
                   {isLoading ? (
-                    <span className="flex items-center gap-2"><Loader2 className="h-5 w-5 animate-spin" /> AI বিশ্লেষণ করছে...</span>
+                    <span className="flex items-center gap-2"><Loader2 className="h-5 w-5 animate-spin" /> AI is analyzing...</span>
                   ) : (
-                    <span className="flex items-center gap-1">Summarize করো <ChevronRight className="h-5 w-5" /></span>
+                    <span className="flex items-center gap-1">Summarize <ChevronRight className="h-5 w-5" /></span>
                   )}
                 </Button>
               </>
@@ -237,14 +237,14 @@ const Index = () => {
             {mode === "transcript" && (
               <>
                 <p className="text-center text-sm text-muted-foreground">
-                  YouTube ভিডিওর transcript paste করুন। YouTube-এ ভিডিওর নিচে "...more" → "Show transcript" click করে transcript copy করুন।
+                  Paste the YouTube video transcript. On YouTube, click "...more" below the video → "Show transcript" → copy all text.
                 </p>
-                <Textarea placeholder="Transcript paste করুন..." value={inputValue} onChange={(e) => setInputValue(e.target.value)} rows={6} />
+                <Textarea placeholder="Paste transcript here..." value={inputValue} onChange={(e) => setInputValue(e.target.value)} rows={6} />
                 <Button className="w-full text-base font-semibold h-12" onClick={handleSubmit} disabled={isLoading}>
                   {isLoading ? (
-                    <span className="flex items-center gap-2"><Loader2 className="h-5 w-5 animate-spin" /> AI বিশ্লেষণ করছে...</span>
+                    <span className="flex items-center gap-2"><Loader2 className="h-5 w-5 animate-spin" /> AI is analyzing...</span>
                   ) : (
-                    <span className="flex items-center gap-1">Summarize করো <ChevronRight className="h-5 w-5" /></span>
+                    <span className="flex items-center gap-1">Summarize <ChevronRight className="h-5 w-5" /></span>
                   )}
                 </Button>
               </>
@@ -256,7 +256,7 @@ const Index = () => {
       {done && (
         <div className="flex justify-center gap-3">
           <Button variant="outline" onClick={handleReset} className="gap-2">
-            <RefreshCw className="h-4 w-4" /> নতুন Summary করুন
+            <RefreshCw className="h-4 w-4" /> New Summary
           </Button>
         </div>
       )}
@@ -266,7 +266,7 @@ const Index = () => {
       {result && (
         <div className="space-y-5 animate-in fade-in-0 slide-in-from-bottom-4 duration-500">
           <Card>
-            <CardHeader><CardTitle className="text-xl text-primary">মূল বিষয়</CardTitle></CardHeader>
+            <CardHeader><CardTitle className="text-xl text-primary">Main Story</CardTitle></CardHeader>
             <CardContent><p className="text-secondary-foreground leading-relaxed">{result.mainStory}</p></CardContent>
           </Card>
           <Card>
@@ -282,7 +282,7 @@ const Index = () => {
             </CardContent>
           </Card>
           <Card>
-            <CardHeader><CardTitle className="text-xl text-primary">এই ভিডিও থেকে কী শিখলাম / কী করবো?</CardTitle></CardHeader>
+            <CardHeader><CardTitle className="text-xl text-primary">What I Learned / Action Items</CardTitle></CardHeader>
             <CardContent className="space-y-4">
               {(result.howToApply || []).map((item, i) => (
                 <div key={i} className="border-l-2 border-primary pl-4">

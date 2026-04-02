@@ -60,17 +60,17 @@ const UserNotes = () => {
     const insertData: any = { text: newNote.trim(), title: newNoteTitle.trim(), user_id: user.id, video_url: newNoteVideoUrl.trim() };
     if (newNoteChannelId !== "all") insertData.channel_id = newNoteChannelId;
     const { data, error } = await supabase.from("admin_notes").insert(insertData).select().single();
-    if (error) { toast.error("Note সেভ করতে সমস্যা হয়েছে"); return; }
+    if (error) { toast.error("Failed to save note"); return; }
     if (data) setNotes([data as unknown as Note, ...notes]);
     setNewNote(""); setNewNoteTitle(""); setNewNoteChannelId("all"); setNewNoteVideoUrl("");
-    toast.success("Note যোগ হয়েছে");
+    toast.success("Note added");
   };
 
   const deleteNote = async (id: string) => {
     await supabase.from("admin_notes").delete().eq("id", id);
     setNotes(notes.filter(n => n.id !== id));
     setDialogOpen(false);
-    toast.success("Note মুছে ফেলা হয়েছে");
+    toast.success("Note deleted");
   };
 
   const saveEdit = async () => {
@@ -78,12 +78,12 @@ const UserNotes = () => {
     const updateData: any = { text: editText.trim(), title: editTitle.trim(), video_url: editVideoUrl.trim() };
     updateData.channel_id = editChannelId === "all" ? null : editChannelId;
     const { error } = await supabase.from("admin_notes").update(updateData).eq("id", selectedNote.id);
-    if (error) { toast.error("আপডেট করতে সমস্যা হয়েছে"); return; }
+    if (error) { toast.error("Failed to update note"); return; }
     const updated = { ...selectedNote, ...updateData };
     setNotes(notes.map(n => n.id === selectedNote.id ? updated : n));
     setSelectedNote(updated);
     setEditing(false);
-    toast.success("Note আপডেট হয়েছে");
+    toast.success("Note updated");
   };
 
   const openDialog = (note: Note) => {
@@ -104,7 +104,7 @@ const UserNotes = () => {
     return matchCh && matchSearch;
   });
 
-  const formatDate = (iso: string) => new Date(iso).toLocaleDateString("bn-BD", { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" });
+  const formatDate = (iso: string) => new Date(iso).toLocaleDateString("en-US", { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" });
 
   return (
     <div className="max-w-3xl mx-auto px-4 py-8 space-y-6">
@@ -119,7 +119,7 @@ const UserNotes = () => {
         <Select value={filterChannel} onValueChange={setFilterChannel}>
           <SelectTrigger className="w-full sm:w-[200px]"><SelectValue placeholder="All Channels" /></SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">সব Channels</SelectItem>
+            <SelectItem value="all">All Channels</SelectItem>
             {channels.map(ch => <SelectItem key={ch.id} value={ch.id}>{ch.name}</SelectItem>)}
           </SelectContent>
         </Select>
@@ -130,9 +130,9 @@ const UserNotes = () => {
         <CardContent className="pt-6 space-y-3">
           <Input placeholder="Note title..." value={newNoteTitle} onChange={e => setNewNoteTitle(e.target.value)} className="font-semibold" />
           <Select value={newNoteChannelId} onValueChange={setNewNoteChannelId}>
-            <SelectTrigger><SelectValue placeholder="Channel select করুন" /></SelectTrigger>
+            <SelectTrigger><SelectValue placeholder="Select Channel" /></SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">কোনো Channel নেই</SelectItem>
+              <SelectItem value="all">No Channel</SelectItem>
               {channels.map(ch => <SelectItem key={ch.id} value={ch.id}>{ch.name}</SelectItem>)}
             </SelectContent>
           </Select>
@@ -141,7 +141,7 @@ const UserNotes = () => {
             <Input placeholder="Video URL (optional)..." value={newNoteVideoUrl} onChange={e => setNewNoteVideoUrl(e.target.value)} />
           </div>
           <RichTextEditor value={newNote} onChange={setNewNote} />
-          <Button onClick={addNote} disabled={!newNote.trim()} className="gap-2"><Plus className="h-4 w-4" /> Note যোগ করুন</Button>
+          <Button onClick={addNote} disabled={!newNote.trim()} className="gap-2"><Plus className="h-4 w-4" /> Add Note</Button>
         </CardContent>
       </Card>
 
@@ -149,7 +149,7 @@ const UserNotes = () => {
       {loading ? (
         <div className="flex justify-center py-12"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>
       ) : filtered.length === 0 ? (
-        <Card><CardContent className="py-12 text-center text-muted-foreground">কোনো note পাওয়া যায়নি।</CardContent></Card>
+        <Card><CardContent className="py-12 text-center text-muted-foreground">No notes found.</CardContent></Card>
       ) : (
         <div className="space-y-2">
           {filtered.map(note => (
@@ -174,7 +174,7 @@ const UserNotes = () => {
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>{editing ? "Note Edit করুন" : (selectedNote?.title || "Untitled")}</DialogTitle>
+            <DialogTitle>{editing ? "Edit Note" : (selectedNote?.title || "Untitled")}</DialogTitle>
             <DialogDescription className="sr-only">Note details</DialogDescription>
           </DialogHeader>
 
@@ -185,7 +185,7 @@ const UserNotes = () => {
               )}
               {selectedNote.video_url && (
                 <a href={selectedNote.video_url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-sm text-primary hover:underline">
-                  <LinkIcon className="h-4 w-4" /> Video দেখুন
+                  <LinkIcon className="h-4 w-4" /> Watch Video
                 </a>
               )}
               <div className="prose prose-sm dark:prose-invert max-w-none border rounded-md p-4 bg-muted/20"
@@ -199,7 +199,7 @@ const UserNotes = () => {
               <Select value={editChannelId} onValueChange={setEditChannelId}>
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">কোনো Channel নেই</SelectItem>
+                  <SelectItem value="all">No Channel</SelectItem>
                   {channels.map(ch => <SelectItem key={ch.id} value={ch.id}>{ch.name}</SelectItem>)}
                 </SelectContent>
               </Select>
@@ -221,7 +221,7 @@ const UserNotes = () => {
             {selectedNote && editing && (
               <div className="flex gap-2 w-full">
                 <Button className="gap-2" onClick={saveEdit} disabled={!editText.trim()}><Check className="h-4 w-4" /> Save</Button>
-                <Button variant="outline" onClick={() => setEditing(false)}>বাতিল</Button>
+                <Button variant="outline" onClick={() => setEditing(false)}>Cancel</Button>
               </div>
             )}
           </DialogFooter>
