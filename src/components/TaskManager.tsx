@@ -468,11 +468,14 @@ const TaskManager = () => {
                         onClick={(e) => { e.stopPropagation(); handleToggleClick(task); }}
                         className={`w-7 h-7 rounded-full border-2 flex items-center justify-center shrink-0 transition-colors ${
                           isDone
-                            ? "border-primary bg-primary text-primary-foreground"
+                            ? "border-green-500 bg-green-500 text-white"
+                            : task.status === "not_done"
+                            ? "border-red-500 bg-red-500 text-white"
                             : "border-muted-foreground/30 hover:border-primary"
                         }`}
                       >
                         {isDone && <Check className="h-4 w-4" />}
+                        {task.status === "not_done" && <X className="h-4 w-4" />}
                       </button>
                     </div>
 
