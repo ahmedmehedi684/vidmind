@@ -144,7 +144,7 @@ const Dashboard = () => {
             Welcome back, <span className="text-primary">{displayName}</span>!
           </h1>
           <p className="text-muted-foreground text-sm mt-1" style={{ fontFamily: "'DM Sans', sans-serif" }}>
-            আপনার learning journey চালিয়ে যান
+            Continue your learning journey
           </p>
         </div>
       </div>
