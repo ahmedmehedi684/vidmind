@@ -54,6 +54,8 @@ export default function TopNavbar() {
               style={{ fontFamily: "'DM Sans', sans-serif" }}>{link.label}</Link>
           ))}
         </div>
+        <div className="flex items-center gap-1">
+          <UserNotificationBell />
         <div className="relative" ref={dropdownRef}>
           <button onClick={() => setDropdownOpen(!dropdownOpen)} className="flex items-center gap-2 rounded-full px-2 py-1 hover:bg-muted/50 transition-colors">
             <Avatar className="h-8 w-8"><AvatarFallback className="bg-primary text-primary-foreground text-xs font-semibold">{initials}</AvatarFallback></Avatar>
