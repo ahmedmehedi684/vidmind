@@ -1015,6 +1015,9 @@ const AdminDashboard = () => {
       case "money": return <MoneyManager />;
       case "payments": return <AdminPayments />;
       case "support": return <AdminSupport />;
+      case "analytics": return <AdminAnalytics />;
+      case "user-mgmt": return <AdminUserManagement />;
+      case "notifications": return <AdminNotifications />;
       default: return null;
     }
   };
