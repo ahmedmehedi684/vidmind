@@ -1,0 +1,3 @@
+INSERT INTO subscription_plans (name, description, price, duration_days, features, is_active, sort_order) VALUES 
+('Free', 'For getting started', 0, 30, '["10 summaries per month", "Basic notes editor", "3 channels", "30-day history"]'::jsonb, true, 0),
+('Pro', 'For serious learners and entrepreneurs', 9, 30, '["Unlimited summaries", "Full rich text notes editor", "Unlimited channels", "Full history forever", "Priority AI processing"]'::jsonb, true, 1);
