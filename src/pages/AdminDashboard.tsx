@@ -484,7 +484,7 @@ const AdminDashboard = () => {
     localStorage.setItem("provider_api_keys", JSON.stringify(savedKeys));
     saveSettings(settings);
     if (user) await saveSettingsToDb(settings, user.id);
-    toast.success("Settings সেভ হয়েছে!");
+    toast.success("Settings saved!");
   };
 
   const handleSaveProfile = async () => {
