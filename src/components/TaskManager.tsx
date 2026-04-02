@@ -517,6 +517,8 @@ const TaskManager = () => {
         </Card>
       )}
 
+      {/* Scrollable task area */}
+      <div className="flex-1 overflow-y-auto overflow-x-hidden space-y-4 pb-20" style={{ WebkitOverflowScrolling: "touch" }}>
       {/* Category Filter Chips */}
       <div className="flex gap-2 flex-wrap pb-1">
         <button
