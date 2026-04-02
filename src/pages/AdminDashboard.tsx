@@ -36,6 +36,8 @@ import AdminSupport from "@/components/AdminSupport";
 import AdminAnalytics from "@/components/AdminAnalytics";
 import AdminUserManagement from "@/components/AdminUserManagement";
 import AdminNotifications from "@/components/AdminNotifications";
+import AdminPaymentMethods from "@/components/AdminPaymentMethods";
+import AdminSubscriptionPlans from "@/components/AdminSubscriptionPlans";
 
 interface SummaryRow {
   id: string; user_id: string; input_type: string; input_value: string;
