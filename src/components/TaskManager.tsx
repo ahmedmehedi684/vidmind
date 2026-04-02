@@ -518,7 +518,7 @@ const TaskManager = () => {
       )}
 
       {/* Category Filter Chips */}
-      <div className="flex gap-2 overflow-x-auto pb-1">
+      <div className="flex gap-2 flex-wrap pb-1">
         <button
           onClick={() => setFilterCategory("All")}
           className={`px-4 py-1.5 rounded-full text-sm font-medium whitespace-nowrap transition-all ${
