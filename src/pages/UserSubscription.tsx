@@ -1,10 +1,10 @@
 import { useState, useEffect } from "react";
 import {
   CreditCard, Check, Clock, Loader2, Crown, Star, Zap,
-  ChevronRight, AlertCircle, Copy, CheckCircle2
+  AlertCircle, CheckCircle2
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -31,46 +31,67 @@ interface PaymentOrder {
   payment_number: string; status: string; admin_note: string; created_at: string;
 }
 
-const PAYMENT_METHODS = [
-  { id: "bkash", name: "bKash", number: "", color: "bg-pink-500/10 text-pink-400", icon: "📱" },
-  { id: "nagad", name: "Nagad", number: "", color: "bg-orange-500/10 text-orange-400", icon: "💳" },
-  { id: "rocket", name: "Rocket", number: "", color: "bg-purple-500/10 text-purple-400", icon: "🚀" },
-  { id: "payoneer", name: "Payoneer", number: "", color: "bg-green-500/10 text-green-400", icon: "💰" },
-];
+interface PaymentMethod {
+  id: string; name: string; currency: string; account_number: string;
+  account_name: string; instructions: string; icon: string;
+  is_active: boolean; sort_order: number;
+}
 
 const UserSubscription = () => {
   const { user } = useAuth();
   const [plans, setPlans] = useState<Plan[]>([]);
   const [subscriptions, setSubscriptions] = useState<Subscription[]>([]);
   const [payments, setPayments] = useState<PaymentOrder[]>([]);
+  const [paymentMethods, setPaymentMethods] = useState<PaymentMethod[]>([]);
   const [loading, setLoading] = useState(true);
   const [checkoutOpen, setCheckoutOpen] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState<Plan | null>(null);
-  const [paymentMethod, setPaymentMethod] = useState("bkash");
+  const [paymentMethod, setPaymentMethod] = useState("");
   const [transactionId, setTransactionId] = useState("");
   const [paymentNumber, setPaymentNumber] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [selectedCurrency, setSelectedCurrency] = useState("BDT");
 
   useEffect(() => { if (user) loadData(); }, [user]);
+
+  // Auto-detect currency based on timezone
+  useEffect(() => {
+    try {
+      const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+      // Bangladesh timezone
+      if (tz === "Asia/Dhaka" || tz === "Asia/Dacca") {
+        setSelectedCurrency("BDT");
+      } else {
+        setSelectedCurrency("USD");
+      }
+    } catch {
+      setSelectedCurrency("BDT");
+    }
+  }, []);
 
   const loadData = async () => {
     if (!user) return;
     setLoading(true);
     try {
-      const [plansRes, subsRes, payRes] = await Promise.all([
+      const [plansRes, subsRes, payRes, methodsRes] = await Promise.all([
         supabase.from("subscription_plans").select("*").eq("is_active", true).order("sort_order"),
         supabase.from("subscriptions").select("*").eq("user_id", user.id).order("created_at", { ascending: false }),
         supabase.from("payment_orders").select("*").eq("user_id", user.id).order("created_at", { ascending: false }),
+        supabase.from("payment_methods").select("*").eq("is_active", true).order("sort_order"),
       ]);
       if (plansRes.data) setPlans(plansRes.data as any[]);
       if (subsRes.data) setSubscriptions(subsRes.data as any[]);
       if (payRes.data) setPayments(payRes.data as any[]);
+      if (methodsRes.data) setPaymentMethods(methodsRes.data as any[]);
     } catch (e) { console.error(e); }
     finally { setLoading(false); }
   };
 
   const activeSub = subscriptions.find(s => s.status === "active" && s.expires_at && new Date(s.expires_at) > new Date());
   const activePlan = activeSub ? plans.find(p => p.id === activeSub.plan_id) : null;
+
+  const filteredMethods = paymentMethods.filter(m => m.currency === selectedCurrency);
+  const selectedMethodObj = paymentMethods.find(m => m.name.toLowerCase() === paymentMethod);
 
   const getDaysRemaining = () => {
     if (!activeSub?.expires_at) return 0;
@@ -91,7 +112,9 @@ const UserSubscription = () => {
       return;
     }
     setSelectedPlan(plan);
-    setPaymentMethod("bkash");
+    // Auto-select first available method for current currency
+    const firstMethod = filteredMethods[0];
+    setPaymentMethod(firstMethod ? firstMethod.name.toLowerCase() : "");
     setTransactionId("");
     setPaymentNumber("");
     setCheckoutOpen(true);
@@ -101,13 +124,11 @@ const UserSubscription = () => {
     if (!selectedPlan || !user || !transactionId.trim()) return;
     setSubmitting(true);
     try {
-      // Create subscription
       const { data: subData, error: subErr } = await supabase.from("subscriptions").insert({
         user_id: user.id, plan_id: selectedPlan.id, status: "pending",
       } as any).select().single();
       if (subErr) throw subErr;
 
-      // Create payment order
       const { error: payErr } = await supabase.from("payment_orders").insert({
         user_id: user.id,
         subscription_id: (subData as any).id,
@@ -120,7 +141,7 @@ const UserSubscription = () => {
       } as any);
       if (payErr) throw payErr;
 
-      toast.success("Payment submitted! Admin will verify shortly.");
+      toast.success("Payment submitted! Admin will verify shortly. Thank you! 🎉");
       setCheckoutOpen(false);
       loadData();
     } catch (e) {
@@ -143,6 +164,23 @@ const UserSubscription = () => {
           <CreditCard className="h-6 w-6 text-primary" /> Subscription
         </h1>
         <p className="text-sm text-muted-foreground mt-1">Manage your plan and payments</p>
+      </div>
+
+      {/* Currency Selector */}
+      <div className="flex items-center gap-3">
+        <Label className="text-sm">Currency:</Label>
+        <div className="flex gap-2">
+          {["BDT", "USD"].map(c => (
+            <Button
+              key={c}
+              variant={selectedCurrency === c ? "default" : "outline"}
+              size="sm"
+              onClick={() => setSelectedCurrency(c)}
+            >
+              {c === "BDT" ? "🇧🇩 BDT (৳)" : "🇺🇸 USD ($)"}
+            </Button>
+          ))}
+        </div>
       </div>
 
       {/* Active Subscription */}
@@ -184,7 +222,7 @@ const UserSubscription = () => {
                     <p className="text-sm text-muted-foreground mt-1">{plan.description}</p>
                   </div>
                   <div className="text-center">
-                    <span className="text-3xl font-bold text-foreground">৳{plan.price}</span>
+                    <span className="text-3xl font-bold text-foreground">{selectedCurrency === "BDT" ? "৳" : "$"}{plan.price}</span>
                     <span className="text-sm text-muted-foreground">/{plan.duration_days} days</span>
                   </div>
                   <ul className="space-y-2">
@@ -242,37 +280,50 @@ const UserSubscription = () => {
         <DialogContent className="max-w-md">
           <DialogHeader>
             <DialogTitle>Complete Payment</DialogTitle>
-            <DialogDescription>Pay for {selectedPlan?.name} — ৳{selectedPlan?.price}</DialogDescription>
+            <DialogDescription>Pay for {selectedPlan?.name} — {selectedCurrency === "BDT" ? "৳" : "$"}{selectedPlan?.price}</DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
+            {/* Currency toggle in checkout */}
+            <div className="flex gap-2">
+              {["BDT", "USD"].map(c => (
+                <Button key={c} variant={selectedCurrency === c ? "default" : "outline"} size="sm" className="flex-1"
+                  onClick={() => {
+                    setSelectedCurrency(c);
+                    const firstMethod = paymentMethods.filter(m => m.currency === c)[0];
+                    setPaymentMethod(firstMethod ? firstMethod.name.toLowerCase() : "");
+                  }}
+                >
+                  {c === "BDT" ? "🇧🇩 BDT" : "🇺🇸 USD"}
+                </Button>
+              ))}
+            </div>
+
             <div className="space-y-1.5">
               <Label>Payment Method</Label>
               <Select value={paymentMethod} onValueChange={setPaymentMethod}>
-                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectTrigger><SelectValue placeholder="Select method" /></SelectTrigger>
                 <SelectContent>
-                  {PAYMENT_METHODS.map(m => (
-                    <SelectItem key={m.id} value={m.id}>{m.icon} {m.name}</SelectItem>
+                  {filteredMethods.map(m => (
+                    <SelectItem key={m.id} value={m.name.toLowerCase()}>{m.icon} {m.name}</SelectItem>
                   ))}
                 </SelectContent>
               </Select>
             </div>
 
-            <Card className="bg-muted/30">
-              <CardContent className="py-3 text-center">
-                <p className="text-sm text-muted-foreground mb-1">Send ৳{selectedPlan?.price} to:</p>
-                <p className="text-lg font-bold text-foreground">
-                  {paymentMethod === "bkash" ? "01XXXXXXXXX" :
-                   paymentMethod === "nagad" ? "01XXXXXXXXX" :
-                   paymentMethod === "rocket" ? "01XXXXXXXXX" :
-                   "payoneer@email.com"}
-                </p>
-                <p className="text-xs text-muted-foreground mt-1">({PAYMENT_METHODS.find(m => m.id === paymentMethod)?.name})</p>
-              </CardContent>
-            </Card>
+            {/* Payment details from DB */}
+            {selectedMethodObj && (
+              <Card className="bg-muted/30">
+                <CardContent className="py-3 text-center space-y-2">
+                  <p className="text-sm text-muted-foreground">{selectedMethodObj.instructions || `Send ${selectedCurrency === "BDT" ? "৳" : "$"}${selectedPlan?.price} to:`}</p>
+                  <p className="text-lg font-bold text-foreground">{selectedMethodObj.account_number}</p>
+                  <p className="text-sm text-muted-foreground">({selectedMethodObj.account_name} — {selectedMethodObj.name})</p>
+                </CardContent>
+              </Card>
+            )}
 
             <div className="space-y-1.5">
-              <Label>Your Payment Number</Label>
-              <Input placeholder="Your bKash/Nagad number..." value={paymentNumber} onChange={e => setPaymentNumber(e.target.value)} />
+              <Label>Your {selectedCurrency === "BDT" ? "Mobile" : "Payment"} Number</Label>
+              <Input placeholder={selectedCurrency === "BDT" ? "Your bKash/Nagad number..." : "Your Payoneer email..."} value={paymentNumber} onChange={e => setPaymentNumber(e.target.value)} />
             </div>
 
             <div className="space-y-1.5">
