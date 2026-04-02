@@ -38,6 +38,8 @@ const Auth = () => {
 
     setLoading(true);
     try {
+      const trimmedName = name.trim();
+
       if (isLogin) {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
@@ -49,15 +51,36 @@ const Auth = () => {
           password,
           options: {
             emailRedirectTo: window.location.origin,
-            data: { full_name: name.trim() },
+            data: { full_name: trimmedName, name: trimmedName },
           },
         });
         if (error) throw error;
+
         // Update profile name
         if (data.user) {
-          await supabase.from("profiles").update({ name: name.trim() } as any).eq("id", data.user.id);
+          await supabase.from("profiles").update({ name: trimmedName } as any).eq("id", data.user.id);
         }
-        toast.success("Account created! Please verify your email.");
+
+        if (data.session) {
+          toast.success("Account created successfully!");
+          navigate(getRedirectPath(), { replace: true });
+          return;
+        }
+
+        const { error: signInError } = await supabase.auth.signInWithPassword({ email, password });
+
+        if (!signInError) {
+          toast.success("Account created successfully!");
+          navigate(getRedirectPath(), { replace: true });
+          return;
+        }
+
+        if (/email not confirmed/i.test(signInError.message)) {
+          toast.success("Account created. Please verify your email once to continue.");
+          return;
+        }
+
+        throw signInError;
       }
     } catch (error: any) {
       toast.error(error.message || "Something went wrong");
