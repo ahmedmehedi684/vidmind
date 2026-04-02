@@ -199,7 +199,7 @@ const UserNotes = () => {
               <Select value={editChannelId} onValueChange={setEditChannelId}>
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">কোনো Channel নেই</SelectItem>
+                  <SelectItem value="all">No Channel</SelectItem>
                   {channels.map(ch => <SelectItem key={ch.id} value={ch.id}>{ch.name}</SelectItem>)}
                 </SelectContent>
               </Select>
