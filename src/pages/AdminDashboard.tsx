@@ -33,6 +33,9 @@ import GoalTracker from "@/components/GoalTracker";
 import MoneyManager from "@/components/MoneyManager";
 import AdminPayments from "@/components/AdminPayments";
 import AdminSupport from "@/components/AdminSupport";
+import AdminAnalytics from "@/components/AdminAnalytics";
+import AdminUserManagement from "@/components/AdminUserManagement";
+import AdminNotifications from "@/components/AdminNotifications";
 
 interface SummaryRow {
   id: string; user_id: string; input_type: string; input_value: string;
