@@ -2,6 +2,8 @@ import { createContext, useContext, useEffect, useState, type ReactNode } from "
 import { supabase } from "@/integrations/supabase/client";
 import type { User, Session } from "@supabase/supabase-js";
 
+const CURRENT_USER_STORAGE_KEY = "app_current_user_id";
+
 interface AuthContextType {
   user: User | null;
   session: Session | null;
@@ -23,16 +25,32 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
 
+  const persistCurrentUserId = (nextUser: User | null) => {
+    try {
+      if (nextUser?.id) {
+        localStorage.setItem(CURRENT_USER_STORAGE_KEY, nextUser.id);
+      } else {
+        localStorage.removeItem(CURRENT_USER_STORAGE_KEY);
+      }
+    } catch {
+      // Ignore storage errors
+    }
+  };
+
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      const nextUser = session?.user ?? null;
       setSession(session);
-      setUser(session?.user ?? null);
+      setUser(nextUser);
+      persistCurrentUserId(nextUser);
       setLoading(false);
     });
 
     supabase.auth.getSession().then(({ data: { session } }) => {
+      const nextUser = session?.user ?? null;
       setSession(session);
-      setUser(session?.user ?? null);
+      setUser(nextUser);
+      persistCurrentUserId(nextUser);
       setLoading(false);
     });
 
