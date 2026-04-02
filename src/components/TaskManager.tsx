@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { format } from "date-fns";
 import {
-  Plus, Trash2, Check,
+  Plus, Trash2, Check, X,
   Loader2, StickyNote, Calendar as CalendarIcon, Timer, ListChecks,
   Sun, Brain, Briefcase, Moon, Headphones, Heart, Edit2,
   Bell, Home, BookOpen, Coffee, Dumbbell, Music, ShoppingCart,
