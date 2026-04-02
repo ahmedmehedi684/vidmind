@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import {
   Plus, Trash2, Check, Clock, Flag, ChevronDown, ChevronRight, ChevronLeft,
   Loader2, StickyNote, Calendar, Timer, ListChecks,
@@ -14,10 +14,11 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { Progress } from "@/components/ui/progress";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
+import { AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogDescription, AlertDialogFooter, AlertDialogCancel, AlertDialogAction } from "@/components/ui/alert-dialog";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
@@ -125,6 +126,10 @@ const TaskManager = () => {
   const [iconPickerOpen, setIconPickerOpen] = useState(false);
   const [selectedIconIdx, setSelectedIconIdx] = useState<number | undefined>(undefined);
 
+  // Confirmation dialog
+  const [confirmTask, setConfirmTask] = useState<Task | null>(null);
+  const [confirmAction, setConfirmAction] = useState<"done" | "undone">("done");
+
   // Form
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
@@ -150,7 +155,20 @@ const TaskManager = () => {
   const [calendarMonth, setCalendarMonth] = useState(new Date());
   const [showFullCalendar, setShowFullCalendar] = useState(false);
 
+  // Scroll ref for week strip
+  const weekStripRef = useRef<HTMLDivElement>(null);
+
   useEffect(() => { if (user) loadTasks(); }, [user]);
+
+  // Auto-scroll to today in week strip
+  useEffect(() => {
+    if (!showFullCalendar && weekStripRef.current) {
+      const todayBtn = weekStripRef.current.querySelector('[data-today="true"]');
+      if (todayBtn) {
+        todayBtn.scrollIntoView({ inline: "center", behavior: "smooth" });
+      }
+    }
+  }, [showFullCalendar, tasks]);
 
   const loadTasks = async () => {
     if (!user) return;
@@ -167,9 +185,6 @@ const TaskManager = () => {
 
   const selectedDateStr = selectedDate.toISOString().split("T")[0];
 
-  // For daily tasks: check if this specific date is done
-  // Daily tasks show on every date, but "done" only for specific dates
-  // We track daily done status via the task's due_date being updated only for today
   const tasksForDate = parentTasks.filter(t => {
     if (t.notes?.includes("[DAILY]")) return true;
     return t.due_date === selectedDateStr;
@@ -185,10 +200,8 @@ const TaskManager = () => {
     return 0;
   });
 
-  // For daily tasks, done status only applies to the original due_date
   const isTaskDoneForDate = (task: Task) => {
     if (task.notes?.includes("[DAILY]")) {
-      // Daily task: done only if due_date matches selectedDate AND status is done
       return task.status === "done" && task.due_date === selectedDateStr;
     }
     return task.status === "done";
@@ -196,13 +209,14 @@ const TaskManager = () => {
 
   const doneTasks = tasksForDate.filter(t => isTaskDoneForDate(t)).length;
   const totalForDate = tasksForDate.length;
+  const donePercent = totalForDate > 0 ? Math.round((doneTasks / totalForDate) * 100) : 0;
+  const undonePercent = 100 - donePercent;
 
   // Calendar helpers
   const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
   const dayNames = ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"];
   const dayNamesShort = ["S", "M", "T", "W", "T", "F", "S"];
 
-  // Full month calendar days
   const calendarDays = useMemo(() => {
     const year = calendarMonth.getFullYear();
     const month = calendarMonth.getMonth();
@@ -214,10 +228,8 @@ const TaskManager = () => {
     return days;
   }, [calendarMonth]);
 
-  // Week strip (scrollable)
   const weekDays = useMemo(() => {
     const days: Date[] = [];
-    // Show 2 weeks before and 4 weeks after
     const start = new Date(selectedDate);
     start.setDate(start.getDate() - 14);
     for (let i = 0; i < 42; i++) {
@@ -299,6 +311,24 @@ const TaskManager = () => {
       }
       setDialogOpen(false);
     } catch (e) { toast.error("Failed to save task"); console.error(e); }
+  };
+
+  // Confirmation-based toggle
+  const handleToggleClick = (task: Task) => {
+    const isDone = isTaskDoneForDate(task);
+    setConfirmTask(task);
+    setConfirmAction(isDone ? "undone" : "done");
+  };
+
+  const confirmToggle = async () => {
+    if (!confirmTask) return;
+    const newStatus = confirmAction === "done" ? "done" : "todo";
+    try {
+      await supabase.from("tasks").update({ status: newStatus, updated_at: new Date().toISOString() }).eq("id", confirmTask.id);
+      setTasks(tasks.map(t => t.id === confirmTask.id ? { ...t, status: newStatus } : t));
+      toast.success(confirmAction === "done" ? "✅ Task completed!" : "Task marked as undone");
+    } catch (e) { toast.error("Failed to update"); }
+    setConfirmTask(null);
   };
 
   const toggleStatus = async (task: Task) => {
@@ -401,12 +431,17 @@ const TaskManager = () => {
           </CardContent>
         </Card>
       ) : (
-        /* Week Strip (scrollable) */
+        /* Week Strip — horizontally scrollable, no page scroll */
         <div>
           <p className="text-sm text-muted-foreground mb-3">
             {monthNames[selectedDate.getMonth()]} {selectedDate.getFullYear()}
           </p>
-          <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
+          <div
+            ref={weekStripRef}
+            className="flex gap-2 overflow-x-auto pb-2 -mx-4 px-4"
+            style={{ scrollbarWidth: "none", msOverflowStyle: "none", WebkitOverflowScrolling: "touch" }}
+          >
+            <style>{`.week-strip::-webkit-scrollbar { display: none; }`}</style>
             {weekDays.map((day, i) => {
               const isSelected = day.toDateString() === selectedDate.toDateString();
               const isToday = day.toDateString() === new Date().toDateString();
@@ -415,8 +450,9 @@ const TaskManager = () => {
               return (
                 <button
                   key={i}
+                  data-today={isToday ? "true" : undefined}
                   onClick={() => setSelectedDate(new Date(day))}
-                  className={`flex flex-col items-center min-w-[52px] py-2.5 px-2 rounded-xl transition-all ${
+                  className={`flex flex-col items-center min-w-[52px] py-2.5 px-2 rounded-xl transition-all shrink-0 ${
                     isSelected
                       ? "bg-primary text-primary-foreground shadow-lg shadow-primary/25"
                       : "hover:bg-muted/50"
@@ -440,12 +476,45 @@ const TaskManager = () => {
         </div>
       )}
 
-      {/* Progress bar */}
+      {/* Progress Graph — Done vs Undone */}
       {totalForDate > 0 && (
-        <div className="space-y-1">
-          <Progress value={totalForDate > 0 ? (doneTasks / totalForDate) * 100 : 0} className="h-2" />
-          <p className="text-xs text-muted-foreground text-right">{Math.round((doneTasks / totalForDate) * 100)}% complete</p>
-        </div>
+        <Card>
+          <CardContent className="pt-4 pb-3">
+            <div className="flex items-center justify-between mb-3">
+              <p className="text-sm font-semibold text-foreground">Progress</p>
+              <p className="text-xs text-muted-foreground">{doneTasks} of {totalForDate} tasks</p>
+            </div>
+            {/* Dual bar graph */}
+            <div className="flex items-end gap-6 justify-center h-28 mb-2">
+              {/* Done bar - left, green */}
+              <div className="flex flex-col items-center gap-1 flex-1 max-w-[100px]">
+                <span className="text-lg font-bold text-green-400">{donePercent}%</span>
+                <div className="w-full bg-muted/30 rounded-t-lg overflow-hidden relative" style={{ height: "80px" }}>
+                  <div
+                    className="absolute bottom-0 w-full bg-gradient-to-t from-green-500 to-green-400 rounded-t-lg transition-all duration-500"
+                    style={{ height: `${donePercent}%` }}
+                  />
+                </div>
+                <span className="text-xs font-medium text-green-400">✅ Done</span>
+                <span className="text-[10px] text-muted-foreground">{doneTasks} tasks</span>
+              </div>
+              {/* Undone bar - right, red */}
+              <div className="flex flex-col items-center gap-1 flex-1 max-w-[100px]">
+                <span className="text-lg font-bold text-red-400">{undonePercent}%</span>
+                <div className="w-full bg-muted/30 rounded-t-lg overflow-hidden relative" style={{ height: "80px" }}>
+                  <div
+                    className="absolute bottom-0 w-full bg-gradient-to-t from-red-500 to-red-400 rounded-t-lg transition-all duration-500"
+                    style={{ height: `${undonePercent}%` }}
+                  />
+                </div>
+                <span className="text-xs font-medium text-red-400">❌ Undone</span>
+                <span className="text-[10px] text-muted-foreground">{totalForDate - doneTasks} tasks</span>
+              </div>
+            </div>
+            {/* Overall progress bar */}
+            <Progress value={donePercent} className="h-2" />
+          </CardContent>
+        </Card>
       )}
 
       {/* Category Filter Chips */}
@@ -535,7 +604,7 @@ const TaskManager = () => {
                         </div>
                       </div>
                       <button
-                        onClick={(e) => { e.stopPropagation(); toggleStatus(task); }}
+                        onClick={(e) => { e.stopPropagation(); handleToggleClick(task); }}
                         className={`w-7 h-7 rounded-full border-2 flex items-center justify-center shrink-0 transition-colors ${
                           isDone
                             ? "border-primary bg-primary text-primary-foreground"
@@ -594,6 +663,28 @@ const TaskManager = () => {
       >
         <Plus className="h-6 w-6" />
       </button>
+
+      {/* Done/Undone Confirmation Dialog */}
+      <AlertDialog open={!!confirmTask} onOpenChange={(open) => { if (!open) setConfirmTask(null); }}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>
+              {confirmAction === "done" ? "✅ Mark as Done?" : "↩️ Mark as Undone?"}
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              {confirmAction === "done"
+                ? `"${confirmTask?.title}" — আপনি কি নিশ্চিত এই কাজটি সম্পন্ন করেছেন?`
+                : `"${confirmTask?.title}" — আপনি কি এই কাজটি undone করতে চান?`}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>No</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmToggle}>
+              {confirmAction === "done" ? "Yes, Done ✅" : "Yes, Undone"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
       {/* Task Details Dialog */}
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
