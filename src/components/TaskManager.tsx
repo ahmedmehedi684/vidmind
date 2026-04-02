@@ -373,7 +373,7 @@ const TaskManager = () => {
   if (loading) return <div className="flex justify-center py-12"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>;
 
   return (
-    <div className="flex flex-col" style={{ height: "calc(100vh - 6rem)" }}>
+    <div className="flex flex-col h-full overflow-hidden">
       {/* Header */}
       <div className="flex items-center justify-between">
         <h2 className="text-2xl font-bold text-foreground">
