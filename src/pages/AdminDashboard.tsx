@@ -730,7 +730,7 @@ const AdminDashboard = () => {
                   <Input placeholder="Video URL (optional)..." value={newNoteVideoUrl} onChange={(e) => setNewNoteVideoUrl(e.target.value)} />
                 </div>
                 <RichTextEditor value={newNote} onChange={setNewNote} />
-                <Button onClick={addNote} disabled={!newNote.trim()} className="gap-2"><Plus className="h-4 w-4" /> Note যোগ করুন</Button>
+                <Button onClick={addNote} disabled={!newNote.trim()} className="gap-2"><Plus className="h-4 w-4" /> Add Note</Button>
               </CardContent>
             </Card>
 
