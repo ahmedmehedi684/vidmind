@@ -1,28 +1,15 @@
+## Phase 1: Task Manager UI Fixes
+1. **Date strip horizontal scroll** — Date bar সাইড স্ক্রল হবে, পুরো পেজ স্ক্রল হবে না
+2. **Done confirmation popup** — Task done করতে গেলে Yes/No popup আসবে
+3. **Progress graph** — দুইটা bar chart (Done=green left, Undone=red right) with % display
 
-## Admin Dashboard নতুন ফিচার
+## Phase 2: Payment System
+4. **Admin Payment Method Manager** — Admin panel এ payment method (bKash/Nagad/Rocket/Upay + Payoneer) details add/edit করার section
+5. **Currency detection** — User এর location/IP অনুযায়ী BDT বা USD auto-select, manual override option
+6. **User Payment Page update** — BDT হলে mobile payment methods দেখাবে, USD হলে Payoneer দেখাবে
+7. **Pricing/Subscription page** — User দের জন্য plan দেখানো ও payment flow
 
-### 1. Analytics Dashboard
-- টোটাল ইউজার, সামারি কাউন্ট, অ্যাক্টিভ সাবস্ক্রিপশন, রেভিনিউ দেখানো
-- সামারি ট্রেন্ড চার্ট (recharts দিয়ে)
-- সাম্প্রতিক সাইনআপ তালিকা
+## Phase 3: Notifications (Future)
+8. **Mobile push notifications** — Task এর সময় অনুযায়ী notification পাঠানো (এটা Play Store app দরকার, web notification দিয়ে শুরু করা যায়)
 
-### 2. User Management
-- সব ইউজার লিস্ট দেখা (প্রোফাইল + সাবস্ক্রিপশন স্ট্যাটাস)
-- ইউজার সার্চ ও ফিল্টার
-- ইউজার রোল পরিবর্তন (admin/moderator/user)
-- ইউজার ডিটেইলস দেখা (সামারি কাউন্ট, সাবস্ক্রিপশন ইত্যাদি)
-
-### 3. Content Management
-- Landing page showcase ভিডিও ম্যানেজ (CRUD) — ইতিমধ্যে `landing_showcase` টেবিল আছে
-- Thumbnail আপলোড (showcase-thumbnails bucket আছে)
-
-### 4. Notification System
-- নতুন `notifications` টেবিল তৈরি করতে হবে (DB migration)
-- অ্যাডমিন সব ইউজার বা নির্দিষ্ট ইউজারকে নোটিফিকেশন পাঠাতে পারবে
-- ইউজাররা তাদের নোটিফিকেশন দেখতে ও পড়তে পারবে
-
-### প্রযুক্তিগত পরিকল্পনা
-- প্রতিটি ফিচারের জন্য আলাদা কম্পোনেন্ট তৈরি
-- AdminDashboard পেজে ট্যাব/সেকশন হিসেবে যোগ
-- Notification এর জন্য DB migration প্রয়োজন
-- ইউজার সাইডে নোটিফিকেশন বেল আইকন যোগ
+> **Note:** Push notification for mobile app needs service worker + Firebase Cloud Messaging setup — এটা আলাদা ধাপে করবো।
