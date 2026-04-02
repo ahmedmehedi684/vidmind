@@ -1,15 +1,37 @@
-## Phase 1: Task Manager UI Fixes
-1. **Date strip horizontal scroll** — Date bar সাইড স্ক্রল হবে, পুরো পেজ স্ক্রল হবে না
-2. **Done confirmation popup** — Task done করতে গেলে Yes/No popup আসবে
-3. **Progress graph** — দুইটা bar chart (Done=green left, Undone=red right) with % display
+## Plan: Subscription System Upgrade
 
-## Phase 2: Payment System
-4. **Admin Payment Method Manager** — Admin panel এ payment method (bKash/Nagad/Rocket/Upay + Payoneer) details add/edit করার section
-5. **Currency detection** — User এর location/IP অনুযায়ী BDT বা USD auto-select, manual override option
-6. **User Payment Page update** — BDT হলে mobile payment methods দেখাবে, USD হলে Payoneer দেখাবে
-7. **Pricing/Subscription page** — User দের জন্য plan দেখানো ও payment flow
+### Phase 1: Database Changes
+- Add `currency` column to `subscription_plans` (BDT/USD)
+- Add `limits` JSONB column to `subscription_plans` for feature access limits (tasks, transactions, summaries per month)
+- Add `team_members` table for staff/moderator management
+- Update existing Free/Pro plans with BDT/USD variants and feature limits
 
-## Phase 3: Notifications (Future)
-8. **Mobile push notifications** — Task এর সময় অনুযায়ী notification পাঠানো (এটা Play Store app দরকার, web notification দিয়ে শুরু করা যায়)
+### Phase 2: Feature Access Control
+- Create a hook/utility to check user's plan limits (e.g., max tasks, max transactions, max summaries per month)
+- Enforce limits in TaskManager, MoneyManager, and Summarize features
+- Admin can set "unlimited" for any feature limit
 
-> **Note:** Push notification for mobile app needs service worker + Firebase Cloud Messaging setup — এটা আলাদা ধাপে করবো।
+### Phase 3: Payment Flow Improvements
+- Landing page plan button → if not logged in → sign up → redirect to payment page (not re-select plan)
+- Payment page: must select payment method before submit
+- Copy button on payment method account numbers
+- Currency selector (BDT/USD) on subscription page
+
+### Phase 4: Admin Payment Orders Page Upgrade
+- Show: user email, user name, plan name, currency, payment method, payment number, amount, Transaction ID, status, expiry date
+- Edit button for orders
+- User section: name, email, user ID, subscription count, plan name
+
+### Phase 5: Team/Staff Management
+- Admin can add team members with roles (moderator, CEO, staff)
+- Name, email, password fields
+- Role-based confirmation email
+- Staff list with role badges
+
+### Implementation Order
+1. Database migration (Phase 1)
+2. Update plans with limits (Phase 1)
+3. Admin payment page upgrade (Phase 4)
+4. Payment flow improvements (Phase 3)
+5. Feature access control (Phase 2)
+6. Team management (Phase 5)
