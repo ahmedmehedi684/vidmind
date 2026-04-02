@@ -626,8 +626,8 @@ const AdminDashboard = () => {
       case "summaries":
         return (
           <div className="space-y-4">
-            <h2 className="text-xl font-semibold text-foreground">সব Summaries ({summaries.length})</h2>
-            {loading ? <div className="flex justify-center py-12"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div> : summaries.length === 0 ? <Card><CardContent className="py-12 text-center text-muted-foreground">কোনো summary নেই।</CardContent></Card> : (
+            <h2 className="text-xl font-semibold text-foreground">All Summaries ({summaries.length})</h2>
+            {loading ? <div className="flex justify-center py-12"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div> : summaries.length === 0 ? <Card><CardContent className="py-12 text-center text-muted-foreground">No summaries yet.</CardContent></Card> : (
               summaries.map(item => (
                 <Card key={item.id} className="cursor-pointer hover:border-primary/50 transition-colors" onClick={() => setExpanded(expanded === item.id ? null : item.id)}>
                   <CardHeader className="pb-2">
