@@ -32,7 +32,7 @@ const Auth = () => {
       return;
     }
     if (!isLogin && !name.trim()) {
-      toast.error("আপনার নাম দিন");
+      toast.error("Please enter your name");
       return;
     }
 
