@@ -401,7 +401,7 @@ const LandingPage = () => {
                   <li key={f} className="flex items-center gap-2 text-sm" style={{ color: "#8892a4" }}><Check className="h-4 w-4 shrink-0" style={{ color: "#00ff87" }} />{f}</li>
                 ))}
               </ul>
-              <Link to="/auth"><Button className="w-full font-semibold text-[#0a0d14]" style={{ background: "#00ff87" }}>Start Pro <ChevronRight className="h-4 w-4 ml-1" /></Button></Link>
+              <Link to={user ? "/app-subscription" : "/auth?redirect=subscription"}><Button className="w-full font-semibold text-[#0a0d14]" style={{ background: "#00ff87" }}>Start Pro <ChevronRight className="h-4 w-4 ml-1" /></Button></Link>
             </div>
           </div>
         </div>
