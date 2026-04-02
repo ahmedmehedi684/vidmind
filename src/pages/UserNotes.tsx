@@ -174,7 +174,7 @@ const UserNotes = () => {
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>{editing ? "Note Edit করুন" : (selectedNote?.title || "Untitled")}</DialogTitle>
+            <DialogTitle>{editing ? "Edit Note" : (selectedNote?.title || "Untitled")}</DialogTitle>
             <DialogDescription className="sr-only">Note details</DialogDescription>
           </DialogHeader>
 
