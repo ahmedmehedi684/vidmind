@@ -601,7 +601,7 @@ const AdminDashboard = () => {
               <Card><CardContent className="pt-6 text-center"><Users className="h-8 w-8 text-primary mx-auto mb-2" /><p className="text-3xl font-bold text-foreground">{users.length}</p><p className="text-sm text-muted-foreground">Total Users</p></CardContent></Card>
               <Card><CardContent className="pt-6 text-center"><FileText className="h-8 w-8 text-primary mx-auto mb-2" /><p className="text-3xl font-bold text-foreground">{summaries.length}</p><p className="text-sm text-muted-foreground">Total Summaries</p></CardContent></Card>
             </div>
-            {loading ? <div className="flex justify-center py-12"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div> : users.length === 0 ? <Card><CardContent className="py-12 text-center text-muted-foreground">কোনো user নেই।</CardContent></Card> : (
+            {loading ? <div className="flex justify-center py-12"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div> : users.length === 0 ? <Card><CardContent className="py-12 text-center text-muted-foreground">No users yet.</CardContent></Card> : (
               <div className="space-y-3">{users.map(u => (
                 <Card key={u.id} className="hover:border-primary/30 transition-colors">
                   <CardContent className="py-4 flex items-center justify-between gap-4 flex-wrap">
