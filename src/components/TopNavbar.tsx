@@ -4,6 +4,7 @@ import { LogOut, ChevronDown } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
+import UserNotificationBell from "@/components/UserNotificationBell";
 
 const navLinks = [
   { label: "Dashboard", path: "/app" },
