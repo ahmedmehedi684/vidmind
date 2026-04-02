@@ -185,7 +185,7 @@ const Auth = () => {
                 ) : (
                   <LogIn className="h-4 w-4" />
                 )}
-                {isLogin ? "Login করুন" : "Account তৈরি করুন"}
+                {isLogin ? "Login" : "Create Account"}
               </Button>
             </form>
 
