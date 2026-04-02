@@ -157,7 +157,7 @@ const Index = () => {
         setHistoryId(id);
       }
     } catch (e) {
-      setError(e instanceof Error ? e.message : "কিছু একটা ভুল হয়েছে");
+      setError(e instanceof Error ? e.message : "Something went wrong");
     } finally { setIsLoading(false); }
   };
 
