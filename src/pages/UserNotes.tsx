@@ -78,7 +78,7 @@ const UserNotes = () => {
     const updateData: any = { text: editText.trim(), title: editTitle.trim(), video_url: editVideoUrl.trim() };
     updateData.channel_id = editChannelId === "all" ? null : editChannelId;
     const { error } = await supabase.from("admin_notes").update(updateData).eq("id", selectedNote.id);
-    if (error) { toast.error("আপডেট করতে সমস্যা হয়েছে"); return; }
+    if (error) { toast.error("Failed to update note"); return; }
     const updated = { ...selectedNote, ...updateData };
     setNotes(notes.map(n => n.id === selectedNote.id ? updated : n));
     setSelectedNote(updated);
