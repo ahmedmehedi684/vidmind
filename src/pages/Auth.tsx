@@ -41,7 +41,7 @@ const Auth = () => {
       if (isLogin) {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
-        toast.success("Login সফল!");
+        toast.success("Login successful!");
         navigate(getRedirectPath());
       } else {
         const { data, error } = await supabase.auth.signUp({
