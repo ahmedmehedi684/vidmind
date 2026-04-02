@@ -171,7 +171,7 @@ const Index = () => {
         <h1 className="text-3xl md:text-4xl font-bold text-foreground tracking-tight">
           <span className="text-primary">Summarizer</span>
         </h1>
-        <p className="mt-2 text-muted-foreground text-base">YouTube video link দিন বা transcript paste করে সারাংশ পান</p>
+        <p className="mt-2 text-muted-foreground text-base">Paste a YouTube video link or transcript to get a summary</p>
       </div>
 
       {!done && (
