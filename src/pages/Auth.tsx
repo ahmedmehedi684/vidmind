@@ -28,7 +28,7 @@ const Auth = () => {
   const handleEmailAuth = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email.trim() || !password.trim()) {
-      toast.error("Email ও Password দিন");
+      toast.error("Please enter email and password");
       return;
     }
     if (!isLogin && !name.trim()) {
