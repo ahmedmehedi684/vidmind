@@ -83,7 +83,7 @@ const UserNotes = () => {
     setNotes(notes.map(n => n.id === selectedNote.id ? updated : n));
     setSelectedNote(updated);
     setEditing(false);
-    toast.success("Note আপডেট হয়েছে");
+    toast.success("Note updated");
   };
 
   const openDialog = (note: Note) => {
