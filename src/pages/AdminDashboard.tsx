@@ -676,7 +676,7 @@ const AdminDashboard = () => {
                           setDone(true); setHistoryId(item.id);
                           setInitialConversation((item.conversation as unknown as { role: "user" | "assistant"; content: string }[]) || undefined);
                           setActiveTab("summarize");
-                        }}><MessageCircle className="h-4 w-4" /> চ্যাট Continue করুন</Button>
+                        }}><MessageCircle className="h-4 w-4" /> Continue Chat</Button>
                       </CardContent>
                     )}
                   </Card>
