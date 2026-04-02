@@ -585,9 +585,9 @@ const AdminDashboard = () => {
             {error && <Alert variant="destructive"><AlertDescription>{error}</AlertDescription></Alert>}
             {result && (
               <div className="space-y-5 animate-in fade-in-0 slide-in-from-bottom-4 duration-500">
-                <Card><CardHeader><CardTitle className="text-xl text-primary">মূল বিষয়</CardTitle></CardHeader><CardContent><p className="text-secondary-foreground leading-relaxed">{result.mainStory}</p></CardContent></Card>
+                <Card><CardHeader><CardTitle className="text-xl text-primary">Main Story</CardTitle></CardHeader><CardContent><p className="text-secondary-foreground leading-relaxed">{result.mainStory}</p></CardContent></Card>
                 <Card><CardHeader><CardTitle className="text-xl text-primary">Key Points</CardTitle></CardHeader><CardContent><ul className="space-y-2">{(result.bulletPoints || []).map((p, i) => <li key={i} className="flex items-start gap-2 text-secondary-foreground"><span className="mt-1.5 h-2 w-2 rounded-full bg-primary shrink-0" />{p}</li>)}</ul></CardContent></Card>
-                <Card><CardHeader><CardTitle className="text-xl text-primary">কী শিখলাম / কী করবো?</CardTitle></CardHeader><CardContent className="space-y-4">{(result.howToApply || []).map((item, i) => <div key={i} className="border-l-2 border-primary pl-4"><h4 className="font-semibold text-foreground">{item.title}</h4><p className="text-muted-foreground text-sm mt-1">{item.detail}</p></div>)}</CardContent></Card>
+                <Card><CardHeader><CardTitle className="text-xl text-primary">What I Learned / Action Items</CardTitle></CardHeader><CardContent className="space-y-4">{(result.howToApply || []).map((item, i) => <div key={i} className="border-l-2 border-primary pl-4"><h4 className="font-semibold text-foreground">{item.title}</h4><p className="text-muted-foreground text-sm mt-1">{item.detail}</p></div>)}</CardContent></Card>
               </div>
             )}
             {result && done && <FollowUpSection transcript={inputValue} summary={result} initialConversation={initialConversation} onConversationUpdate={(conv) => { if (historyId) updateHistoryConversation(historyId, conv); }} />}
