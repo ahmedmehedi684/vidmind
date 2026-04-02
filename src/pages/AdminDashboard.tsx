@@ -365,8 +365,8 @@ const AdminDashboard = () => {
       await supabase.from("admin_notes").delete().eq("id", id);
       setNotes(notes.filter(n => n.id !== id));
       setNoteDialogOpen(false); setSelectedNote(null);
-      toast.success("Note মুছে ফেলা হয়েছে");
-    } catch (e) { toast.error("Note মুছতে সমস্যা হয়েছে"); }
+      toast.success("Note deleted");
+    } catch (e) { toast.error("Failed to delete note"); }
   };
 
   const openNoteDialog = (note: AdminNote) => {
