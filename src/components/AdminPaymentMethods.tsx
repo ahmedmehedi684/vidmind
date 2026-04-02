@@ -211,7 +211,7 @@ const AdminPaymentMethods = () => {
             </div>
             <div className="space-y-1.5">
               <Label>Instructions</Label>
-              <Textarea value={mInstructions} onChange={e => setMInstructions(e.target.value)} placeholder="Send Money করুন এই নম্বরে..." rows={2} />
+              <Textarea value={mInstructions} onChange={e => setMInstructions(e.target.value)} placeholder="Send money to this number..." rows={2} />
             </div>
           </div>
           <DialogFooter>

@@ -575,8 +575,8 @@ const AdminDashboard = () => {
                   <p className="text-center text-sm text-muted-foreground">Paste the YouTube video transcript to summarize.</p>
                   <Textarea placeholder="Paste transcript here..." value={inputValue} onChange={(e) => setInputValue(e.target.value)} rows={6} />
                   <Button className="w-full text-base font-semibold h-12" onClick={handleSubmit} disabled={isLoading}>
-                    {isLoading ? <span className="flex items-center gap-2"><Loader2 className="h-5 w-5 animate-spin" /> AI বিশ্লেষণ করছে...</span>
-                      : <span className="flex items-center gap-1">Summarize করো <ChevronRight className="h-5 w-5" /></span>}
+                    {isLoading ? <span className="flex items-center gap-2"><Loader2 className="h-5 w-5 animate-spin" /> AI is analyzing...</span>
+                      : <span className="flex items-center gap-1">Summarize <ChevronRight className="h-5 w-5" /></span>}
                   </Button>
                 </CardContent>
               </Card>
