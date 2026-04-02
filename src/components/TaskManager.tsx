@@ -658,6 +658,8 @@ const TaskManager = () => {
         </div>
       )}
 
+      </div>{/* end scrollable task area */}
+
       {/* FAB */}
       <button
         onClick={openAddDialog}
