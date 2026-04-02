@@ -158,7 +158,14 @@ const AdminPayments = () => {
   const getPlanCurrency = (planId: string) => plans.find(p => p.id === planId)?.currency || "BDT";
   const getSubExpiry = (subId: string) => {
     const sub = subscriptions.find(s => s.id === subId);
-    return sub?.expires_at ? new Date(sub.expires_at).toLocaleDateString() : "N/A";
+    if (!sub?.expires_at) return "N/A";
+    const expiryDate = new Date(sub.expires_at);
+    const now = new Date();
+    const diffMs = expiryDate.getTime() - now.getTime();
+    const diffDays = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
+    if (diffDays < 0) return `Expired ${Math.abs(diffDays)}d ago`;
+    if (diffDays === 0) return "Expires today";
+    return `${diffDays}d left`;
   };
 
   const filteredOrders = orders.filter(o => {
