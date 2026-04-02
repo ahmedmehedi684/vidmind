@@ -978,7 +978,7 @@ const AdminDashboard = () => {
             <h2 className="text-xl font-semibold text-foreground flex items-center gap-2"><User className="h-5 w-5 text-primary" /> Profile</h2>
             <Card>
               <CardHeader><CardTitle className="text-lg text-primary flex items-center gap-2"><Mail className="h-4 w-4" /> Email</CardTitle></CardHeader>
-              <CardContent><Input value={user?.email || ""} disabled className="bg-muted" /><p className="text-xs text-muted-foreground mt-1">Email পরিবর্তন করা যায় না।</p></CardContent>
+              <CardContent><Input value={user?.email || ""} disabled className="bg-muted" /><p className="text-xs text-muted-foreground mt-1">Email cannot be changed.</p></CardContent>
             </Card>
             <Card>
               <CardHeader><CardTitle className="text-lg text-primary flex items-center gap-2"><User className="h-4 w-4" /> নাম</CardTitle></CardHeader>
