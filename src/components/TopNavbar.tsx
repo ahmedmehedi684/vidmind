@@ -56,21 +56,21 @@ export default function TopNavbar() {
         </div>
         <div className="flex items-center gap-1">
           <UserNotificationBell />
-        <div className="relative" ref={dropdownRef}>
-          <button onClick={() => setDropdownOpen(!dropdownOpen)} className="flex items-center gap-2 rounded-full px-2 py-1 hover:bg-muted/50 transition-colors">
-            <Avatar className="h-8 w-8"><AvatarFallback className="bg-primary text-primary-foreground text-xs font-semibold">{initials}</AvatarFallback></Avatar>
-            <span className="hidden sm:block text-sm font-medium text-foreground max-w-[120px] truncate" style={{ fontFamily: "'DM Sans', sans-serif" }}>{displayName}</span>
-            <ChevronDown className="h-3.5 w-3.5 text-muted-foreground" />
-          </button>
-          {dropdownOpen && (
-            <div className="absolute right-0 top-full mt-1 w-48 rounded-md border border-border bg-popover shadow-lg py-1 z-50">
-              <Button variant="ghost" className="w-full justify-start gap-2 text-sm text-destructive hover:text-destructive px-3 h-9" onClick={() => { setDropdownOpen(false); signOut(); }}>
-                <LogOut className="h-4 w-4" /> Logout
-              </Button>
-            </div>
-          )}
+          <div className="relative" ref={dropdownRef}>
+            <button onClick={() => setDropdownOpen(!dropdownOpen)} className="flex items-center gap-2 rounded-full px-2 py-1 hover:bg-muted/50 transition-colors">
+              <Avatar className="h-8 w-8"><AvatarFallback className="bg-primary text-primary-foreground text-xs font-semibold">{initials}</AvatarFallback></Avatar>
+              <span className="hidden sm:block text-sm font-medium text-foreground max-w-[120px] truncate" style={{ fontFamily: "'DM Sans', sans-serif" }}>{displayName}</span>
+              <ChevronDown className="h-3.5 w-3.5 text-muted-foreground" />
+            </button>
+            {dropdownOpen && (
+              <div className="absolute right-0 top-full mt-1 w-48 rounded-md border border-border bg-popover shadow-lg py-1 z-50">
+                <Button variant="ghost" className="w-full justify-start gap-2 text-sm text-destructive hover:text-destructive px-3 h-9" onClick={() => { setDropdownOpen(false); signOut(); }}>
+                  <LogOut className="h-4 w-4" /> Logout
+                </Button>
+              </div>
+            )}
+          </div>
         </div>
-      </div>
       <div className="md:hidden flex items-center gap-1 px-4 pb-2 overflow-x-auto">
         {navLinks.map((link) => (
           <Link key={link.path} to={link.path}
