@@ -36,7 +36,7 @@ const AdminLogin = () => {
     if (data) {
 navigate("/admin-dashboard", { replace: true });
     } else {
-      toast.error("আপনি admin নন!");
+      toast.error("You are not an admin!");
       await supabase.auth.signOut();
     }
   };
