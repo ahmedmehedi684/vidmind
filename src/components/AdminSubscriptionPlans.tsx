@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import {
-  CreditCard, Check, Plus, Loader2, Edit2, Trash2
+  CreditCard, Check, Plus, Loader2, Edit2, Trash2, ToggleLeft, ToggleRight
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -73,6 +73,15 @@ const AdminSubscriptionPlans = () => {
     } catch (e) { toast.error("Failed to save plan"); }
   };
 
+  const toggleActive = async (plan: Plan) => {
+    try {
+      const { error } = await supabase.from("subscription_plans").update({ is_active: !plan.is_active }).eq("id", plan.id);
+      if (error) throw error;
+      setPlans(plans.map(p => p.id === plan.id ? { ...p, is_active: !plan.is_active } : p));
+      toast.success(plan.is_active ? "Plan deactivated!" : "Plan activated!");
+    } catch (e) { toast.error("Failed to update plan"); }
+  };
+
   const deletePlan = async (id: string) => {
     try {
       await supabase.from("subscription_plans").delete().eq("id", id);
@@ -119,11 +128,15 @@ const AdminSubscriptionPlans = () => {
                   ))}
                 </ul>
                 <div className="flex gap-2 pt-2">
-                  <Button variant="outline" size="sm" className="gap-1 flex-1" onClick={() => openEdit(plan)}>
-                    <Edit2 className="h-3 w-3" /> Edit
+                  <Button variant={plan.is_active ? "outline" : "default"} size="sm" className="gap-1 flex-1" onClick={() => toggleActive(plan)}>
+                    {plan.is_active ? <ToggleRight className="h-3 w-3" /> : <ToggleLeft className="h-3 w-3" />}
+                    {plan.is_active ? "Deactivate" : "Activate"}
                   </Button>
-                  <Button variant="destructive" size="sm" className="gap-1 flex-1" onClick={() => deletePlan(plan.id)}>
-                    <Trash2 className="h-3 w-3" /> Delete
+                  <Button variant="outline" size="sm" className="gap-1" onClick={() => openEdit(plan)}>
+                    <Edit2 className="h-3 w-3" />
+                  </Button>
+                  <Button variant="destructive" size="sm" className="gap-1" onClick={() => deletePlan(plan.id)}>
+                    <Trash2 className="h-3 w-3" />
                   </Button>
                 </div>
               </CardContent>
