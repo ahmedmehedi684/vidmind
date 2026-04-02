@@ -261,7 +261,7 @@ const TaskManager = () => {
     setConfirmTask(task);
   };
 
-  const handleTaskDecision = async (status: "done" | "todo") => {
+  const handleTaskDecision = async (status: "done" | "todo" | "not_done") => {
     if (!confirmTask) return;
     try {
       const { error } = await supabase
