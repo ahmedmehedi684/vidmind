@@ -70,6 +70,14 @@ const AdminSubscriptionPlans = () => {
     setPLimits({ ...pLimits, [key]: isNaN(num) ? 0 : num });
   };
 
+  const toggleUnlimitedLimit = (key: keyof PlanLimits) => {
+    setPLimits({ ...pLimits, [key]: pLimits[key] === -1 ? 5 : -1 });
+  };
+
+  const toggleUnlimitedDuration = () => {
+    setPDays(pDays === "-1" ? "30" : "-1");
+  };
+
   const save = async () => {
     if (!pName.trim()) return;
     const features = pFeatures.split("\n").map(f => f.trim()).filter(Boolean);
@@ -177,7 +185,13 @@ const AdminSubscriptionPlans = () => {
             <div className="space-y-1.5"><Label>Description</Label><Input value={pDesc} onChange={e => setPDesc(e.target.value)} placeholder="Short description" /></div>
             <div className="grid grid-cols-3 gap-3">
               <div className="space-y-1.5"><Label>Price ({pCurrency === "BDT" ? "৳" : "$"})</Label><Input type="number" value={pPrice} onChange={e => setPPrice(e.target.value)} /></div>
-              <div className="space-y-1.5"><Label>Duration (days)</Label><Input type="number" value={pDays} onChange={e => setPDays(e.target.value)} /></div>
+              <div className="space-y-1.5">
+                <Label>Duration (days)</Label>
+                <div className="flex gap-1">
+                  <Input type="number" value={pDays === "-1" ? "" : pDays} onChange={e => setPDays(e.target.value)} disabled={pDays === "-1"} placeholder={pDays === "-1" ? "∞" : ""} />
+                  <Button type="button" variant={pDays === "-1" ? "default" : "outline"} size="sm" className="shrink-0 text-xs h-9" onClick={toggleUnlimitedDuration}>∞</Button>
+                </div>
+              </div>
               <div className="space-y-1.5"><Label>Sort Order</Label><Input type="number" value={pOrder} onChange={e => setPOrder(e.target.value)} /></div>
             </div>
             <div className="space-y-1.5">
@@ -191,7 +205,10 @@ const AdminSubscriptionPlans = () => {
                 {(Object.keys(pLimits) as (keyof PlanLimits)[]).map(key => (
                   <div key={key} className="space-y-1">
                     <Label className="text-xs capitalize">{key}</Label>
-                    <Input type="number" value={pLimits[key]} onChange={e => updateLimit(key, e.target.value)} className="h-8 text-sm" />
+                    <div className="flex gap-1">
+                      <Input type="number" value={pLimits[key] === -1 ? "" : pLimits[key]} onChange={e => updateLimit(key, e.target.value)} className="h-8 text-sm" disabled={pLimits[key] === -1} placeholder={pLimits[key] === -1 ? "∞" : ""} />
+                      <Button type="button" variant={pLimits[key] === -1 ? "default" : "outline"} size="sm" className="shrink-0 text-xs h-8 px-2" onClick={() => toggleUnlimitedLimit(key)}>∞</Button>
+                    </div>
                   </div>
                 ))}
               </div>
@@ -220,7 +237,7 @@ const AdminSubscriptionPlans = () => {
           {plan.description && <p className="text-sm text-muted-foreground">{plan.description}</p>}
           <p className="text-2xl font-bold text-primary">
             {(plan.currency || "BDT") === "USD" ? "$" : "৳"}{plan.price}
-            <span className="text-sm text-muted-foreground font-normal"> / {plan.duration_days} days</span>
+            <span className="text-sm text-muted-foreground font-normal"> / {plan.duration_days === -1 ? "Unlimited" : `${plan.duration_days} days`}</span>
           </p>
           {/* Limits display */}
           {Object.keys(limits).length > 0 && (

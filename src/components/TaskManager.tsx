@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { format } from "date-fns";
 import {
-  Plus, Trash2, Check,
+  Plus, Trash2, Check, X,
   Loader2, StickyNote, Calendar as CalendarIcon, Timer, ListChecks,
   Sun, Brain, Briefcase, Moon, Headphones, Heart, Edit2,
   Bell, Home, BookOpen, Coffee, Dumbbell, Music, ShoppingCart,
@@ -196,7 +196,12 @@ const TaskManager = () => {
     return task.status === "done";
   };
 
+  const isTaskNotDoneForDate = (task: Task) => {
+    return task.status === "not_done";
+  };
+
   const doneTasks = tasksForDate.filter(t => isTaskDoneForDate(t)).length;
+  const notDoneTasks = tasksForDate.filter(t => isTaskNotDoneForDate(t)).length;
   const totalForDate = tasksForDate.length;
   const donePercent = totalForDate > 0 ? Math.round((doneTasks / totalForDate) * 100) : 0;
   const undonePercent = 100 - donePercent;
@@ -356,45 +361,24 @@ const TaskManager = () => {
         </div>
       </div>
 
-      {/* Progress Graph — Done vs Undone */}
+      {/* Progress Bar — Horizontal Done vs Undone */}
       {totalForDate > 0 && (
-        <Card>
-          <CardContent className="pt-4 pb-3">
-            <div className="flex items-center justify-between mb-3">
-              <p className="text-sm font-semibold text-foreground">Progress</p>
-              <p className="text-xs text-muted-foreground">{doneTasks} of {totalForDate} tasks</p>
-            </div>
-            {/* Dual bar graph */}
-            <div className="flex items-end gap-6 justify-center h-28 mb-2">
-              {/* Done bar - left, green */}
-              <div className="flex flex-col items-center gap-1 flex-1 max-w-[100px]">
-                <span className="text-lg font-bold text-green-400">{donePercent}%</span>
-                <div className="w-full bg-muted/30 rounded-t-lg overflow-hidden relative" style={{ height: "80px" }}>
-                  <div
-                    className="absolute bottom-0 w-full bg-gradient-to-t from-green-500 to-green-400 rounded-t-lg transition-all duration-500"
-                    style={{ height: `${donePercent}%` }}
-                  />
-                </div>
-                <span className="text-xs font-medium text-green-400">✅ Done</span>
-                <span className="text-[10px] text-muted-foreground">{doneTasks} tasks</span>
-              </div>
-              {/* Undone bar - right, red */}
-              <div className="flex flex-col items-center gap-1 flex-1 max-w-[100px]">
-                <span className="text-lg font-bold text-red-400">{undonePercent}%</span>
-                <div className="w-full bg-muted/30 rounded-t-lg overflow-hidden relative" style={{ height: "80px" }}>
-                  <div
-                    className="absolute bottom-0 w-full bg-gradient-to-t from-red-500 to-red-400 rounded-t-lg transition-all duration-500"
-                    style={{ height: `${undonePercent}%` }}
-                  />
-                </div>
-                <span className="text-xs font-medium text-red-400">❌ Undone</span>
-                <span className="text-[10px] text-muted-foreground">{totalForDate - doneTasks} tasks</span>
-              </div>
-            </div>
-            {/* Overall progress bar */}
-            <Progress value={donePercent} className="h-2" />
-          </CardContent>
-        </Card>
+        <div className="space-y-1.5 py-2">
+          <div className="flex items-center justify-between text-xs">
+            <span className="text-green-400 font-semibold">✅ Done {donePercent}% ({doneTasks})</span>
+            <span className="text-red-400 font-semibold">❌ Not Done {undonePercent}% ({totalForDate - doneTasks})</span>
+          </div>
+          <div className="flex h-3 w-full rounded-full overflow-hidden bg-muted/30">
+            <div
+              className="bg-gradient-to-r from-green-500 to-green-400 transition-all duration-500"
+              style={{ width: `${donePercent}%` }}
+            />
+            <div
+              className="bg-gradient-to-r from-red-400 to-red-500 transition-all duration-500"
+              style={{ width: `${undonePercent}%` }}
+            />
+          </div>
+        </div>
       )}
 
       {/* Scrollable task area */}
@@ -489,11 +473,14 @@ const TaskManager = () => {
                         onClick={(e) => { e.stopPropagation(); handleToggleClick(task); }}
                         className={`w-7 h-7 rounded-full border-2 flex items-center justify-center shrink-0 transition-colors ${
                           isDone
-                            ? "border-primary bg-primary text-primary-foreground"
+                            ? "border-green-500 bg-green-500 text-white"
+                            : task.status === "not_done"
+                            ? "border-red-500 bg-red-500 text-white"
                             : "border-muted-foreground/30 hover:border-primary"
                         }`}
                       >
                         {isDone && <Check className="h-4 w-4" />}
+                        {task.status === "not_done" && <X className="h-4 w-4" />}
                       </button>
                     </div>
 
@@ -558,11 +545,11 @@ const TaskManager = () => {
             </DialogDescription>
           </DialogHeader>
           <DialogFooter className="flex-col-reverse gap-2 sm:flex-row sm:justify-end">
-            <Button variant="outline" onClick={() => void handleTaskDecision("todo")}>
-              No, Not Done
+            <Button variant="destructive" onClick={() => void handleTaskDecision("not_done" as any)}>
+              ❌ Not Done
             </Button>
-            <Button onClick={() => void handleTaskDecision("done")}>
-              Yes, Done
+            <Button className="bg-green-600 hover:bg-green-700" onClick={() => void handleTaskDecision("done")}>
+              ✅ Yes, Done
             </Button>
           </DialogFooter>
         </DialogContent>
