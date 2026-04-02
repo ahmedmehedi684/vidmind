@@ -450,7 +450,7 @@ const AdminDashboard = () => {
 
   const handleSubmit = async () => {
     setError(""); setResult(null); setDone(false);
-    if (!inputValue.trim()) { setError("Transcript paste করুন"); return; }
+    if (!inputValue.trim()) { setError("Please paste a transcript"); return; }
     setIsLoading(true);
     try {
       const aiSettings = getSettings();
