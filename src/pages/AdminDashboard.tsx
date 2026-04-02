@@ -657,10 +657,10 @@ const AdminDashboard = () => {
       case "history":
         return (
           <div className="space-y-4">
-            <h2 className="text-xl font-semibold text-foreground">আমার Summary History</h2>
+            <h2 className="text-xl font-semibold text-foreground">My Summary History</h2>
             {(() => {
               const mySummaries = summaries.filter(s => s.user_id === user?.id);
-              return mySummaries.length === 0 ? <Card><CardContent className="py-12 text-center text-muted-foreground">আপনার কোনো summary নেই।</CardContent></Card> : (
+              return mySummaries.length === 0 ? <Card><CardContent className="py-12 text-center text-muted-foreground">You have no summaries yet.</CardContent></Card> : (
                 mySummaries.map(item => (
                   <Card key={item.id} className="cursor-pointer hover:border-primary/50 transition-colors" onClick={() => setExpanded(expanded === item.id ? null : item.id)}>
                     <CardHeader className="pb-2">
