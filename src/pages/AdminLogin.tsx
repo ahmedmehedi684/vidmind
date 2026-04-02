@@ -44,7 +44,7 @@ navigate("/admin-dashboard", { replace: true });
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email.trim() || !password.trim()) {
-      toast.error("Email ও Password দিন");
+      toast.error("Please enter email and password");
       return;
     }
 
