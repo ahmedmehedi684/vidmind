@@ -499,9 +499,9 @@ const AdminDashboard = () => {
   };
 
   const handleChangePassword = async () => {
-    if (!newPassword.trim()) { toast.error("নতুন password দিন"); return; }
-    if (newPassword.length < 6) { toast.error("Password কমপক্ষে ৬ অক্ষর হতে হবে"); return; }
-    if (newPassword !== confirmPassword) { toast.error("Password মিলছে না"); return; }
+    if (!newPassword.trim()) { toast.error("Please enter new password"); return; }
+    if (newPassword.length < 6) { toast.error("Password must be at least 6 characters"); return; }
+    if (newPassword !== confirmPassword) { toast.error("Passwords do not match"); return; }
     setChangingPassword(true);
     try {
       const { error } = await supabase.auth.updateUser({ password: newPassword });
