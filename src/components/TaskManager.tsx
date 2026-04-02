@@ -202,8 +202,6 @@ const TaskManager = () => {
 
   const doneTasks = tasksForDate.filter(t => isTaskDoneForDate(t)).length;
   const notDoneTasks = tasksForDate.filter(t => isTaskNotDoneForDate(t)).length;
-
-  const doneTasks = tasksForDate.filter(t => isTaskDoneForDate(t)).length;
   const totalForDate = tasksForDate.length;
   const donePercent = totalForDate > 0 ? Math.round((doneTasks / totalForDate) * 100) : 0;
   const undonePercent = 100 - donePercent;
