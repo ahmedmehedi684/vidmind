@@ -719,7 +719,7 @@ const AdminDashboard = () => {
               <CardContent className="pt-6 space-y-3">
                 <Input placeholder="Note title..." value={newNoteTitle} onChange={(e) => setNewNoteTitle(e.target.value)} className="font-semibold" />
                 <Select value={newNoteChannelId} onValueChange={setNewNoteChannelId}>
-                  <SelectTrigger><SelectValue placeholder="Channel select করুন" /></SelectTrigger>
+                  <SelectTrigger><SelectValue placeholder="Select Channel" /></SelectTrigger>
                   <SelectContent>
                     <SelectItem value="all">কোনো Channel নেই</SelectItem>
                     {channels.map(ch => <SelectItem key={ch.id} value={ch.id}><span className="flex items-center gap-1.5"><Youtube className="h-3.5 w-3.5 text-destructive" /> {ch.name}</span></SelectItem>)}
