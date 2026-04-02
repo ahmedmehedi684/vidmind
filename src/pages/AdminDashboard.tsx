@@ -721,7 +721,7 @@ const AdminDashboard = () => {
                 <Select value={newNoteChannelId} onValueChange={setNewNoteChannelId}>
                   <SelectTrigger><SelectValue placeholder="Select Channel" /></SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="all">কোনো Channel নেই</SelectItem>
+                    <SelectItem value="all">No Channel</SelectItem>
                     {channels.map(ch => <SelectItem key={ch.id} value={ch.id}><span className="flex items-center gap-1.5"><Youtube className="h-3.5 w-3.5 text-destructive" /> {ch.name}</span></SelectItem>)}
                   </SelectContent>
                 </Select>
