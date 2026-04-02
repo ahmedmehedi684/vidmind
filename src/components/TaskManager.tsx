@@ -356,45 +356,24 @@ const TaskManager = () => {
         </div>
       </div>
 
-      {/* Progress Graph — Done vs Undone */}
+      {/* Progress Bar — Horizontal Done vs Undone */}
       {totalForDate > 0 && (
-        <Card>
-          <CardContent className="pt-4 pb-3">
-            <div className="flex items-center justify-between mb-3">
-              <p className="text-sm font-semibold text-foreground">Progress</p>
-              <p className="text-xs text-muted-foreground">{doneTasks} of {totalForDate} tasks</p>
-            </div>
-            {/* Dual bar graph */}
-            <div className="flex items-end gap-6 justify-center h-28 mb-2">
-              {/* Done bar - left, green */}
-              <div className="flex flex-col items-center gap-1 flex-1 max-w-[100px]">
-                <span className="text-lg font-bold text-green-400">{donePercent}%</span>
-                <div className="w-full bg-muted/30 rounded-t-lg overflow-hidden relative" style={{ height: "80px" }}>
-                  <div
-                    className="absolute bottom-0 w-full bg-gradient-to-t from-green-500 to-green-400 rounded-t-lg transition-all duration-500"
-                    style={{ height: `${donePercent}%` }}
-                  />
-                </div>
-                <span className="text-xs font-medium text-green-400">✅ Done</span>
-                <span className="text-[10px] text-muted-foreground">{doneTasks} tasks</span>
-              </div>
-              {/* Undone bar - right, red */}
-              <div className="flex flex-col items-center gap-1 flex-1 max-w-[100px]">
-                <span className="text-lg font-bold text-red-400">{undonePercent}%</span>
-                <div className="w-full bg-muted/30 rounded-t-lg overflow-hidden relative" style={{ height: "80px" }}>
-                  <div
-                    className="absolute bottom-0 w-full bg-gradient-to-t from-red-500 to-red-400 rounded-t-lg transition-all duration-500"
-                    style={{ height: `${undonePercent}%` }}
-                  />
-                </div>
-                <span className="text-xs font-medium text-red-400">❌ Undone</span>
-                <span className="text-[10px] text-muted-foreground">{totalForDate - doneTasks} tasks</span>
-              </div>
-            </div>
-            {/* Overall progress bar */}
-            <Progress value={donePercent} className="h-2" />
-          </CardContent>
-        </Card>
+        <div className="space-y-1.5 py-2">
+          <div className="flex items-center justify-between text-xs">
+            <span className="text-green-400 font-semibold">✅ Done {donePercent}% ({doneTasks})</span>
+            <span className="text-red-400 font-semibold">❌ Not Done {undonePercent}% ({totalForDate - doneTasks})</span>
+          </div>
+          <div className="flex h-3 w-full rounded-full overflow-hidden bg-muted/30">
+            <div
+              className="bg-gradient-to-r from-green-500 to-green-400 transition-all duration-500"
+              style={{ width: `${donePercent}%` }}
+            />
+            <div
+              className="bg-gradient-to-r from-red-400 to-red-500 transition-all duration-500"
+              style={{ width: `${undonePercent}%` }}
+            />
+          </div>
+        </div>
       )}
 
       {/* Scrollable task area */}
