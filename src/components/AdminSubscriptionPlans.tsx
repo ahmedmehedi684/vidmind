@@ -185,7 +185,13 @@ const AdminSubscriptionPlans = () => {
             <div className="space-y-1.5"><Label>Description</Label><Input value={pDesc} onChange={e => setPDesc(e.target.value)} placeholder="Short description" /></div>
             <div className="grid grid-cols-3 gap-3">
               <div className="space-y-1.5"><Label>Price ({pCurrency === "BDT" ? "৳" : "$"})</Label><Input type="number" value={pPrice} onChange={e => setPPrice(e.target.value)} /></div>
-              <div className="space-y-1.5"><Label>Duration (days)</Label><Input type="number" value={pDays} onChange={e => setPDays(e.target.value)} /></div>
+              <div className="space-y-1.5">
+                <Label>Duration (days)</Label>
+                <div className="flex gap-1">
+                  <Input type="number" value={pDays === "-1" ? "" : pDays} onChange={e => setPDays(e.target.value)} disabled={pDays === "-1"} placeholder={pDays === "-1" ? "∞" : ""} />
+                  <Button type="button" variant={pDays === "-1" ? "default" : "outline"} size="sm" className="shrink-0 text-xs h-9" onClick={toggleUnlimitedDuration}>∞</Button>
+                </div>
+              </div>
               <div className="space-y-1.5"><Label>Sort Order</Label><Input type="number" value={pOrder} onChange={e => setPOrder(e.target.value)} /></div>
             </div>
             <div className="space-y-1.5">
