@@ -1026,6 +1026,7 @@ const AdminDashboard = () => {
       case "analytics": return <AdminAnalytics />;
       case "user-mgmt": return <AdminUserManagement />;
       case "notifications": return <AdminNotifications />;
+      case "team": return <AdminTeamManagement />;
       default: return null;
     }
   };
