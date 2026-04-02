@@ -1,10 +1,9 @@
 import { useState, useEffect } from "react";
 import {
-  Users, Search, Loader2, Eye, EyeOff
+  Users, Search, Loader2, Eye, EyeOff, Key, KeyRound
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
   Table, TableHeader, TableBody, TableHead, TableRow, TableCell
@@ -17,6 +16,7 @@ interface UserInfo {
   name: string;
   created_at: string;
   renewalCount: number;
+  hasApiKey: boolean;
 }
 
 const AdminUserManagement = () => {
@@ -30,25 +30,34 @@ const AdminUserManagement = () => {
   const loadUsers = async () => {
     setLoading(true);
     try {
-      const [profilesRes, rolesRes, subsRes] = await Promise.all([
+      const [profilesRes, rolesRes, subsRes, settingsRes] = await Promise.all([
         supabase.from("profiles").select("*"),
         supabase.from("user_roles").select("user_id, role"),
         supabase.from("subscriptions").select("user_id, status"),
+        supabase.from("user_settings").select("user_id, api_keys"),
       ]);
 
       const profiles = profilesRes.data || [];
       const roles = rolesRes.data || [];
       const subs = subsRes.data || [];
+      const settings = settingsRes.data || [];
 
-      // Get admin/moderator user IDs to exclude
       const nonUserIds = new Set(
         roles.filter((r: any) => r.role === "admin" || r.role === "moderator").map((r: any) => r.user_id)
       );
 
-      // Count renewals per user (number of subscriptions)
       const renewalMap = new Map<string, number>();
       subs.forEach((s: any) => {
         renewalMap.set(s.user_id, (renewalMap.get(s.user_id) || 0) + 1);
+      });
+
+      // Check which users have API keys
+      const apiKeyMap = new Set<string>();
+      settings.forEach((s: any) => {
+        if (s.api_keys && typeof s.api_keys === "object") {
+          const hasKey = Object.values(s.api_keys).some((v: any) => v && String(v).trim().length > 0);
+          if (hasKey) apiKeyMap.add(s.user_id);
+        }
       });
 
       const filteredUsers = profiles
@@ -59,6 +68,7 @@ const AdminUserManagement = () => {
           name: p.name || "",
           created_at: p.created_at,
           renewalCount: renewalMap.get(p.id) || 0,
+          hasApiKey: apiKeyMap.has(p.id),
         }))
         .sort((a: UserInfo, b: UserInfo) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
 
@@ -111,12 +121,13 @@ const AdminUserManagement = () => {
               <TableHead>User ID</TableHead>
               <TableHead>Using Since</TableHead>
               <TableHead>Renewals</TableHead>
+              <TableHead>API Key</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {filteredUsers.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={5} className="text-center text-muted-foreground py-8">No users found.</TableCell>
+                <TableCell colSpan={6} className="text-center text-muted-foreground py-8">No users found.</TableCell>
               </TableRow>
             ) : filteredUsers.map(u => {
               const days = getDaysSinceJoined(u.created_at);
@@ -138,6 +149,17 @@ const AdminUserManagement = () => {
                   <TableCell className="text-sm text-muted-foreground">{days} days</TableCell>
                   <TableCell>
                     <Badge variant="outline" className="text-xs">{u.renewalCount}</Badge>
+                  </TableCell>
+                  <TableCell>
+                    {u.hasApiKey ? (
+                      <Badge className="bg-green-500/10 text-green-600 border-green-500/20 text-xs gap-1">
+                        <Key className="h-3 w-3" /> Active
+                      </Badge>
+                    ) : (
+                      <Badge variant="outline" className="text-xs text-muted-foreground gap-1">
+                        <KeyRound className="h-3 w-3" /> None
+                      </Badge>
+                    )}
                   </TableCell>
                 </TableRow>
               );
