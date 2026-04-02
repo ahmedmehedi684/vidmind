@@ -196,6 +196,45 @@ export type Database = {
         }
         Relationships: []
       }
+      payment_methods: {
+        Row: {
+          account_name: string
+          account_number: string
+          created_at: string
+          currency: string
+          icon: string
+          id: string
+          instructions: string
+          is_active: boolean
+          name: string
+          sort_order: number
+        }
+        Insert: {
+          account_name?: string
+          account_number?: string
+          created_at?: string
+          currency?: string
+          icon?: string
+          id?: string
+          instructions?: string
+          is_active?: boolean
+          name: string
+          sort_order?: number
+        }
+        Update: {
+          account_name?: string
+          account_number?: string
+          created_at?: string
+          currency?: string
+          icon?: string
+          id?: string
+          instructions?: string
+          is_active?: boolean
+          name?: string
+          sort_order?: number
+        }
+        Relationships: []
+      }
       payment_orders: {
         Row: {
           admin_note: string | null
