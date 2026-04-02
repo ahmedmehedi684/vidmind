@@ -2,7 +2,7 @@ import { useState, useEffect, useMemo } from "react";
 import {
   Plus, Trash2, Check, Loader2, DollarSign, TrendingUp, TrendingDown,
   ArrowUpRight, ArrowDownRight, Landmark, Calendar, Edit2, BarChart3,
-  HandCoins, User,
+  HandCoins, User, ChevronLeft, ChevronRight,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -15,6 +15,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from "recharts";
 
 interface Transaction {
   id: string; user_id: string; type: string; amount: number; category: string;
@@ -45,6 +46,9 @@ const MoneyManager = () => {
 
   const [filterType, setFilterType] = useState("all");
   const [filterPeriod, setFilterPeriod] = useState("month");
+  const [selectedCalDate, setSelectedCalDate] = useState<string | null>(null);
+  const [calendarMonth, setCalendarMonth] = useState(new Date());
+  const [showCalendar, setShowCalendar] = useState(false);
 
   useEffect(() => { if (user) loadTransactions(); }, [user]);
 
@@ -111,7 +115,9 @@ const MoneyManager = () => {
   const stats = useMemo(() => {
     const now = new Date();
     let filtered = transactions;
-    if (filterPeriod === "month") {
+    if (selectedCalDate) {
+      filtered = transactions.filter(t => t.transaction_date === selectedCalDate);
+    } else if (filterPeriod === "month") {
       filtered = transactions.filter(t => { const d = new Date(t.transaction_date); return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear(); });
     } else if (filterPeriod === "year") {
       filtered = transactions.filter(t => new Date(t.transaction_date).getFullYear() === now.getFullYear());
@@ -121,7 +127,26 @@ const MoneyManager = () => {
     const investment = filtered.filter(t => t.type === "investment").reduce((s, t) => s + Number(t.amount), 0);
     const loan = filtered.filter(t => t.type === "loan").reduce((s, t) => s + Number(t.amount), 0);
     return { income, expense, investment, loan, balance: income - expense - investment, filtered };
-  }, [transactions, filterPeriod]);
+  }, [transactions, filterPeriod, selectedCalDate]);
+
+  // Chart data - monthly breakdown
+  const chartData = useMemo(() => {
+    const now = new Date();
+    const months: { name: string; income: number; expense: number }[] = [];
+    for (let i = 5; i >= 0; i--) {
+      const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+      const monthTx = transactions.filter(t => {
+        const td = new Date(t.transaction_date);
+        return td.getMonth() === d.getMonth() && td.getFullYear() === d.getFullYear();
+      });
+      months.push({
+        name: d.toLocaleDateString("en", { month: "short" }),
+        income: monthTx.filter(t => t.type === "income").reduce((s, t) => s + Number(t.amount), 0),
+        expense: monthTx.filter(t => t.type === "expense").reduce((s, t) => s + Number(t.amount), 0),
+      });
+    }
+    return months;
+  }, [transactions]);
 
   const displayTx = stats.filtered.filter(t => filterType === "all" || t.type === filterType);
 
@@ -148,6 +173,26 @@ const MoneyManager = () => {
     return "text-red-400";
   };
 
+  // Calendar
+  const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+  const dayNamesShort = ["S", "M", "T", "W", "T", "F", "S"];
+
+  const calendarDays = useMemo(() => {
+    const year = calendarMonth.getFullYear();
+    const month = calendarMonth.getMonth();
+    const firstDay = new Date(year, month, 1).getDay();
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+    const days: (Date | null)[] = [];
+    for (let i = 0; i < firstDay; i++) days.push(null);
+    for (let i = 1; i <= daysInMonth; i++) days.push(new Date(year, month, i));
+    return days;
+  }, [calendarMonth]);
+
+  const dayHasTx = (date: Date) => {
+    const ds = date.toISOString().split("T")[0];
+    return transactions.some(t => t.transaction_date === ds);
+  };
+
   if (loading) return <div className="flex justify-center py-12"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>;
 
   return (
@@ -159,17 +204,69 @@ const MoneyManager = () => {
           </h2>
           <p className="text-sm text-muted-foreground mt-1">Track income, expenses, investments & loans</p>
         </div>
-        <Button onClick={openAdd} className="gap-2"><Plus className="h-4 w-4" /> Add Transaction</Button>
+        <div className="flex gap-2">
+          <Button variant="outline" size="sm" onClick={() => { setShowCalendar(!showCalendar); if (showCalendar) setSelectedCalDate(null); }} className="gap-1">
+            <Calendar className="h-4 w-4" /> {showCalendar ? "Hide" : "Calendar"}
+          </Button>
+          <Button onClick={openAdd} className="gap-2"><Plus className="h-4 w-4" /> Add</Button>
+        </div>
       </div>
 
+      {/* Calendar */}
+      {showCalendar && (
+        <Card>
+          <CardContent className="pt-4">
+            <div className="flex items-center justify-between mb-4">
+              <Button variant="ghost" size="icon" onClick={() => setCalendarMonth(new Date(calendarMonth.getFullYear(), calendarMonth.getMonth() - 1, 1))}><ChevronLeft className="h-5 w-5" /></Button>
+              <h3 className="font-bold text-foreground">{monthNames[calendarMonth.getMonth()]} {calendarMonth.getFullYear()}</h3>
+              <Button variant="ghost" size="icon" onClick={() => setCalendarMonth(new Date(calendarMonth.getFullYear(), calendarMonth.getMonth() + 1, 1))}><ChevronRight className="h-5 w-5" /></Button>
+            </div>
+            <div className="grid grid-cols-7 gap-1">
+              {dayNamesShort.map((d, i) => (
+                <div key={i} className="text-center text-xs font-medium text-muted-foreground py-1">{d}</div>
+              ))}
+              {calendarDays.map((day, i) => {
+                if (!day) return <div key={`empty-${i}`} />;
+                const ds = day.toISOString().split("T")[0];
+                const isSelected = selectedCalDate === ds;
+                const isToday = day.toDateString() === new Date().toDateString();
+                const hasTx = dayHasTx(day);
+                return (
+                  <button
+                    key={i}
+                    onClick={() => setSelectedCalDate(isSelected ? null : ds)}
+                    className={`relative aspect-square flex flex-col items-center justify-center rounded-lg text-sm transition-all ${
+                      isSelected ? "bg-primary text-primary-foreground font-bold" :
+                      isToday ? "bg-primary/10 text-primary font-semibold" :
+                      "hover:bg-muted/50 text-foreground"
+                    }`}
+                  >
+                    {day.getDate()}
+                    {hasTx && <div className={`absolute bottom-0.5 w-1.5 h-1.5 rounded-full ${isSelected ? "bg-primary-foreground" : "bg-primary"}`} />}
+                  </button>
+                );
+              })}
+            </div>
+            {selectedCalDate && (
+              <div className="mt-3 text-center">
+                <Badge variant="outline" className="text-sm">{selectedCalDate}</Badge>
+                <Button variant="ghost" size="sm" className="ml-2 text-xs" onClick={() => setSelectedCalDate(null)}>Clear</Button>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      )}
+
       {/* Period Filter */}
-      <div className="flex gap-2">
-        {["month", "year", "lifetime"].map(p => (
-          <Button key={p} variant={filterPeriod === p ? "default" : "outline"} size="sm" onClick={() => setFilterPeriod(p)} className="capitalize">
-            {p === "month" ? "This Month" : p === "year" ? "This Year" : "Lifetime"}
-          </Button>
-        ))}
-      </div>
+      {!selectedCalDate && (
+        <div className="flex gap-2">
+          {["month", "year", "lifetime"].map(p => (
+            <Button key={p} variant={filterPeriod === p ? "default" : "outline"} size="sm" onClick={() => setFilterPeriod(p)} className="capitalize">
+              {p === "month" ? "This Month" : p === "year" ? "This Year" : "Lifetime"}
+            </Button>
+          ))}
+        </div>
+      )}
 
       {/* Stats */}
       <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
@@ -194,13 +291,15 @@ const MoneyManager = () => {
             <p className="text-xs text-muted-foreground">Investment</p>
           </CardContent>
         </Card>
-        <Card className="border-orange-500/20">
-          <CardContent className="pt-5 text-center">
-            <HandCoins className="h-7 w-7 text-orange-400 mx-auto mb-1.5" />
-            <p className="text-xl font-bold text-orange-400">{formatAmount(stats.loan)}</p>
-            <p className="text-xs text-muted-foreground">Loan</p>
-          </CardContent>
-        </Card>
+        {stats.loan > 0 && (
+          <Card className="border-orange-500/20">
+            <CardContent className="pt-5 text-center">
+              <HandCoins className="h-7 w-7 text-orange-400 mx-auto mb-1.5" />
+              <p className="text-xl font-bold text-orange-400">{formatAmount(stats.loan)}</p>
+              <p className="text-xs text-muted-foreground">Loan</p>
+            </CardContent>
+          </Card>
+        )}
         <Card className={stats.balance >= 0 ? "border-green-500/20" : "border-red-500/20"}>
           <CardContent className="pt-5 text-center">
             <BarChart3 className="h-7 w-7 text-primary mx-auto mb-1.5" />
@@ -209,6 +308,26 @@ const MoneyManager = () => {
           </CardContent>
         </Card>
       </div>
+
+      {/* Income vs Expense Chart */}
+      {!selectedCalDate && chartData.some(d => d.income > 0 || d.expense > 0) && (
+        <Card>
+          <CardContent className="pt-5">
+            <h3 className="text-sm font-semibold text-foreground mb-3">Income vs Expense (Last 6 Months)</h3>
+            <ResponsiveContainer width="100%" height={200}>
+              <BarChart data={chartData}>
+                <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                <XAxis dataKey="name" tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }} />
+                <YAxis tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }} />
+                <Tooltip contentStyle={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: 8, color: "hsl(var(--foreground))" }} />
+                <Legend />
+                <Bar dataKey="income" fill="#4ade80" radius={[4, 4, 0, 0]} name="Income" />
+                <Bar dataKey="expense" fill="#f87171" radius={[4, 4, 0, 0]} name="Expense" />
+              </BarChart>
+            </ResponsiveContainer>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Type Filter */}
       <div className="flex gap-2 flex-wrap">
@@ -221,7 +340,7 @@ const MoneyManager = () => {
 
       {/* List */}
       {displayTx.length === 0 ? (
-        <Card><CardContent className="py-12 text-center text-muted-foreground">No transactions found.</CardContent></Card>
+        <Card><CardContent className="py-12 text-center text-muted-foreground">No transactions found.{selectedCalDate ? " Try selecting a different date." : ""}</CardContent></Card>
       ) : (
         <div className="space-y-2">
           {displayTx.map(tx => (
@@ -279,14 +398,12 @@ const MoneyManager = () => {
                 </SelectContent>
               </Select>
             </div>
-
             {type === "loan" && (
               <div className="space-y-1.5">
                 <Label>Borrowed From (Person Name) *</Label>
                 <Input placeholder="Who did you borrow from?" value={loanPersonName} onChange={e => setLoanPersonName(e.target.value)} />
               </div>
             )}
-
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1.5">
                 <Label>Amount *</Label>

@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from "react";
 import {
-  Plus, Trash2, Check, Clock, Flag, ChevronDown, ChevronRight,
+  Plus, Trash2, Check, Clock, Flag, ChevronDown, ChevronRight, ChevronLeft,
   Loader2, StickyNote, Calendar, Timer, ListChecks,
   Sun, Brain, Briefcase, Moon, Headphones, Heart, Tag, Edit2,
   Bell, Home, BookOpen, Coffee, Dumbbell, Music, ShoppingCart,
@@ -77,30 +77,29 @@ const PRIORITIES = [
   { id: "low", label: "Low", color: "bg-green-500/20 text-green-400 border-green-500/30" },
 ];
 
-// Get smart icon based on task title
 const getTaskIcon = (title: string, iconIndex?: number) => {
   const t = title.toLowerCase();
   if (iconIndex !== undefined && iconIndex >= 0 && iconIndex < TASK_ICONS.length) return TASK_ICONS[iconIndex];
-  if (t.includes("wake") || t.includes("alarm")) return TASK_ICONS[0]; // Bell
-  if (t.includes("prayer") || t.includes("salah") || t.includes("namaz") || t.includes("tahajjud") || t.includes("dua")) return TASK_ICONS[26]; // Prayer
-  if (t.includes("quran") || t.includes("read") || t.includes("book") || t.includes("tilawat") || t.includes("tiluaot")) return TASK_ICONS[2]; // BookOpen
-  if (t.includes("exercise") || t.includes("gym") || t.includes("workout")) return TASK_ICONS[4]; // Dumbbell
-  if (t.includes("code") || t.includes("dev") || t.includes("program")) return TASK_ICONS[9]; // Laptop
-  if (t.includes("study") || t.includes("learn") || t.includes("class")) return TASK_ICONS[14]; // GraduationCap
-  if (t.includes("cook") || t.includes("food") || t.includes("eat") || t.includes("lunch") || t.includes("dinner") || t.includes("breakfast")) return TASK_ICONS[7]; // Utensils
-  if (t.includes("shop") || t.includes("buy")) return TASK_ICONS[6]; // ShoppingCart
-  if (t.includes("call") || t.includes("phone")) return TASK_ICONS[18]; // Phone
-  if (t.includes("email") || t.includes("mail")) return TASK_ICONS[19]; // Mail
-  if (t.includes("music") || t.includes("song")) return TASK_ICONS[5]; // Music
-  if (t.includes("podcast") || t.includes("listen")) return TASK_ICONS[30]; // Headphones
-  if (t.includes("sleep") || t.includes("rest") || t.includes("nap") || t.includes("night")) return TASK_ICONS[32]; // Moon
-  if (t.includes("morning") || t.includes("fajr")) return TASK_ICONS[31]; // Sun
-  if (t.includes("work") || t.includes("office") || t.includes("meeting")) return TASK_ICONS[28]; // Briefcase
-  if (t.includes("home") || t.includes("house") || t.includes("clean")) return TASK_ICONS[1]; // Home
-  if (t.includes("break") || t.includes("coffee") || t.includes("tea")) return TASK_ICONS[3]; // Coffee
-  if (t.includes("travel") || t.includes("trip")) return TASK_ICONS[8]; // Plane
-  if (t.includes("family")) return TASK_ICONS[29]; // Heart
-  return TASK_ICONS[33]; // Default: ListChecks
+  if (t.includes("wake") || t.includes("alarm")) return TASK_ICONS[0];
+  if (t.includes("prayer") || t.includes("salah") || t.includes("namaz") || t.includes("tahajjud") || t.includes("dua")) return TASK_ICONS[26];
+  if (t.includes("quran") || t.includes("read") || t.includes("book") || t.includes("tilawat") || t.includes("tiluaot")) return TASK_ICONS[2];
+  if (t.includes("exercise") || t.includes("gym") || t.includes("workout")) return TASK_ICONS[4];
+  if (t.includes("code") || t.includes("dev") || t.includes("program")) return TASK_ICONS[9];
+  if (t.includes("study") || t.includes("learn") || t.includes("class")) return TASK_ICONS[14];
+  if (t.includes("cook") || t.includes("food") || t.includes("eat") || t.includes("lunch") || t.includes("dinner") || t.includes("breakfast")) return TASK_ICONS[7];
+  if (t.includes("shop") || t.includes("buy")) return TASK_ICONS[6];
+  if (t.includes("call") || t.includes("phone")) return TASK_ICONS[18];
+  if (t.includes("email") || t.includes("mail")) return TASK_ICONS[19];
+  if (t.includes("music") || t.includes("song")) return TASK_ICONS[5];
+  if (t.includes("podcast") || t.includes("listen")) return TASK_ICONS[30];
+  if (t.includes("sleep") || t.includes("rest") || t.includes("nap") || t.includes("night")) return TASK_ICONS[32];
+  if (t.includes("morning") || t.includes("fajr")) return TASK_ICONS[31];
+  if (t.includes("work") || t.includes("office") || t.includes("meeting")) return TASK_ICONS[28];
+  if (t.includes("home") || t.includes("house") || t.includes("clean")) return TASK_ICONS[1];
+  if (t.includes("break") || t.includes("coffee") || t.includes("tea")) return TASK_ICONS[3];
+  if (t.includes("travel") || t.includes("trip")) return TASK_ICONS[8];
+  if (t.includes("family")) return TASK_ICONS[29];
+  return TASK_ICONS[33];
 };
 
 const getIconColor = (title: string) => {
@@ -146,8 +145,10 @@ const TaskManager = () => {
   // Filter
   const [filterCategory, setFilterCategory] = useState("All");
 
-  // Selected date for calendar
+  // Calendar
   const [selectedDate, setSelectedDate] = useState(new Date());
+  const [calendarMonth, setCalendarMonth] = useState(new Date());
+  const [showFullCalendar, setShowFullCalendar] = useState(false);
 
   useEffect(() => { if (user) loadTasks(); }, [user]);
 
@@ -164,24 +165,11 @@ const TaskManager = () => {
   const parentTasks = tasks.filter(t => !t.parent_task_id);
   const getSubtasks = (parentId: string) => tasks.filter(t => t.parent_task_id === parentId);
 
-  // Calendar week days
-  const weekDays = useMemo(() => {
-    const days: Date[] = [];
-    const d = new Date(selectedDate);
-    const dayOfWeek = d.getDay();
-    const startOfWeek = new Date(d);
-    startOfWeek.setDate(d.getDate() - dayOfWeek);
-    for (let i = 0; i < 7; i++) {
-      const day = new Date(startOfWeek);
-      day.setDate(startOfWeek.getDate() + i);
-      days.push(day);
-    }
-    return days;
-  }, [selectedDate]);
-
   const selectedDateStr = selectedDate.toISOString().split("T")[0];
 
-  // Filter tasks for selected date (or daily tasks)
+  // For daily tasks: check if this specific date is done
+  // Daily tasks show on every date, but "done" only for specific dates
+  // We track daily done status via the task's due_date being updated only for today
   const tasksForDate = parentTasks.filter(t => {
     if (t.notes?.includes("[DAILY]")) return true;
     return t.due_date === selectedDateStr;
@@ -197,14 +185,71 @@ const TaskManager = () => {
     return 0;
   });
 
-  const doneTasks = tasksForDate.filter(t => t.status === "done").length;
+  // For daily tasks, done status only applies to the original due_date
+  const isTaskDoneForDate = (task: Task) => {
+    if (task.notes?.includes("[DAILY]")) {
+      // Daily task: done only if due_date matches selectedDate AND status is done
+      return task.status === "done" && task.due_date === selectedDateStr;
+    }
+    return task.status === "done";
+  };
+
+  const doneTasks = tasksForDate.filter(t => isTaskDoneForDate(t)).length;
   const totalForDate = tasksForDate.length;
 
-  // Check if a day has tasks
+  // Calendar helpers
+  const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+  const dayNames = ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"];
+  const dayNamesShort = ["S", "M", "T", "W", "T", "F", "S"];
+
+  // Full month calendar days
+  const calendarDays = useMemo(() => {
+    const year = calendarMonth.getFullYear();
+    const month = calendarMonth.getMonth();
+    const firstDay = new Date(year, month, 1).getDay();
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+    const days: (Date | null)[] = [];
+    for (let i = 0; i < firstDay; i++) days.push(null);
+    for (let i = 1; i <= daysInMonth; i++) days.push(new Date(year, month, i));
+    return days;
+  }, [calendarMonth]);
+
+  // Week strip (scrollable)
+  const weekDays = useMemo(() => {
+    const days: Date[] = [];
+    // Show 2 weeks before and 4 weeks after
+    const start = new Date(selectedDate);
+    start.setDate(start.getDate() - 14);
+    for (let i = 0; i < 42; i++) {
+      const day = new Date(start);
+      day.setDate(start.getDate() + i);
+      days.push(day);
+    }
+    return days;
+  }, [selectedDate]);
+
   const dayHasTasks = (date: Date) => {
     const ds = date.toISOString().split("T")[0];
     return parentTasks.some(t => t.due_date === ds || t.notes?.includes("[DAILY]"));
   };
+
+  const dayTasksDone = (date: Date) => {
+    const ds = date.toISOString().split("T")[0];
+    const dayTasks = parentTasks.filter(t => {
+      if (t.notes?.includes("[DAILY]")) return true;
+      return t.due_date === ds;
+    });
+    if (dayTasks.length === 0) return false;
+    return dayTasks.every(t => {
+      if (t.notes?.includes("[DAILY]")) {
+        return t.status === "done" && t.due_date === ds;
+      }
+      return t.status === "done";
+    });
+  };
+
+  const prevMonth = () => setCalendarMonth(new Date(calendarMonth.getFullYear(), calendarMonth.getMonth() - 1, 1));
+  const nextMonth = () => setCalendarMonth(new Date(calendarMonth.getFullYear(), calendarMonth.getMonth() + 1, 1));
 
   const openAddDialog = () => {
     setEditTask(null); setTitle(""); setDescription(""); setCategory("Personal");
@@ -220,7 +265,6 @@ const TaskManager = () => {
     setEstimatedMinutes(task.estimated_minutes || 60); setNotes(task.notes?.replace("[DAILY]", "").trim() || "");
     setIsDaily(task.notes?.includes("[DAILY]") || false);
     setSelectedIconIdx(undefined);
-    // Calculate end time
     if (task.due_time && task.estimated_minutes) {
       const [h, m] = task.due_time.split(":").map(Number);
       const end = new Date(2000, 0, 1, h, m + task.estimated_minutes);
@@ -296,9 +340,6 @@ const TaskManager = () => {
     return `${String(hour).padStart(2, "0")}:${String(m).padStart(2, "0")} ${ampm}`;
   };
 
-  const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
-  const dayNames = ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"];
-
   if (loading) return <div className="flex justify-center py-12"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>;
 
   return (
@@ -308,45 +349,104 @@ const TaskManager = () => {
         <h2 className="text-2xl font-bold text-foreground">
           <span className="text-primary">To-do</span> List
         </h2>
-        <Badge variant="outline" className="text-sm px-3 py-1">
-          {doneTasks}/{totalForDate} done
-        </Badge>
-      </div>
-
-      {/* Calendar Strip */}
-      <div>
-        <p className="text-sm text-muted-foreground mb-3">
-          {monthNames[selectedDate.getMonth()]} {selectedDate.getFullYear()}
-        </p>
-        <div className="flex gap-2 overflow-x-auto pb-2">
-          {weekDays.map((day, i) => {
-            const isSelected = day.toDateString() === selectedDate.toDateString();
-            const isToday = day.toDateString() === new Date().toDateString();
-            const hasTasks = dayHasTasks(day);
-            return (
-              <button
-                key={i}
-                onClick={() => setSelectedDate(new Date(day))}
-                className={`flex flex-col items-center min-w-[52px] py-2.5 px-2 rounded-xl transition-all ${
-                  isSelected
-                    ? "bg-primary text-primary-foreground shadow-lg shadow-primary/25"
-                    : "hover:bg-muted/50"
-                }`}
-              >
-                <span className={`text-[10px] font-medium ${isSelected ? "text-primary-foreground" : "text-muted-foreground"}`}>
-                  {dayNames[day.getDay()]}
-                </span>
-                <span className={`text-lg font-bold mt-0.5 ${isSelected ? "text-primary-foreground" : isToday ? "text-primary" : "text-foreground"}`}>
-                  {day.getDate()}
-                </span>
-                {hasTasks && (
-                  <div className={`w-1.5 h-1.5 rounded-full mt-1 ${isSelected ? "bg-primary-foreground" : "bg-primary"}`} />
-                )}
-              </button>
-            );
-          })}
+        <div className="flex items-center gap-2">
+          <Button variant="outline" size="sm" onClick={() => setShowFullCalendar(!showFullCalendar)} className="gap-1">
+            <Calendar className="h-4 w-4" /> {showFullCalendar ? "Strip" : "Calendar"}
+          </Button>
+          <Badge variant="outline" className="text-sm px-3 py-1">
+            {doneTasks}/{totalForDate} done
+          </Badge>
         </div>
       </div>
+
+      {/* Full Calendar View */}
+      {showFullCalendar ? (
+        <Card>
+          <CardContent className="pt-4">
+            <div className="flex items-center justify-between mb-4">
+              <Button variant="ghost" size="icon" onClick={prevMonth}><ChevronLeft className="h-5 w-5" /></Button>
+              <h3 className="font-bold text-foreground">{monthNames[calendarMonth.getMonth()]} {calendarMonth.getFullYear()}</h3>
+              <Button variant="ghost" size="icon" onClick={nextMonth}><ChevronRight className="h-5 w-5" /></Button>
+            </div>
+            <div className="grid grid-cols-7 gap-1">
+              {dayNamesShort.map((d, i) => (
+                <div key={i} className="text-center text-xs font-medium text-muted-foreground py-1">{d}</div>
+              ))}
+              {calendarDays.map((day, i) => {
+                if (!day) return <div key={`empty-${i}`} />;
+                const isSelected = day.toDateString() === selectedDate.toDateString();
+                const isToday = day.toDateString() === new Date().toDateString();
+                const hasTasks = dayHasTasks(day);
+                const allDone = dayTasksDone(day);
+                return (
+                  <button
+                    key={i}
+                    onClick={() => { setSelectedDate(new Date(day)); }}
+                    className={`relative aspect-square flex flex-col items-center justify-center rounded-lg text-sm transition-all ${
+                      isSelected ? "bg-primary text-primary-foreground font-bold" :
+                      isToday ? "bg-primary/10 text-primary font-semibold" :
+                      "hover:bg-muted/50 text-foreground"
+                    }`}
+                  >
+                    {day.getDate()}
+                    {hasTasks && (
+                      <div className={`absolute bottom-0.5 w-1.5 h-1.5 rounded-full ${
+                        allDone ? "bg-green-400" : isSelected ? "bg-primary-foreground" : "bg-primary"
+                      }`} />
+                    )}
+                  </button>
+                );
+              })}
+            </div>
+          </CardContent>
+        </Card>
+      ) : (
+        /* Week Strip (scrollable) */
+        <div>
+          <p className="text-sm text-muted-foreground mb-3">
+            {monthNames[selectedDate.getMonth()]} {selectedDate.getFullYear()}
+          </p>
+          <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
+            {weekDays.map((day, i) => {
+              const isSelected = day.toDateString() === selectedDate.toDateString();
+              const isToday = day.toDateString() === new Date().toDateString();
+              const hasTasks = dayHasTasks(day);
+              const allDone = dayTasksDone(day);
+              return (
+                <button
+                  key={i}
+                  onClick={() => setSelectedDate(new Date(day))}
+                  className={`flex flex-col items-center min-w-[52px] py-2.5 px-2 rounded-xl transition-all ${
+                    isSelected
+                      ? "bg-primary text-primary-foreground shadow-lg shadow-primary/25"
+                      : "hover:bg-muted/50"
+                  }`}
+                >
+                  <span className={`text-[10px] font-medium ${isSelected ? "text-primary-foreground" : "text-muted-foreground"}`}>
+                    {dayNames[day.getDay()]}
+                  </span>
+                  <span className={`text-lg font-bold mt-0.5 ${isSelected ? "text-primary-foreground" : isToday ? "text-primary" : "text-foreground"}`}>
+                    {day.getDate()}
+                  </span>
+                  {hasTasks && (
+                    <div className={`w-1.5 h-1.5 rounded-full mt-1 ${
+                      allDone ? "bg-green-400" : isSelected ? "bg-primary-foreground" : "bg-primary"
+                    }`} />
+                  )}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* Progress bar */}
+      {totalForDate > 0 && (
+        <div className="space-y-1">
+          <Progress value={totalForDate > 0 ? (doneTasks / totalForDate) * 100 : 0} className="h-2" />
+          <p className="text-xs text-muted-foreground text-right">{Math.round((doneTasks / totalForDate) * 100)}% complete</p>
+        </div>
+      )}
 
       {/* Category Filter Chips */}
       <div className="flex gap-2 overflow-x-auto pb-1">
@@ -382,6 +482,7 @@ const TaskManager = () => {
             const iconColor = getIconColor(task.title);
             const subtasks = getSubtasks(task.id);
             const isExpanded = expandedTask === task.id;
+            const isDone = isTaskDoneForDate(task);
             const endTime = task.due_time && task.estimated_minutes ? (() => {
               const [h, m] = task.due_time!.split(":").map(Number);
               const end = new Date(2000, 0, 1, h, m + task.estimated_minutes!);
@@ -390,7 +491,6 @@ const TaskManager = () => {
 
             return (
               <div key={task.id} className="flex gap-4 relative">
-                {/* Timeline left column */}
                 <div className="flex flex-col items-center w-16 shrink-0">
                   {task.due_time && (
                     <span className="text-xs font-semibold text-primary">{formatTime12(task.due_time).split(" ")[0]}</span>
@@ -401,18 +501,14 @@ const TaskManager = () => {
                   {endTime && (
                     <span className="text-xs text-muted-foreground">{formatTime12(endTime).split(" ")[0]}</span>
                   )}
-                  {/* Connecting line */}
                   {idx < filteredTasks.length - 1 && (
                     <div className="w-0.5 flex-1 min-h-[20px] bg-primary/20 my-1" />
                   )}
                 </div>
 
-                {/* Task content */}
                 <div className="flex-1 pb-6">
                   <div
-                    className={`p-3 rounded-xl transition-all cursor-pointer ${
-                      task.status === "done" ? "opacity-50" : ""
-                    } hover:bg-muted/30`}
+                    className={`p-3 rounded-xl transition-all cursor-pointer ${isDone ? "opacity-50" : ""} hover:bg-muted/30`}
                     onClick={() => setExpandedTask(isExpanded ? null : task.id)}
                   >
                     <div className="flex items-start justify-between gap-2">
@@ -425,7 +521,7 @@ const TaskManager = () => {
                             </span>
                           )}
                         </div>
-                        <h3 className={`font-bold text-base text-foreground ${task.status === "done" ? "line-through" : ""}`}>
+                        <h3 className={`font-bold text-base text-foreground ${isDone ? "line-through" : ""}`}>
                           {task.title}
                         </h3>
                         {task.description && <p className="text-sm text-muted-foreground mt-0.5">{task.description}</p>}
@@ -438,20 +534,18 @@ const TaskManager = () => {
                           )}
                         </div>
                       </div>
-                      {/* Completion circle */}
                       <button
                         onClick={(e) => { e.stopPropagation(); toggleStatus(task); }}
                         className={`w-7 h-7 rounded-full border-2 flex items-center justify-center shrink-0 transition-colors ${
-                          task.status === "done"
+                          isDone
                             ? "border-primary bg-primary text-primary-foreground"
                             : "border-muted-foreground/30 hover:border-primary"
                         }`}
                       >
-                        {task.status === "done" && <Check className="h-4 w-4" />}
+                        {isDone && <Check className="h-4 w-4" />}
                       </button>
                     </div>
 
-                    {/* Expanded: subtasks & actions */}
                     {isExpanded && (
                       <div className="mt-3 space-y-2 animate-in fade-in-0 slide-in-from-top-2 duration-200">
                         {subtasks.length > 0 && (
@@ -515,7 +609,6 @@ const TaskManager = () => {
           </DialogHeader>
 
           <div className="space-y-6 pt-2">
-            {/* Title with icon */}
             <div className="flex items-center gap-3">
               <button
                 onClick={() => setIconPickerOpen(!iconPickerOpen)}
@@ -531,7 +624,6 @@ const TaskManager = () => {
               />
             </div>
 
-            {/* Icon Picker */}
             {iconPickerOpen && (
               <Card className="animate-in fade-in-0 duration-200">
                 <CardContent className="p-4">
@@ -560,7 +652,6 @@ const TaskManager = () => {
               </Card>
             )}
 
-            {/* Description */}
             <Textarea
               value={description}
               onChange={e => setDescription(e.target.value)}
@@ -573,7 +664,6 @@ const TaskManager = () => {
             <div>
               <div className="flex items-center justify-between mb-3">
                 <h4 className="font-semibold text-primary">When?</h4>
-                <Button variant="ghost" size="sm" className="text-muted-foreground text-xs">Set Time</Button>
               </div>
               <div className="text-center mb-3">
                 <p className="text-lg font-bold text-foreground">
@@ -589,7 +679,6 @@ const TaskManager = () => {
                   <Label className="text-xs">End</Label>
                   <Input type="time" value={dueEndTime} onChange={e => {
                     setDueEndTime(e.target.value);
-                    // Calculate duration
                     if (dueTime && e.target.value) {
                       const [sh, sm] = dueTime.split(":").map(Number);
                       const [eh, em] = e.target.value.split(":").map(Number);
@@ -603,7 +692,6 @@ const TaskManager = () => {
                 <Calendar className="h-4 w-4 text-muted-foreground" />
                 <Input type="date" value={dueDate} onChange={e => setDueDate(e.target.value)} className="w-auto" />
               </div>
-              {/* Daily toggle */}
               <div className="flex items-center gap-3 mt-3 p-2 rounded-lg bg-muted/30">
                 <RefreshCw className={`h-4 w-4 ${isDaily ? "text-primary" : "text-muted-foreground"}`} />
                 <span className="text-sm flex-1">Repeat daily (everyday)</span>
@@ -652,9 +740,7 @@ const TaskManager = () => {
                     key={p.id}
                     onClick={() => setPriority(p.id)}
                     className={`px-5 py-2 rounded-lg text-sm transition-all ${
-                      priority === p.id
-                        ? "bg-muted text-foreground font-medium"
-                        : "bg-muted/30 text-muted-foreground hover:bg-muted/50"
+                      priority === p.id ? "bg-muted text-foreground font-medium" : "bg-muted/30 text-muted-foreground hover:bg-muted/50"
                     }`}
                   >
                     {p.label}
@@ -672,25 +758,12 @@ const TaskManager = () => {
                     key={cat.id}
                     onClick={() => setCategory(cat.id)}
                     className={`px-4 py-2 rounded-lg text-sm transition-all ${
-                      category === cat.id
-                        ? "bg-muted text-foreground font-medium"
-                        : "bg-muted/30 text-muted-foreground hover:bg-muted/50"
+                      category === cat.id ? "bg-muted text-foreground font-medium" : "bg-muted/30 text-muted-foreground hover:bg-muted/50"
                     }`}
                   >
                     {cat.id}
                   </button>
                 ))}
-              </div>
-            </div>
-
-            {/* Subtasks */}
-            <div>
-              <h4 className="font-semibold text-primary mb-3">Subtasks</h4>
-              <div className="bg-muted/30 rounded-lg p-3">
-                <div className="flex items-center gap-2 text-muted-foreground">
-                  <Plus className="h-4 w-4" />
-                  <span className="text-sm">Add subtask...</span>
-                </div>
               </div>
             </div>
 
