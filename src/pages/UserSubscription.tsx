@@ -1,0 +1,300 @@
+import { useState, useEffect } from "react";
+import {
+  CreditCard, Check, Clock, Loader2, Crown, Star, Zap,
+  ChevronRight, AlertCircle, Copy, CheckCircle2
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Progress } from "@/components/ui/progress";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
+import { toast } from "sonner";
+
+interface Plan {
+  id: string; name: string; description: string; price: number;
+  duration_days: number; features: string[]; is_active: boolean; sort_order: number;
+}
+
+interface Subscription {
+  id: string; user_id: string; plan_id: string; status: string;
+  starts_at: string | null; expires_at: string | null; created_at: string;
+}
+
+interface PaymentOrder {
+  id: string; user_id: string; subscription_id: string; plan_id: string;
+  amount: number; payment_method: string; transaction_id: string;
+  payment_number: string; status: string; admin_note: string; created_at: string;
+}
+
+const PAYMENT_METHODS = [
+  { id: "bkash", name: "bKash", number: "", color: "bg-pink-500/10 text-pink-400", icon: "📱" },
+  { id: "nagad", name: "Nagad", number: "", color: "bg-orange-500/10 text-orange-400", icon: "💳" },
+  { id: "rocket", name: "Rocket", number: "", color: "bg-purple-500/10 text-purple-400", icon: "🚀" },
+  { id: "payoneer", name: "Payoneer", number: "", color: "bg-green-500/10 text-green-400", icon: "💰" },
+];
+
+const UserSubscription = () => {
+  const { user } = useAuth();
+  const [plans, setPlans] = useState<Plan[]>([]);
+  const [subscriptions, setSubscriptions] = useState<Subscription[]>([]);
+  const [payments, setPayments] = useState<PaymentOrder[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [checkoutOpen, setCheckoutOpen] = useState(false);
+  const [selectedPlan, setSelectedPlan] = useState<Plan | null>(null);
+  const [paymentMethod, setPaymentMethod] = useState("bkash");
+  const [transactionId, setTransactionId] = useState("");
+  const [paymentNumber, setPaymentNumber] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+
+  useEffect(() => { if (user) loadData(); }, [user]);
+
+  const loadData = async () => {
+    if (!user) return;
+    setLoading(true);
+    try {
+      const [plansRes, subsRes, payRes] = await Promise.all([
+        supabase.from("subscription_plans").select("*").eq("is_active", true).order("sort_order"),
+        supabase.from("subscriptions").select("*").eq("user_id", user.id).order("created_at", { ascending: false }),
+        supabase.from("payment_orders").select("*").eq("user_id", user.id).order("created_at", { ascending: false }),
+      ]);
+      if (plansRes.data) setPlans(plansRes.data as any[]);
+      if (subsRes.data) setSubscriptions(subsRes.data as any[]);
+      if (payRes.data) setPayments(payRes.data as any[]);
+    } catch (e) { console.error(e); }
+    finally { setLoading(false); }
+  };
+
+  const activeSub = subscriptions.find(s => s.status === "active" && s.expires_at && new Date(s.expires_at) > new Date());
+  const activePlan = activeSub ? plans.find(p => p.id === activeSub.plan_id) : null;
+
+  const getDaysRemaining = () => {
+    if (!activeSub?.expires_at) return 0;
+    const diff = new Date(activeSub.expires_at).getTime() - Date.now();
+    return Math.max(0, Math.ceil(diff / (1000 * 60 * 60 * 24)));
+  };
+
+  const getDaysUsed = () => {
+    if (!activeSub?.starts_at || !activeSub?.expires_at) return 0;
+    const total = new Date(activeSub.expires_at).getTime() - new Date(activeSub.starts_at).getTime();
+    const used = Date.now() - new Date(activeSub.starts_at).getTime();
+    return Math.min(100, Math.max(0, (used / total) * 100));
+  };
+
+  const openCheckout = (plan: Plan) => {
+    if (plan.price === 0) {
+      toast.info("This is a free plan — you already have access!");
+      return;
+    }
+    setSelectedPlan(plan);
+    setPaymentMethod("bkash");
+    setTransactionId("");
+    setPaymentNumber("");
+    setCheckoutOpen(true);
+  };
+
+  const handleSubmitPayment = async () => {
+    if (!selectedPlan || !user || !transactionId.trim()) return;
+    setSubmitting(true);
+    try {
+      // Create subscription
+      const { data: subData, error: subErr } = await supabase.from("subscriptions").insert({
+        user_id: user.id, plan_id: selectedPlan.id, status: "pending",
+      } as any).select().single();
+      if (subErr) throw subErr;
+
+      // Create payment order
+      const { error: payErr } = await supabase.from("payment_orders").insert({
+        user_id: user.id,
+        subscription_id: (subData as any).id,
+        plan_id: selectedPlan.id,
+        amount: selectedPlan.price,
+        payment_method: paymentMethod,
+        transaction_id: transactionId.trim(),
+        payment_number: paymentNumber.trim(),
+        status: "pending",
+      } as any);
+      if (payErr) throw payErr;
+
+      toast.success("Payment submitted! Admin will verify shortly.");
+      setCheckoutOpen(false);
+      loadData();
+    } catch (e) {
+      console.error(e);
+      toast.error("Failed to submit payment");
+    } finally { setSubmitting(false); }
+  };
+
+  const getPlanIcon = (idx: number) => {
+    const icons = [Zap, Star, Crown];
+    return icons[idx % icons.length];
+  };
+
+  if (loading) return <div className="flex justify-center py-12"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>;
+
+  return (
+    <div className="max-w-4xl mx-auto px-4 py-8 space-y-8">
+      <div>
+        <h1 className="text-2xl font-bold text-foreground flex items-center gap-2">
+          <CreditCard className="h-6 w-6 text-primary" /> Subscription
+        </h1>
+        <p className="text-sm text-muted-foreground mt-1">Manage your plan and payments</p>
+      </div>
+
+      {/* Active Subscription */}
+      {activeSub && activePlan && (
+        <Card className="border-primary/30">
+          <CardContent className="pt-6 space-y-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <Badge className="bg-primary text-primary-foreground">Active</Badge>
+                <h3 className="text-xl font-bold text-foreground mt-2">{activePlan.name}</h3>
+              </div>
+              <div className="text-right">
+                <p className="text-2xl font-bold text-primary">{getDaysRemaining()}</p>
+                <p className="text-xs text-muted-foreground">days remaining</p>
+              </div>
+            </div>
+            <Progress value={getDaysUsed()} className="h-2" />
+            <p className="text-xs text-muted-foreground">
+              Expires: {new Date(activeSub.expires_at!).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })}
+            </p>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Plans */}
+      <div>
+        <h2 className="text-lg font-semibold text-foreground mb-4">Available Plans</h2>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {plans.map((plan, idx) => {
+            const Icon = getPlanIcon(idx);
+            const isActive = activePlan?.id === plan.id;
+            return (
+              <Card key={plan.id} className={`relative hover:border-primary/50 transition-colors ${isActive ? "border-primary" : ""} ${idx === 1 ? "md:scale-105 md:shadow-lg md:shadow-primary/10" : ""}`}>
+                {idx === 1 && <Badge className="absolute -top-2.5 left-1/2 -translate-x-1/2 bg-primary text-primary-foreground">Popular</Badge>}
+                <CardContent className="pt-6 space-y-4">
+                  <div className="text-center">
+                    <Icon className="h-8 w-8 text-primary mx-auto mb-2" />
+                    <h3 className="text-lg font-bold text-foreground">{plan.name}</h3>
+                    <p className="text-sm text-muted-foreground mt-1">{plan.description}</p>
+                  </div>
+                  <div className="text-center">
+                    <span className="text-3xl font-bold text-foreground">৳{plan.price}</span>
+                    <span className="text-sm text-muted-foreground">/{plan.duration_days} days</span>
+                  </div>
+                  <ul className="space-y-2">
+                    {(plan.features as string[]).map((f, i) => (
+                      <li key={i} className="flex items-start gap-2 text-sm text-muted-foreground">
+                        <Check className="h-4 w-4 text-primary shrink-0 mt-0.5" />
+                        <span>{f}</span>
+                      </li>
+                    ))}
+                  </ul>
+                  <Button
+                    className="w-full"
+                    variant={isActive ? "outline" : "default"}
+                    disabled={isActive}
+                    onClick={() => openCheckout(plan)}
+                  >
+                    {isActive ? "Current Plan" : plan.price === 0 ? "Free Access" : "Subscribe Now"}
+                  </Button>
+                </CardContent>
+              </Card>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Payment History */}
+      {payments.length > 0 && (
+        <div>
+          <h2 className="text-lg font-semibold text-foreground mb-4">Payment History</h2>
+          <div className="space-y-2">
+            {payments.map(p => (
+              <Card key={p.id}>
+                <CardContent className="py-3 flex items-center justify-between gap-3">
+                  <div className="flex items-center gap-3 min-w-0">
+                    <div className={`h-10 w-10 rounded-full flex items-center justify-center ${p.status === "confirmed" ? "bg-green-500/10" : p.status === "rejected" ? "bg-red-500/10" : "bg-amber-500/10"}`}>
+                      {p.status === "confirmed" ? <CheckCircle2 className="h-5 w-5 text-green-400" /> : p.status === "rejected" ? <AlertCircle className="h-5 w-5 text-red-400" /> : <Clock className="h-5 w-5 text-amber-400" />}
+                    </div>
+                    <div className="min-w-0">
+                      <p className="font-medium text-foreground">৳{p.amount} via {p.payment_method}</p>
+                      <p className="text-xs text-muted-foreground">TxID: {p.transaction_id} · {new Date(p.created_at).toLocaleDateString()}</p>
+                    </div>
+                  </div>
+                  <Badge variant={p.status === "confirmed" ? "default" : p.status === "rejected" ? "destructive" : "secondary"}>
+                    {p.status}
+                  </Badge>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Checkout Dialog */}
+      <Dialog open={checkoutOpen} onOpenChange={setCheckoutOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Complete Payment</DialogTitle>
+            <DialogDescription>Pay for {selectedPlan?.name} — ৳{selectedPlan?.price}</DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="space-y-1.5">
+              <Label>Payment Method</Label>
+              <Select value={paymentMethod} onValueChange={setPaymentMethod}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  {PAYMENT_METHODS.map(m => (
+                    <SelectItem key={m.id} value={m.id}>{m.icon} {m.name}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <Card className="bg-muted/30">
+              <CardContent className="py-3 text-center">
+                <p className="text-sm text-muted-foreground mb-1">Send ৳{selectedPlan?.price} to:</p>
+                <p className="text-lg font-bold text-foreground">
+                  {paymentMethod === "bkash" ? "01XXXXXXXXX" :
+                   paymentMethod === "nagad" ? "01XXXXXXXXX" :
+                   paymentMethod === "rocket" ? "01XXXXXXXXX" :
+                   "payoneer@email.com"}
+                </p>
+                <p className="text-xs text-muted-foreground mt-1">({PAYMENT_METHODS.find(m => m.id === paymentMethod)?.name})</p>
+              </CardContent>
+            </Card>
+
+            <div className="space-y-1.5">
+              <Label>Your Payment Number</Label>
+              <Input placeholder="Your bKash/Nagad number..." value={paymentNumber} onChange={e => setPaymentNumber(e.target.value)} />
+            </div>
+
+            <div className="space-y-1.5">
+              <Label>Transaction ID *</Label>
+              <Input placeholder="Enter transaction ID..." value={transactionId} onChange={e => setTransactionId(e.target.value)} />
+            </div>
+
+            <p className="text-xs text-muted-foreground flex items-start gap-1.5">
+              <AlertCircle className="h-3.5 w-3.5 shrink-0 mt-0.5" />
+              After payment, enter the Transaction ID. Admin will verify and activate your subscription.
+            </p>
+          </div>
+          <DialogFooter>
+            <Button onClick={handleSubmitPayment} disabled={submitting || !transactionId.trim()} className="w-full gap-2">
+              {submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Check className="h-4 w-4" />}
+              Submit Payment
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </div>
+  );
+};
+
+export default UserSubscription;
