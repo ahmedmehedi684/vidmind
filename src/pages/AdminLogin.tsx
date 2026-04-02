@@ -93,7 +93,7 @@ navigate("/admin-dashboard", { replace: true });
             Admin <span className="text-primary">Panel</span>
           </h1>
           <p className="mt-2 text-muted-foreground text-sm" style={{ fontFamily: "'DM Sans', sans-serif" }}>
-            শুধুমাত্র admin-দের জন্য
+            Admin access only
           </p>
         </div>
 
