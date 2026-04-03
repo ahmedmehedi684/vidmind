@@ -221,9 +221,10 @@ const UserSubscription = () => {
           {currencyPlans.map((plan, idx) => {
             const Icon = getPlanIcon(idx);
             const isActive = activePlan?.id === plan.id;
+            const isPopular = plan.is_popular;
             return (
-              <Card key={plan.id} className={`relative hover:border-primary/50 transition-colors ${isActive ? "border-primary" : ""} ${idx === 1 ? "md:scale-105 md:shadow-lg md:shadow-primary/10" : ""}`}>
-                {idx === 1 && <Badge className="absolute -top-2.5 left-1/2 -translate-x-1/2 bg-primary text-primary-foreground">Popular</Badge>}
+              <Card key={plan.id} className={`relative hover:border-primary/50 transition-colors ${isActive ? "border-primary" : ""} ${isPopular ? "md:scale-105 md:shadow-lg md:shadow-primary/10 border-primary" : ""}`}>
+                {isPopular && <Badge className="absolute -top-2.5 left-1/2 -translate-x-1/2 bg-primary text-primary-foreground">Most Popular</Badge>}
                 <CardContent className="pt-6 space-y-4">
                   <div className="text-center">
                     <Icon className="h-8 w-8 text-primary mx-auto mb-2" />
@@ -232,8 +233,13 @@ const UserSubscription = () => {
                   </div>
                   <div className="text-center">
                     <span className="text-3xl font-bold text-foreground">{selectedCurrency === "BDT" ? "৳" : "$"}{plan.price}</span>
-                    <span className="text-sm text-muted-foreground">/{plan.duration_days} days</span>
+                    <span className="text-sm text-muted-foreground">
+                      /{plan.duration_months ? `${plan.duration_months} month${plan.duration_months > 1 ? "s" : ""}` : plan.duration_days === -1 ? "Unlimited" : `${plan.duration_days} days`}
+                    </span>
                   </div>
+                  {plan.limit_period && (
+                    <p className="text-xs text-center text-muted-foreground">Limits reset {plan.limit_period}</p>
+                  )}
                   <ul className="space-y-2">
                     {(plan.features as string[]).map((f, i) => (
                       <li key={i} className="flex items-start gap-2 text-sm text-muted-foreground">
