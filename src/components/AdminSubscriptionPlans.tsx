@@ -61,6 +61,7 @@ const AdminSubscriptionPlans = () => {
     setEditPlan(null); setPName(""); setPDesc(""); setPPrice(""); setPDays("30");
     setPFeatures(""); setPOrder("0"); setPCurrency("BDT"); setPLimits(DEFAULT_LIMITS);
     setPPopular(false); setPLimitPeriod("monthly"); setPDurationMonths("");
+    setPButtonText("Subscribe Now");
     setDialogOpen(true);
   };
 
