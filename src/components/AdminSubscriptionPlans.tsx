@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import {
-  CreditCard, Check, Plus, Loader2, Edit2, Trash2, ToggleLeft, ToggleRight
+  CreditCard, Check, Plus, Loader2, Edit2, Trash2, ToggleLeft, ToggleRight, Star
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -22,6 +22,7 @@ interface Plan {
   id: string; name: string; description: string; price: number;
   duration_days: number; features: string[]; is_active: boolean;
   sort_order: number; currency: string; limits: PlanLimits;
+  is_popular: boolean; limit_period: string; duration_months: number | null;
 }
 
 const DEFAULT_LIMITS: PlanLimits = { tasks: 5, transactions: 10, summaries: 5, channels: 1, goals: 2, notes: 5 };
@@ -39,6 +40,9 @@ const AdminSubscriptionPlans = () => {
   const [pOrder, setPOrder] = useState("0");
   const [pCurrency, setPCurrency] = useState("BDT");
   const [pLimits, setPLimits] = useState<PlanLimits>(DEFAULT_LIMITS);
+  const [pPopular, setPPopular] = useState(false);
+  const [pLimitPeriod, setPLimitPeriod] = useState("monthly");
+  const [pDurationMonths, setPDurationMonths] = useState("");
 
   useEffect(() => { loadPlans(); }, []);
 
@@ -54,6 +58,7 @@ const AdminSubscriptionPlans = () => {
   const openAdd = () => {
     setEditPlan(null); setPName(""); setPDesc(""); setPPrice(""); setPDays("30");
     setPFeatures(""); setPOrder("0"); setPCurrency("BDT"); setPLimits(DEFAULT_LIMITS);
+    setPPopular(false); setPLimitPeriod("monthly"); setPDurationMonths("");
     setDialogOpen(true);
   };
 
@@ -62,6 +67,8 @@ const AdminSubscriptionPlans = () => {
     setPDays(plan.duration_days.toString()); setPFeatures((plan.features as string[]).join("\n"));
     setPOrder(plan.sort_order.toString()); setPCurrency(plan.currency || "BDT");
     setPLimits(plan.limits && Object.keys(plan.limits).length > 0 ? plan.limits : DEFAULT_LIMITS);
+    setPPopular(plan.is_popular || false); setPLimitPeriod(plan.limit_period || "monthly");
+    setPDurationMonths(plan.duration_months ? plan.duration_months.toString() : "");
     setDialogOpen(true);
   };
 
@@ -85,6 +92,8 @@ const AdminSubscriptionPlans = () => {
       name: pName.trim(), description: pDesc.trim(), price: parseFloat(pPrice) || 0,
       duration_days: parseInt(pDays) || 30, features, sort_order: parseInt(pOrder) || 0,
       is_active: true, currency: pCurrency, limits: pLimits,
+      is_popular: pPopular, limit_period: pLimitPeriod,
+      duration_months: pDurationMonths ? parseInt(pDurationMonths) : null,
     };
     try {
       if (editPlan) {
@@ -192,7 +201,25 @@ const AdminSubscriptionPlans = () => {
                   <Button type="button" variant={pDays === "-1" ? "default" : "outline"} size="sm" className="shrink-0 text-xs h-9" onClick={toggleUnlimitedDuration}>∞</Button>
                 </div>
               </div>
+              <div className="space-y-1.5"><Label>Duration (months)</Label><Input type="number" value={pDurationMonths} onChange={e => setPDurationMonths(e.target.value)} placeholder="e.g. 1" /></div>
+            </div>
+            <div className="grid grid-cols-3 gap-3">
               <div className="space-y-1.5"><Label>Sort Order</Label><Input type="number" value={pOrder} onChange={e => setPOrder(e.target.value)} /></div>
+              <div className="space-y-1.5">
+                <Label>Limit Period</Label>
+                <Select value={pLimitPeriod} onValueChange={setPLimitPeriod}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="daily">Daily</SelectItem>
+                    <SelectItem value="monthly">Monthly</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="flex items-end pb-1">
+                <Button type="button" variant={pPopular ? "default" : "outline"} size="sm" className="w-full gap-1" onClick={() => setPPopular(!pPopular)}>
+                  <Star className={`h-3.5 w-3.5 ${pPopular ? "fill-current" : ""}`} /> {pPopular ? "Popular ✓" : "Mark Popular"}
+                </Button>
+              </div>
             </div>
             <div className="space-y-1.5">
               <Label>Features (one per line)</Label>
@@ -230,6 +257,7 @@ const AdminSubscriptionPlans = () => {
           <div className="flex items-center justify-between">
             <h4 className="font-bold text-foreground text-lg">{plan.name}</h4>
             <div className="flex items-center gap-1">
+              {plan.is_popular && <Badge className="bg-amber-500 text-white text-xs gap-1"><Star className="h-3 w-3 fill-current" />Popular</Badge>}
               <Badge variant="outline" className="text-xs">{plan.currency || "BDT"}</Badge>
               <Badge variant={plan.is_active ? "default" : "secondary"}>{plan.is_active ? "Active" : "Inactive"}</Badge>
             </div>
@@ -237,8 +265,9 @@ const AdminSubscriptionPlans = () => {
           {plan.description && <p className="text-sm text-muted-foreground">{plan.description}</p>}
           <p className="text-2xl font-bold text-primary">
             {(plan.currency || "BDT") === "USD" ? "$" : "৳"}{plan.price}
-            <span className="text-sm text-muted-foreground font-normal"> / {plan.duration_days === -1 ? "Unlimited" : `${plan.duration_days} days`}</span>
+            <span className="text-sm text-muted-foreground font-normal"> / {plan.duration_days === -1 ? "Unlimited" : plan.duration_months ? `${plan.duration_months} month${plan.duration_months > 1 ? "s" : ""}` : `${plan.duration_days} days`}</span>
           </p>
+          <Badge variant="outline" className="text-xs">{plan.limit_period || "monthly"} limits</Badge>
           {/* Limits display */}
           {Object.keys(limits).length > 0 && (
             <div className="flex flex-wrap gap-1">

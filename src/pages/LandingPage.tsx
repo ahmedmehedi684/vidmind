@@ -54,10 +54,14 @@ const LandingPage = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [activeSection, setActiveSection] = useState("");
   const [historyCards, setHistoryCards] = useState(fallbackHistoryCards);
+  const [pricingPlans, setPricingPlans] = useState<any[]>([]);
 
   useEffect(() => {
     supabase.from("landing_showcase").select("*").order("sort_order", { ascending: true }).then(({ data }) => {
       if (data && data.length > 0) setHistoryCards(data as any[]);
+    });
+    supabase.from("subscription_plans").select("*").eq("is_active", true).eq("currency", "USD").order("sort_order").then(({ data }) => {
+      if (data && data.length > 0) setPricingPlans(data);
     });
   }, []);
 
@@ -373,36 +377,45 @@ const LandingPage = () => {
           <p className="text-xs font-semibold tracking-widest uppercase text-center mb-3" style={{ color: "#00ff87" }}>Pricing</p>
           <h2 className="text-3xl md:text-4xl font-bold text-center mb-3" style={{ fontFamily: "'Playfair Display', serif" }}>Simple, Transparent Pricing</h2>
           <p className="text-center max-w-md mx-auto mb-12" style={{ color: "#8892a4" }}>Start free. Upgrade when you are ready.</p>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-2xl mx-auto">
-            {/* Free */}
-            <div className="rounded-xl p-6 space-y-5" style={{ background: "#111827", border: "1px solid #1e2535" }}>
-              <div>
-                <h3 className="text-xl font-bold" style={{ color: "#f0f4ff" }}>Free</h3>
-                <div className="mt-2"><span className="text-4xl font-bold" style={{ color: "#f0f4ff", fontFamily: "'Playfair Display', serif" }}>$0</span><span className="text-sm" style={{ color: "#8892a4" }}>/month</span></div>
-                <p className="text-sm mt-1" style={{ color: "#8892a4" }}>Perfect for getting started</p>
+          <div className={`grid grid-cols-1 ${pricingPlans.length > 0 ? `md:grid-cols-${Math.min(pricingPlans.length, 3)}` : "md:grid-cols-2"} gap-6 max-w-3xl mx-auto`}>
+            {pricingPlans.length > 0 ? pricingPlans.map((plan: any) => (
+              <div key={plan.id} className="rounded-xl p-6 space-y-5 relative" style={{ background: "#111827", border: plan.is_popular ? "2px solid #00ff87" : "1px solid #1e2535" }}>
+                {plan.is_popular && <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-0.5 rounded-full text-xs font-semibold" style={{ background: "#00ff87", color: "#0a0d14" }}>Most Popular</div>}
+                <div>
+                  <h3 className="text-xl font-bold" style={{ color: "#f0f4ff" }}>{plan.name}</h3>
+                  <div className="mt-2">
+                    <span className="text-4xl font-bold" style={{ color: "#f0f4ff", fontFamily: "'Playfair Display', serif" }}>${plan.price}</span>
+                    <span className="text-sm" style={{ color: "#8892a4" }}>/{plan.duration_months ? `${plan.duration_months} mo` : plan.duration_days === -1 ? "lifetime" : `${plan.duration_days}d`}</span>
+                  </div>
+                  {plan.description && <p className="text-sm mt-1" style={{ color: "#8892a4" }}>{plan.description}</p>}
+                </div>
+                <ul className="space-y-3">
+                  {(plan.features as string[]).map((f: string) => (
+                    <li key={f} className="flex items-center gap-2 text-sm" style={{ color: "#8892a4" }}><Check className="h-4 w-4 shrink-0" style={{ color: "#00ff87" }} />{f}</li>
+                  ))}
+                </ul>
+                <Link to={user ? "/app-subscription" : "/auth?redirect=subscription"}>
+                  <Button className={`w-full font-semibold ${plan.is_popular ? "text-[#0a0d14]" : ""}`} variant={plan.is_popular ? "default" : "outline"} style={plan.is_popular ? { background: "#00ff87" } : { borderColor: "#1e2535", color: "#f0f4ff" }}>
+                    {plan.price === 0 ? "Get Started Free" : "Subscribe Now"} {plan.is_popular && <ChevronRight className="h-4 w-4 ml-1" />}
+                  </Button>
+                </Link>
               </div>
-              <ul className="space-y-3">
-                {["10 summaries per month", "Basic notes editor", "3 channels", "30-day history"].map((f) => (
-                  <li key={f} className="flex items-center gap-2 text-sm" style={{ color: "#8892a4" }}><Check className="h-4 w-4 shrink-0" style={{ color: "#00ff87" }} />{f}</li>
-                ))}
-              </ul>
-              <Link to={user ? "/app-subscription" : "/auth?redirect=subscription"}><Button variant="outline" className="w-full border-[#1e2535] text-[#f0f4ff] bg-transparent hover:bg-[#1e2535]">Get Started Free</Button></Link>
-            </div>
-            {/* Pro */}
-            <div className="rounded-xl p-6 space-y-5 relative" style={{ background: "#111827", border: "2px solid #00ff87" }}>
-              <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-0.5 rounded-full text-xs font-semibold" style={{ background: "#00ff87", color: "#0a0d14" }}>Most Popular</div>
-              <div>
-                <h3 className="text-xl font-bold" style={{ color: "#f0f4ff" }}>Pro</h3>
-                <div className="mt-2"><span className="text-4xl font-bold" style={{ color: "#f0f4ff", fontFamily: "'Playfair Display', serif" }}>$9</span><span className="text-sm" style={{ color: "#8892a4" }}>/month</span></div>
-                <p className="text-sm mt-1" style={{ color: "#8892a4" }}>For serious learners and entrepreneurs</p>
-              </div>
-              <ul className="space-y-3">
-                {["Unlimited summaries", "Full rich text notes editor", "Unlimited channels", "Full history forever", "Priority AI processing"].map((f) => (
-                  <li key={f} className="flex items-center gap-2 text-sm" style={{ color: "#8892a4" }}><Check className="h-4 w-4 shrink-0" style={{ color: "#00ff87" }} />{f}</li>
-                ))}
-              </ul>
-              <Link to={user ? "/app-subscription" : "/auth?redirect=subscription"}><Button className="w-full font-semibold text-[#0a0d14]" style={{ background: "#00ff87" }}>Start Pro <ChevronRight className="h-4 w-4 ml-1" /></Button></Link>
-            </div>
+            )) : (
+              <>
+                {/* Fallback hardcoded */}
+                <div className="rounded-xl p-6 space-y-5" style={{ background: "#111827", border: "1px solid #1e2535" }}>
+                  <div><h3 className="text-xl font-bold" style={{ color: "#f0f4ff" }}>Free</h3><div className="mt-2"><span className="text-4xl font-bold" style={{ color: "#f0f4ff" }}>$0</span><span className="text-sm" style={{ color: "#8892a4" }}>/month</span></div></div>
+                  <ul className="space-y-3">{["10 summaries per month", "Basic notes editor", "3 channels"].map(f => <li key={f} className="flex items-center gap-2 text-sm" style={{ color: "#8892a4" }}><Check className="h-4 w-4 shrink-0" style={{ color: "#00ff87" }} />{f}</li>)}</ul>
+                  <Link to={user ? "/app-subscription" : "/auth?redirect=subscription"}><Button variant="outline" className="w-full border-[#1e2535] text-[#f0f4ff] bg-transparent hover:bg-[#1e2535]">Get Started Free</Button></Link>
+                </div>
+                <div className="rounded-xl p-6 space-y-5 relative" style={{ background: "#111827", border: "2px solid #00ff87" }}>
+                  <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-0.5 rounded-full text-xs font-semibold" style={{ background: "#00ff87", color: "#0a0d14" }}>Most Popular</div>
+                  <div><h3 className="text-xl font-bold" style={{ color: "#f0f4ff" }}>Pro</h3><div className="mt-2"><span className="text-4xl font-bold" style={{ color: "#f0f4ff" }}>$9</span><span className="text-sm" style={{ color: "#8892a4" }}>/month</span></div></div>
+                  <ul className="space-y-3">{["Unlimited summaries", "Full rich text notes editor", "Unlimited channels", "Full history forever"].map(f => <li key={f} className="flex items-center gap-2 text-sm" style={{ color: "#8892a4" }}><Check className="h-4 w-4 shrink-0" style={{ color: "#00ff87" }} />{f}</li>)}</ul>
+                  <Link to={user ? "/app-subscription" : "/auth?redirect=subscription"}><Button className="w-full font-semibold text-[#0a0d14]" style={{ background: "#00ff87" }}>Start Pro <ChevronRight className="h-4 w-4 ml-1" /></Button></Link>
+                </div>
+              </>
+            )}
           </div>
         </div>
       </section>

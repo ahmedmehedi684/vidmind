@@ -322,9 +322,12 @@ export type Database = {
           currency: string
           description: string | null
           duration_days: number
+          duration_months: number | null
           features: Json
           id: string
           is_active: boolean
+          is_popular: boolean
+          limit_period: string
           limits: Json
           name: string
           price: number
@@ -335,9 +338,12 @@ export type Database = {
           currency?: string
           description?: string | null
           duration_days?: number
+          duration_months?: number | null
           features?: Json
           id?: string
           is_active?: boolean
+          is_popular?: boolean
+          limit_period?: string
           limits?: Json
           name: string
           price?: number
@@ -348,9 +354,12 @@ export type Database = {
           currency?: string
           description?: string | null
           duration_days?: number
+          duration_months?: number | null
           features?: Json
           id?: string
           is_active?: boolean
+          is_popular?: boolean
+          limit_period?: string
           limits?: Json
           name?: string
           price?: number
