@@ -54,10 +54,14 @@ const LandingPage = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [activeSection, setActiveSection] = useState("");
   const [historyCards, setHistoryCards] = useState(fallbackHistoryCards);
+  const [pricingPlans, setPricingPlans] = useState<any[]>([]);
 
   useEffect(() => {
     supabase.from("landing_showcase").select("*").order("sort_order", { ascending: true }).then(({ data }) => {
       if (data && data.length > 0) setHistoryCards(data as any[]);
+    });
+    supabase.from("subscription_plans").select("*").eq("is_active", true).eq("currency", "USD").order("sort_order").then(({ data }) => {
+      if (data && data.length > 0) setPricingPlans(data);
     });
   }, []);
 
