@@ -786,7 +786,6 @@ const LandingPage = () => {
               <div className={`grid grid-cols-1 ${filtered.length === 2 ? "md:grid-cols-2 max-w-2xl" : filtered.length >= 3 ? "md:grid-cols-3 max-w-4xl" : "md:grid-cols-1 max-w-md"} gap-6 mx-auto`}>
                 {filtered.length > 0 ? (
                   filtered.map((plan: any) => {
-                    const limits = plan.limits || {};
                     return (
                       <div
                         key={plan.id}
