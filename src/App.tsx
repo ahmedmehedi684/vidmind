@@ -105,6 +105,8 @@ const App = () => (
               <Route path="/admin-analytics" element={<AdminRoute><AdminDashboard /></AdminRoute>} />
               <Route path="/admin-user-mgmt" element={<AdminRoute><AdminDashboard /></AdminRoute>} />
               <Route path="/admin-notifications" element={<AdminRoute><AdminDashboard /></AdminRoute>} />
+              <Route path="/admin-coupons" element={<AdminRoute><AdminDashboard /></AdminRoute>} />
+              <Route path="/admin-affiliates" element={<AdminRoute><AdminDashboard /></AdminRoute>} />
 
               {/* Legacy redirects */}
               <Route path="/dashboard" element={<Navigate to="/app" replace />} />
