@@ -22,6 +22,7 @@ interface Plan {
   id: string; name: string; description: string; price: number;
   duration_days: number; features: string[]; is_active: boolean;
   sort_order: number; currency: string; limits: PlanLimits;
+  is_popular: boolean; limit_period: string; duration_months: number | null;
 }
 
 const DEFAULT_LIMITS: PlanLimits = { tasks: 5, transactions: 10, summaries: 5, channels: 1, goals: 2, notes: 5 };
