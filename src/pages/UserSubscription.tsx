@@ -223,24 +223,24 @@ const UserSubscription = () => {
             const isActive = activePlan?.id === plan.id;
             const isPopular = plan.is_popular;
             return (
-              <Card key={plan.id} className={`relative hover:border-primary/50 transition-colors ${isActive ? "border-primary" : ""} ${isPopular ? "md:scale-105 md:shadow-lg md:shadow-primary/10 border-primary" : ""}`}>
+              <Card key={plan.id} className={`relative hover:border-primary/50 transition-colors flex flex-col ${isActive ? "border-primary" : ""} ${isPopular ? "md:scale-105 md:shadow-lg md:shadow-primary/10 border-primary" : ""}`}>
                 {isPopular && <Badge className="absolute -top-2.5 left-1/2 -translate-x-1/2 bg-primary text-primary-foreground">Most Popular</Badge>}
-                <CardContent className="pt-6 space-y-4">
-                  <div className="text-center">
+                <CardContent className="pt-6 flex flex-col flex-1">
+                  <div className="text-center mb-4">
                     <Icon className="h-8 w-8 text-primary mx-auto mb-2" />
                     <h3 className="text-lg font-bold text-foreground">{plan.name}</h3>
                     <p className="text-sm text-muted-foreground mt-1">{plan.description}</p>
                   </div>
-                  <div className="text-center">
+                  <div className="text-center mb-2">
                     <span className="text-3xl font-bold text-foreground">{selectedCurrency === "BDT" ? "৳" : "$"}{plan.price}</span>
                     <span className="text-sm text-muted-foreground">
                       /{plan.duration_months ? `${plan.duration_months} month${plan.duration_months > 1 ? "s" : ""}` : plan.duration_days === -1 ? "Unlimited" : `${plan.duration_days} days`}
                     </span>
                   </div>
                   {plan.limit_period && (
-                    <p className="text-xs text-center text-muted-foreground">Limits reset {plan.limit_period}</p>
+                    <p className="text-xs text-center text-muted-foreground mb-3">Limits reset {plan.limit_period}</p>
                   )}
-                  <ul className="space-y-2">
+                  <ul className="space-y-2 flex-1 mb-4">
                     {(plan.features as string[]).map((f, i) => (
                       <li key={i} className="flex items-start gap-2 text-sm text-muted-foreground">
                         <Check className="h-4 w-4 text-primary shrink-0 mt-0.5" />
@@ -248,7 +248,7 @@ const UserSubscription = () => {
                       </li>
                     ))}
                   </ul>
-                  <Button className="w-full" variant={isActive ? "outline" : "default"} disabled={isActive}
+                  <Button className="w-full mt-auto" variant={isActive ? "outline" : "default"} disabled={isActive}
                     onClick={() => openCheckout(plan)}>
                     {isActive ? "Current Plan" : (plan as any).button_text || (plan.price === 0 ? "Free Access" : "Subscribe Now")}
                   </Button>
