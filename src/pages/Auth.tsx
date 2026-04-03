@@ -20,8 +20,12 @@ const Auth = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
 
+  const planId = searchParams.get("plan");
+
   const getRedirectPath = () => {
-    if (redirectTo === "subscription") return "/app-subscription";
+    if (redirectTo === "subscription") {
+      return planId ? `/app-subscription?plan=${planId}` : "/app-subscription";
+    }
     return "/app";
   };
 
@@ -108,7 +112,7 @@ const Auth = () => {
             </h1>
           </div>
           <p className="mt-2 text-muted-foreground" style={{ fontFamily: "'DM Sans', sans-serif" }}>
-            AI-Powered YouTube Video Summarizer
+            Your AI-Powered Productivity Platform
           </p>
         </div>
 

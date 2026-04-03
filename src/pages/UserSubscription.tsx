@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
 import {
   CreditCard, Check, Clock, Loader2, Crown, Star, Zap,
   AlertCircle, CheckCircle2, Copy
@@ -42,6 +43,7 @@ interface PaymentMethod {
 
 const UserSubscription = () => {
   const { user } = useAuth();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [plans, setPlans] = useState<Plan[]>([]);
   const [subscriptions, setSubscriptions] = useState<Subscription[]>([]);
   const [payments, setPayments] = useState<PaymentOrder[]>([]);
@@ -54,6 +56,7 @@ const UserSubscription = () => {
   const [paymentNumber, setPaymentNumber] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [selectedCurrency, setSelectedCurrency] = useState("BDT");
+  const [autoOpenDone, setAutoOpenDone] = useState(false);
 
   useEffect(() => { if (user) loadData(); }, [user]);
 
@@ -87,6 +90,23 @@ const UserSubscription = () => {
     } catch (e) { console.error(e); }
     finally { setLoading(false); }
   };
+
+  // Auto-open checkout if plan param is in URL
+  useEffect(() => {
+    if (!loading && !autoOpenDone && plans.length > 0) {
+      const planId = searchParams.get("plan");
+      if (planId) {
+        const plan = plans.find(p => p.id === planId);
+        if (plan && plan.price > 0) {
+          setSelectedCurrency(plan.currency || "BDT");
+          setTimeout(() => openCheckout(plan), 300);
+          searchParams.delete("plan");
+          setSearchParams(searchParams, { replace: true });
+        }
+        setAutoOpenDone(true);
+      }
+    }
+  }, [loading, plans, autoOpenDone]);
 
   const activeSub = subscriptions.find(s => s.status === "active" && s.expires_at && new Date(s.expires_at) > new Date());
   const activePlan = activeSub ? plans.find(p => p.id === activeSub.plan_id) : null;
@@ -234,11 +254,17 @@ const UserSubscription = () => {
                   <div className="text-center mb-2">
                     <span className="text-3xl font-bold text-foreground">{selectedCurrency === "BDT" ? "৳" : "$"}{plan.price}</span>
                     <span className="text-sm text-muted-foreground">
-                      /{plan.duration_months ? `${plan.duration_months} month${plan.duration_months > 1 ? "s" : ""}` : plan.duration_days === -1 ? "Unlimited" : `${plan.duration_days} days`}
+                      /{plan.duration_months ? `${plan.duration_months} month${plan.duration_months > 1 ? "s" : ""}` : plan.duration_days === -1 ? "lifetime" : `${plan.duration_days} days`}
                     </span>
                   </div>
-                  {plan.limit_period && (
-                    <p className="text-xs text-center text-muted-foreground mb-3">Limits reset {plan.limit_period}</p>
+                  {plan.limits && Object.keys(plan.limits).length > 0 && (
+                    <div className="flex flex-wrap justify-center gap-1 mb-3">
+                      {Object.entries(plan.limits).map(([k, v]) => (
+                        <Badge key={k} variant="outline" className="text-xs capitalize">
+                          {k}: {(v as number) === -1 ? "∞" : String(v)}/{plan.limit_period || "month"}
+                        </Badge>
+                      ))}
+                    </div>
                   )}
                   <ul className="space-y-2 flex-1 mb-4">
                     {(plan.features as string[]).map((f, i) => (
