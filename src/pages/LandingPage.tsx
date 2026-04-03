@@ -821,13 +821,6 @@ const LandingPage = () => {
                             {pricingCurrency === "BDT" ? "৳" : "$"}
                             {plan.price}
                           </span>
-                          {plan.price > 0 && (
-                            <span className="text-sm ml-1" style={{ color: "#8892a4" }}>
-                              /{plan.duration_months
-                                ? `${plan.duration_months} month${plan.duration_months > 1 ? "s" : ""}`
-                                : "month"}
-                            </span>
-                          )}
                         </div>
 
                         <ul className="space-y-3 flex-1 mb-6">

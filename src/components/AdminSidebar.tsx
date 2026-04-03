@@ -2,7 +2,7 @@ import {
   FileText, Users, MessageSquare, Clock, Youtube,
   StickyNote, Settings, Shield, LogOut, User, LayoutGrid, Home,
   ListChecks, Target, DollarSign, CreditCard, HeadphonesIcon,
-  BarChart3, UserCog, Bell
+  BarChart3, UserCog, Bell, Ticket, LinkIcon
 } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 import ThemeToggle from "@/components/ThemeToggle";
@@ -41,6 +41,8 @@ const navItems = [
   { title: "Pay Methods", path: "/admin-payment-methods", icon: CreditCard },
   { title: "Support", path: "/admin-support", icon: HeadphonesIcon },
   { title: "Team", path: "/admin-team", icon: UserCog },
+  { title: "Coupons", path: "/admin-coupons", icon: Ticket },
+  { title: "Affiliates", path: "/admin-affiliates", icon: LinkIcon },
   { title: "Profile", path: "/admin-profile", icon: User },
   { title: "Settings", path: "/admin-settings", icon: Settings },
 ];

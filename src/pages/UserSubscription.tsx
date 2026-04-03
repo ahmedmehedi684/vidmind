@@ -253,11 +253,6 @@ const UserSubscription = () => {
                   </div>
                   <div className="text-center mb-3">
                     <span className="text-3xl font-bold text-foreground">{selectedCurrency === "BDT" ? "৳" : "$"}{plan.price}</span>
-                    {plan.price > 0 && (
-                      <span className="text-sm text-muted-foreground">
-                        /{plan.duration_months ? `${plan.duration_months} month${plan.duration_months > 1 ? "s" : ""}` : "month"}
-                      </span>
-                    )}
                   </div>
                   <ul className="space-y-2 flex-1 mb-4">
                     {(plan.features as string[]).map((f, i) => (

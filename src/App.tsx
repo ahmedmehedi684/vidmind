@@ -24,6 +24,7 @@ import UserGoals from "./pages/UserGoals.tsx";
 import UserMoney from "./pages/UserMoney.tsx";
 import UserSubscription from "./pages/UserSubscription.tsx";
 import UserSupport from "./pages/UserSupport.tsx";
+import AffiliateDashboard from "./pages/AffiliateDashboard.tsx";
 import PrivacyPolicy from "./pages/PrivacyPolicy.tsx";
 import TermsOfService from "./pages/TermsOfService.tsx";
 
@@ -65,6 +66,7 @@ const App = () => (
               <Route path="/auth" element={<PublicRoute><Auth /></PublicRoute>} />
               <Route path="/privacy-policy" element={<PrivacyPolicy />} />
               <Route path="/terms-of-service" element={<TermsOfService />} />
+              <Route path="/affiliate" element={<AffiliateDashboard />} />
 
               {/* Protected user routes */}
               <Route path="/app" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
@@ -103,6 +105,8 @@ const App = () => (
               <Route path="/admin-analytics" element={<AdminRoute><AdminDashboard /></AdminRoute>} />
               <Route path="/admin-user-mgmt" element={<AdminRoute><AdminDashboard /></AdminRoute>} />
               <Route path="/admin-notifications" element={<AdminRoute><AdminDashboard /></AdminRoute>} />
+              <Route path="/admin-coupons" element={<AdminRoute><AdminDashboard /></AdminRoute>} />
+              <Route path="/admin-affiliates" element={<AdminRoute><AdminDashboard /></AdminRoute>} />
 
               {/* Legacy redirects */}
               <Route path="/dashboard" element={<Navigate to="/app" replace />} />
