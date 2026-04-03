@@ -201,7 +201,25 @@ const AdminSubscriptionPlans = () => {
                   <Button type="button" variant={pDays === "-1" ? "default" : "outline"} size="sm" className="shrink-0 text-xs h-9" onClick={toggleUnlimitedDuration}>∞</Button>
                 </div>
               </div>
+              <div className="space-y-1.5"><Label>Duration (months)</Label><Input type="number" value={pDurationMonths} onChange={e => setPDurationMonths(e.target.value)} placeholder="e.g. 1" /></div>
+            </div>
+            <div className="grid grid-cols-3 gap-3">
               <div className="space-y-1.5"><Label>Sort Order</Label><Input type="number" value={pOrder} onChange={e => setPOrder(e.target.value)} /></div>
+              <div className="space-y-1.5">
+                <Label>Limit Period</Label>
+                <Select value={pLimitPeriod} onValueChange={setPLimitPeriod}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="daily">Daily</SelectItem>
+                    <SelectItem value="monthly">Monthly</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="flex items-end pb-1">
+                <Button type="button" variant={pPopular ? "default" : "outline"} size="sm" className="w-full gap-1" onClick={() => setPPopular(!pPopular)}>
+                  <Star className={`h-3.5 w-3.5 ${pPopular ? "fill-current" : ""}`} /> {pPopular ? "Popular ✓" : "Mark Popular"}
+                </Button>
+              </div>
             </div>
             <div className="space-y-1.5">
               <Label>Features (one per line)</Label>
