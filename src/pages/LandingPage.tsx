@@ -61,7 +61,7 @@ const LandingPage = () => {
     supabase.from("landing_showcase").select("*").order("sort_order", { ascending: true }).then(({ data }) => {
       if (data && data.length > 0) setHistoryCards(data as any[]);
     });
-    supabase.from("subscription_plans").select("*").eq("is_active", true).eq("currency", "USD").order("sort_order").then(({ data }) => {
+    supabase.from("subscription_plans").select("*").eq("is_active", true).order("sort_order").then(({ data }) => {
       if (data && data.length > 0) setPricingPlans(data);
     });
   }, []);
