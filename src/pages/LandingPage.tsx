@@ -55,6 +55,7 @@ const LandingPage = () => {
   const [activeSection, setActiveSection] = useState("");
   const [historyCards, setHistoryCards] = useState(fallbackHistoryCards);
   const [pricingPlans, setPricingPlans] = useState<any[]>([]);
+  const [pricingCurrency, setPricingCurrency] = useState("BDT");
 
   useEffect(() => {
     supabase.from("landing_showcase").select("*").order("sort_order", { ascending: true }).then(({ data }) => {
