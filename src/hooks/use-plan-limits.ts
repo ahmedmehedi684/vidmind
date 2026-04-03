@@ -19,6 +19,7 @@ export function usePlanLimits() {
   const { user } = useAuth();
   const [limits, setLimits] = useState<PlanLimits>(FREE_LIMITS);
   const [planName, setPlanName] = useState("Free");
+  const [limitPeriod, setLimitPeriod] = useState<"daily" | "monthly">("monthly");
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -29,7 +30,6 @@ export function usePlanLimits() {
   const loadLimits = async () => {
     if (!user) return;
     try {
-      // Get active subscription
       const { data: subs } = await supabase
         .from("subscriptions")
         .select("plan_id, status, expires_at")
@@ -43,13 +43,14 @@ export function usePlanLimits() {
       if (activeSub) {
         const { data: plan } = await supabase
           .from("subscription_plans")
-          .select("name, limits")
+          .select("name, limits, limit_period")
           .eq("id", (activeSub as any).plan_id)
           .single();
 
         if (plan) {
           const planLimits = (plan as any).limits as PlanLimits;
           setPlanName((plan as any).name);
+          setLimitPeriod(((plan as any).limit_period || "monthly") as "daily" | "monthly");
           if (planLimits && Object.keys(planLimits).length > 0) {
             setLimits(planLimits);
           }
@@ -68,5 +69,5 @@ export function usePlanLimits() {
 
   const getLimit = (feature: keyof PlanLimits) => limits[feature];
 
-  return { limits, planName, loading, isUnlimited, getLimit };
+  return { limits, planName, limitPeriod, loading, isUnlimited, getLimit };
 }
