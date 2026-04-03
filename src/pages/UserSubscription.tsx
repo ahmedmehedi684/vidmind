@@ -250,7 +250,7 @@ const UserSubscription = () => {
                   </ul>
                   <Button className="w-full" variant={isActive ? "outline" : "default"} disabled={isActive}
                     onClick={() => openCheckout(plan)}>
-                    {isActive ? "Current Plan" : plan.price === 0 ? "Free Access" : "Subscribe Now"}
+                    {isActive ? "Current Plan" : (plan as any).button_text || (plan.price === 0 ? "Free Access" : "Subscribe Now")}
                   </Button>
                 </CardContent>
               </Card>
