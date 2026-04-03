@@ -377,16 +377,25 @@ const LandingPage = () => {
         <div className="max-w-5xl mx-auto">
           <p className="text-xs font-semibold tracking-widest uppercase text-center mb-3" style={{ color: "#00ff87" }}>Pricing</p>
           <h2 className="text-3xl md:text-4xl font-bold text-center mb-3" style={{ fontFamily: "'Playfair Display', serif" }}>Simple, Transparent Pricing</h2>
-          <p className="text-center max-w-md mx-auto mb-12" style={{ color: "#8892a4" }}>Start free. Upgrade when you are ready.</p>
-          <div className={`grid grid-cols-1 ${pricingPlans.length > 0 ? `md:grid-cols-${Math.min(pricingPlans.length, 3)}` : "md:grid-cols-2"} gap-6 max-w-3xl mx-auto`}>
-            {pricingPlans.length > 0 ? pricingPlans.map((plan: any) => (
+          <p className="text-center max-w-md mx-auto mb-6" style={{ color: "#8892a4" }}>Start free. Upgrade when you are ready.</p>
+          {/* Currency Switch */}
+          <div className="flex items-center justify-center gap-1 mb-10">
+            <button onClick={() => setPricingCurrency("BDT")} className={`px-4 py-1.5 rounded-full text-sm font-semibold transition-all ${pricingCurrency === "BDT" ? "text-[#0a0d14]" : "text-[#8892a4]"}`} style={pricingCurrency === "BDT" ? { background: "#00ff87" } : { background: "transparent", border: "1px solid #1e2535" }}>🇧🇩 BDT</button>
+            <button onClick={() => setPricingCurrency("USD")} className={`px-4 py-1.5 rounded-full text-sm font-semibold transition-all ${pricingCurrency === "USD" ? "text-[#0a0d14]" : "text-[#8892a4]"}`} style={pricingCurrency === "USD" ? { background: "#00ff87" } : { background: "transparent", border: "1px solid #1e2535" }}>🇺🇸 USD</button>
+          </div>
+          {(() => {
+            const filtered = pricingPlans.filter((p: any) => (p.currency || "BDT") === pricingCurrency);
+            const cols = filtered.length > 0 ? Math.min(filtered.length, 3) : 2;
+            return (
+          <div className={`grid grid-cols-1 md:grid-cols-${cols} gap-6 max-w-3xl mx-auto`}>
+            {filtered.length > 0 ? filtered.map((plan: any) => (
               <div key={plan.id} className="rounded-xl p-6 space-y-5 relative" style={{ background: "#111827", border: plan.is_popular ? "2px solid #00ff87" : "1px solid #1e2535" }}>
                 {plan.is_popular && <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-0.5 rounded-full text-xs font-semibold" style={{ background: "#00ff87", color: "#0a0d14" }}>Most Popular</div>}
                 <div>
                   <h3 className="text-xl font-bold" style={{ color: "#f0f4ff" }}>{plan.name}</h3>
                   <div className="mt-2">
-                    <span className="text-4xl font-bold" style={{ color: "#f0f4ff", fontFamily: "'Playfair Display', serif" }}>${plan.price}</span>
-                    <span className="text-sm" style={{ color: "#8892a4" }}>/{plan.duration_months ? `${plan.duration_months} mo` : plan.duration_days === -1 ? "lifetime" : `${plan.duration_days}d`}</span>
+                    <span className="text-4xl font-bold" style={{ color: "#f0f4ff", fontFamily: "'Playfair Display', serif" }}>{pricingCurrency === "BDT" ? "৳" : "$"}{plan.price}</span>
+                    <span className="text-sm" style={{ color: "#8892a4" }}>/{plan.duration_months ? `${plan.duration_months} month${plan.duration_months > 1 ? "s" : ""}` : plan.duration_days === -1 ? "lifetime" : `${plan.duration_days}d`}</span>
                   </div>
                   {plan.description && <p className="text-sm mt-1" style={{ color: "#8892a4" }}>{plan.description}</p>}
                 </div>
@@ -397,7 +406,7 @@ const LandingPage = () => {
                 </ul>
                 <Link to={user ? "/app-subscription" : "/auth?redirect=subscription"}>
                   <Button className={`w-full font-semibold ${plan.is_popular ? "text-[#0a0d14]" : ""}`} variant={plan.is_popular ? "default" : "outline"} style={plan.is_popular ? { background: "#00ff87" } : { borderColor: "#1e2535", color: "#f0f4ff" }}>
-                    {plan.price === 0 ? "Get Started Free" : "Subscribe Now"} {plan.is_popular && <ChevronRight className="h-4 w-4 ml-1" />}
+                    {plan.button_text || "Subscribe Now"} {plan.is_popular && <ChevronRight className="h-4 w-4 ml-1" />}
                   </Button>
                 </Link>
               </div>
