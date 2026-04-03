@@ -21,6 +21,8 @@ const Auth = () => {
   const [loading, setLoading] = useState(false);
 
   const planId = searchParams.get("plan");
+  const refCode = searchParams.get("ref");
+  if (refCode) { try { localStorage.setItem("affiliate_ref", refCode); } catch {} }
 
   const getRedirectPath = () => {
     if (redirectTo === "subscription") {
