@@ -24,6 +24,7 @@ import UserGoals from "./pages/UserGoals.tsx";
 import UserMoney from "./pages/UserMoney.tsx";
 import UserSubscription from "./pages/UserSubscription.tsx";
 import UserSupport from "./pages/UserSupport.tsx";
+import AffiliateDashboard from "./pages/AffiliateDashboard.tsx";
 import PrivacyPolicy from "./pages/PrivacyPolicy.tsx";
 import TermsOfService from "./pages/TermsOfService.tsx";
 
