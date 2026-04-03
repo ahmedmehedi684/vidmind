@@ -257,6 +257,7 @@ const AdminSubscriptionPlans = () => {
           <div className="flex items-center justify-between">
             <h4 className="font-bold text-foreground text-lg">{plan.name}</h4>
             <div className="flex items-center gap-1">
+              {plan.is_popular && <Badge className="bg-amber-500 text-white text-xs gap-1"><Star className="h-3 w-3 fill-current" />Popular</Badge>}
               <Badge variant="outline" className="text-xs">{plan.currency || "BDT"}</Badge>
               <Badge variant={plan.is_active ? "default" : "secondary"}>{plan.is_active ? "Active" : "Inactive"}</Badge>
             </div>
