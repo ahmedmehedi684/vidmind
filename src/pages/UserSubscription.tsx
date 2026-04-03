@@ -251,21 +251,14 @@ const UserSubscription = () => {
                     <h3 className="text-lg font-bold text-foreground">{plan.name}</h3>
                     <p className="text-sm text-muted-foreground mt-1">{plan.description}</p>
                   </div>
-                  <div className="text-center mb-2">
+                  <div className="text-center mb-3">
                     <span className="text-3xl font-bold text-foreground">{selectedCurrency === "BDT" ? "৳" : "$"}{plan.price}</span>
-                    <span className="text-sm text-muted-foreground">
-                      /{plan.duration_months ? `${plan.duration_months} month${plan.duration_months > 1 ? "s" : ""}` : plan.duration_days === -1 ? "lifetime" : `${plan.duration_days} days`}
-                    </span>
+                    {plan.price > 0 && (
+                      <span className="text-sm text-muted-foreground">
+                        /{plan.duration_months ? `${plan.duration_months} month${plan.duration_months > 1 ? "s" : ""}` : "month"}
+                      </span>
+                    )}
                   </div>
-                  {plan.limits && Object.keys(plan.limits).length > 0 && (
-                    <div className="flex flex-wrap justify-center gap-1 mb-3">
-                      {Object.entries(plan.limits).map(([k, v]) => (
-                        <Badge key={k} variant="outline" className="text-xs capitalize">
-                          {k}: {(v as number) === -1 ? "∞" : String(v)}/{plan.limit_period || "month"}
-                        </Badge>
-                      ))}
-                    </div>
-                  )}
                   <ul className="space-y-2 flex-1 mb-4">
                     {(plan.features as string[]).map((f, i) => (
                       <li key={i} className="flex items-start gap-2 text-sm text-muted-foreground">
