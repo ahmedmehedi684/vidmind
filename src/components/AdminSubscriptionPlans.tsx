@@ -44,6 +44,7 @@ const AdminSubscriptionPlans = () => {
   const [pPopular, setPPopular] = useState(false);
   const [pLimitPeriod, setPLimitPeriod] = useState("monthly");
   const [pDurationMonths, setPDurationMonths] = useState("");
+  const [pButtonText, setPButtonText] = useState("Subscribe Now");
 
   useEffect(() => { loadPlans(); }, []);
 
