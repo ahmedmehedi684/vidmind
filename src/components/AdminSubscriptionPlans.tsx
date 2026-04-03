@@ -226,6 +226,7 @@ const AdminSubscriptionPlans = () => {
                 </Button>
               </div>
             </div>
+            <div className="space-y-1.5"><Label>Button Text</Label><Input value={pButtonText} onChange={e => setPButtonText(e.target.value)} placeholder="e.g. Get Started Free" /></div>
             <div className="space-y-1.5">
               <Label>Features (one per line)</Label>
               <Textarea value={pFeatures} onChange={e => setPFeatures(e.target.value)} placeholder="Unlimited summaries&#10;Priority support&#10;..." rows={4} />
