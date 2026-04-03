@@ -254,11 +254,17 @@ const UserSubscription = () => {
                   <div className="text-center mb-2">
                     <span className="text-3xl font-bold text-foreground">{selectedCurrency === "BDT" ? "৳" : "$"}{plan.price}</span>
                     <span className="text-sm text-muted-foreground">
-                      /{plan.duration_months ? `${plan.duration_months} month${plan.duration_months > 1 ? "s" : ""}` : plan.duration_days === -1 ? "Unlimited" : `${plan.duration_days} days`}
+                      /{plan.duration_months ? `${plan.duration_months} month${plan.duration_months > 1 ? "s" : ""}` : plan.duration_days === -1 ? "lifetime" : `${plan.duration_days} days`}
                     </span>
                   </div>
-                  {plan.limit_period && (
-                    <p className="text-xs text-center text-muted-foreground mb-3">Limits reset {plan.limit_period}</p>
+                  {plan.limits && Object.keys(plan.limits).length > 0 && (
+                    <div className="flex flex-wrap justify-center gap-1 mb-3">
+                      {Object.entries(plan.limits).map(([k, v]) => (
+                        <Badge key={k} variant="outline" className="text-xs capitalize">
+                          {k}: {(v as number) === -1 ? "∞" : String(v)}/{plan.limit_period || "month"}
+                        </Badge>
+                      ))}
+                    </div>
                   )}
                   <ul className="space-y-2 flex-1 mb-4">
                     {(plan.features as string[]).map((f, i) => (
