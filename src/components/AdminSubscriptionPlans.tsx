@@ -67,6 +67,8 @@ const AdminSubscriptionPlans = () => {
     setPDays(plan.duration_days.toString()); setPFeatures((plan.features as string[]).join("\n"));
     setPOrder(plan.sort_order.toString()); setPCurrency(plan.currency || "BDT");
     setPLimits(plan.limits && Object.keys(plan.limits).length > 0 ? plan.limits : DEFAULT_LIMITS);
+    setPPopular(plan.is_popular || false); setPLimitPeriod(plan.limit_period || "monthly");
+    setPDurationMonths(plan.duration_months ? plan.duration_months.toString() : "");
     setDialogOpen(true);
   };
 
