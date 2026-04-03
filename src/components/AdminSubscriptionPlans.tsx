@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import {
-  CreditCard, Check, Plus, Loader2, Edit2, Trash2, ToggleLeft, ToggleRight
+  CreditCard, Check, Plus, Loader2, Edit2, Trash2, ToggleLeft, ToggleRight, Star
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
