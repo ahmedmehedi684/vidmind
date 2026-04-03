@@ -1,0 +1,1 @@
+ALTER TABLE public.subscription_plans ADD COLUMN button_text text NOT NULL DEFAULT 'Subscribe Now';

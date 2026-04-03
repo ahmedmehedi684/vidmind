@@ -23,6 +23,7 @@ interface Plan {
   duration_days: number; features: string[]; is_active: boolean;
   sort_order: number; currency: string; limits: PlanLimits;
   is_popular: boolean; limit_period: string; duration_months: number | null;
+  button_text: string;
 }
 
 const DEFAULT_LIMITS: PlanLimits = { tasks: 5, transactions: 10, summaries: 5, channels: 1, goals: 2, notes: 5 };
@@ -43,6 +44,7 @@ const AdminSubscriptionPlans = () => {
   const [pPopular, setPPopular] = useState(false);
   const [pLimitPeriod, setPLimitPeriod] = useState("monthly");
   const [pDurationMonths, setPDurationMonths] = useState("");
+  const [pButtonText, setPButtonText] = useState("Subscribe Now");
 
   useEffect(() => { loadPlans(); }, []);
 
@@ -59,6 +61,7 @@ const AdminSubscriptionPlans = () => {
     setEditPlan(null); setPName(""); setPDesc(""); setPPrice(""); setPDays("30");
     setPFeatures(""); setPOrder("0"); setPCurrency("BDT"); setPLimits(DEFAULT_LIMITS);
     setPPopular(false); setPLimitPeriod("monthly"); setPDurationMonths("");
+    setPButtonText("Subscribe Now");
     setDialogOpen(true);
   };
 
@@ -69,6 +72,7 @@ const AdminSubscriptionPlans = () => {
     setPLimits(plan.limits && Object.keys(plan.limits).length > 0 ? plan.limits : DEFAULT_LIMITS);
     setPPopular(plan.is_popular || false); setPLimitPeriod(plan.limit_period || "monthly");
     setPDurationMonths(plan.duration_months ? plan.duration_months.toString() : "");
+    setPButtonText(plan.button_text || "Subscribe Now");
     setDialogOpen(true);
   };
 
@@ -94,6 +98,7 @@ const AdminSubscriptionPlans = () => {
       is_active: true, currency: pCurrency, limits: pLimits,
       is_popular: pPopular, limit_period: pLimitPeriod,
       duration_months: pDurationMonths ? parseInt(pDurationMonths) : null,
+      button_text: pButtonText.trim() || "Subscribe Now",
     };
     try {
       if (editPlan) {
@@ -221,6 +226,7 @@ const AdminSubscriptionPlans = () => {
                 </Button>
               </div>
             </div>
+            <div className="space-y-1.5"><Label>Button Text</Label><Input value={pButtonText} onChange={e => setPButtonText(e.target.value)} placeholder="e.g. Get Started Free" /></div>
             <div className="space-y-1.5">
               <Label>Features (one per line)</Label>
               <Textarea value={pFeatures} onChange={e => setPFeatures(e.target.value)} placeholder="Unlimited summaries&#10;Priority support&#10;..." rows={4} />
