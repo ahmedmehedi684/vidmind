@@ -98,6 +98,7 @@ const AdminSubscriptionPlans = () => {
       is_active: true, currency: pCurrency, limits: pLimits,
       is_popular: pPopular, limit_period: pLimitPeriod,
       duration_months: pDurationMonths ? parseInt(pDurationMonths) : null,
+      button_text: pButtonText.trim() || "Subscribe Now",
     };
     try {
       if (editPlan) {
