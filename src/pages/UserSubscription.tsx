@@ -19,7 +19,8 @@ import { getPaymentLogo } from "@/lib/payment-logos";
 interface Plan {
   id: string; name: string; description: string; price: number;
   duration_days: number; features: string[]; is_active: boolean; sort_order: number;
-  currency: string;
+  currency: string; is_popular?: boolean; limit_period?: string; duration_months?: number | null;
+  limits?: any;
 }
 
 interface Subscription {
