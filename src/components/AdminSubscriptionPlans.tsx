@@ -40,6 +40,9 @@ const AdminSubscriptionPlans = () => {
   const [pOrder, setPOrder] = useState("0");
   const [pCurrency, setPCurrency] = useState("BDT");
   const [pLimits, setPLimits] = useState<PlanLimits>(DEFAULT_LIMITS);
+  const [pPopular, setPPopular] = useState(false);
+  const [pLimitPeriod, setPLimitPeriod] = useState("monthly");
+  const [pDurationMonths, setPDurationMonths] = useState("");
 
   useEffect(() => { loadPlans(); }, []);
 
