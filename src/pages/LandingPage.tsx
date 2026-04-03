@@ -1,7 +1,7 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Link } from "react-router-dom";
-import { ChevronRight, Zap, FileText, Youtube, Clock, Search, Target, Play, Menu, X, Star, Check } from "lucide-react";
+import { ChevronRight, Zap, FileText, Youtube, Clock, Search, Target, Play, Menu, X, Star, Check, ListTodo, Wallet, BarChart3 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -17,18 +17,33 @@ const navLinks = [
 const features = [
   {
     icon: Zap,
-    title: "Instant AI Summary",
-    desc: "Paste any transcript and get a structured English summary in seconds. Key points, main story, and action tips — all at once.",
+    title: "AI Video Summarizer",
+    desc: "Paste any YouTube transcript or link and get a structured summary with key points, main story, and actionable tips — in seconds.",
+  },
+  {
+    icon: ListTodo,
+    title: "Task Manager",
+    desc: "Organize your daily work with a powerful task manager. Set priorities, track progress, and mark tasks as done or not done.",
+  },
+  {
+    icon: Target,
+    title: "Goal Tracker",
+    desc: "Set your personal and business goals, track progress with visual indicators, and stay focused on what matters most.",
+  },
+  {
+    icon: Wallet,
+    title: "Money Manager",
+    desc: "Track your income, expenses, and loans in one place. Get clear insights into your financial health with charts and reports.",
   },
   {
     icon: FileText,
     title: "Smart Notes Editor",
-    desc: "Save summaries as rich notes with full formatting — headings, bold, italic, lists, underline, image links and more.",
+    desc: "Save summaries as rich notes with full formatting — headings, bold, italic, lists, images and more. Organize by channel.",
   },
   {
     icon: Youtube,
     title: "Channel Library",
-    desc: "Add your favorite YouTube channels and filter all your summaries by channel — see everything you have learned from each creator.",
+    desc: "Add your favorite YouTube channels and filter summaries by channel — see everything you have learned from each creator.",
   },
   {
     icon: Clock,
@@ -37,31 +52,31 @@ const features = [
   },
   {
     icon: Search,
-    title: "Search and Filter",
+    title: "Search & Filter",
     desc: "Search across all your notes and summaries. Filter by channel, date, or topic — find exactly what you are looking for instantly.",
   },
   {
-    icon: Target,
-    title: "Business Action Tips",
-    desc: "Every summary includes specific How to Apply tips — practical actions tailored for entrepreneurs, marketers, and business builders.",
+    icon: BarChart3,
+    title: "Dashboard & Analytics",
+    desc: "Get a bird's-eye view of your productivity — tasks completed, goals progress, money flow, and learning stats all in one dashboard.",
   },
 ];
 
 const steps = [
   {
     num: "1",
-    title: "Paste the Transcript",
-    desc: "Copy the transcript from any YouTube video and paste it directly into VidMind.",
+    title: "Create Your Account",
+    desc: "Sign up for free in seconds with Google or email. Your personal workspace is ready instantly.",
   },
   {
     num: "2",
-    title: "AI Analyzes the Content",
-    desc: "Our AI reads the full transcript and extracts the most important insights for you.",
+    title: "Explore All Tools",
+    desc: "Summarize videos, manage tasks, track goals, handle finances, and take notes — all from one dashboard.",
   },
   {
     num: "3",
-    title: "Get Insights and Save Notes",
-    desc: "Review your structured summary, save it as a note, and apply the action tips immediately.",
+    title: "Boost Your Productivity",
+    desc: "Stay organized, learn faster, and grow your business with AI-powered tools designed for entrepreneurs.",
   },
 ];
 
@@ -94,19 +109,19 @@ const fallbackHistoryCards = [
 
 const testimonials = [
   {
-    text: "VidMind saved me hours every week. I used to re-watch videos to take notes — now I get everything in 30 seconds.",
+    text: "VidMind changed how I work. The task manager and goal tracker keep me focused, and the video summaries save me hours every week.",
     name: "Rafiq Ahmed",
     role: "E-commerce Entrepreneur",
     initials: "RA",
   },
   {
-    text: "The How to Apply section is genius. It does not just summarize — it tells me exactly what to do in my business.",
+    text: "I use VidMind daily — summarizing videos, tracking my expenses, and managing my to-do list. It's like having a personal assistant.",
     name: "Sadia Khan",
     role: "Digital Marketing Agency Owner",
     initials: "SK",
   },
   {
-    text: "The summary is always accurate and well-structured. I use VidMind every day for my learning routine.",
+    text: "The all-in-one approach is brilliant. I don't need 5 different apps anymore. VidMind handles everything from notes to money tracking.",
     name: "Tanvir Hossain",
     role: "Content Creator and Freelancer",
     initials: "TH",
@@ -177,6 +192,11 @@ const LandingPage = () => {
     setMobileMenuOpen(false);
     const el = document.querySelector(href);
     if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
+
+  const getPlanLink = (planId: string) => {
+    if (user) return `/app-subscription?plan=${planId}`;
+    return `/auth?redirect=subscription&plan=${planId}`;
   };
 
   return (
@@ -306,19 +326,18 @@ const LandingPage = () => {
             className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-sm mb-8"
             style={{ background: "rgba(0,255,135,0.08)", border: "1px solid rgba(0,255,135,0.2)", color: "#00ff87" }}
           >
-            ✦ AI-Powered Learning Tool
+            ✦ AI-Powered Productivity Platform
           </div>
           <h1
             className="text-4xl md:text-6xl lg:text-7xl font-bold leading-tight mb-6"
             style={{ fontFamily: "'Playfair Display', serif" }}
           >
-            Summarize Any YouTube
+            Your All-in-One
             <br />
-            <span style={{ color: "#00ff87" }}>Video in Seconds</span>
+            <span style={{ color: "#00ff87" }}>Productivity Hub</span>
           </h1>
           <p className="text-base md:text-lg max-w-2xl mx-auto mb-8" style={{ color: "#8892a4" }}>
-            Paste any transcript and get instant key insights, structured notes, and business action tips — powered by
-            AI.
+            Summarize YouTube videos, manage tasks, track goals, handle finances, and take smart notes — all powered by AI, all in one place.
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-16">
             <Link to="/auth">
@@ -327,7 +346,7 @@ const LandingPage = () => {
                 className="h-12 px-8 text-base font-semibold gap-2 text-[#0a0d14]"
                 style={{ background: "#00ff87" }}
               >
-                Try for Free <ChevronRight className="h-5 w-5" />
+                Get Started Free <ChevronRight className="h-5 w-5" />
               </Button>
             </Link>
             <button onClick={() => scrollTo("#how-it-works")}>
@@ -366,10 +385,16 @@ const LandingPage = () => {
                     border: "1px solid rgba(0,255,135,0.2)",
                   }}
                 >
-                  Transcript
+                  Summarizer
                 </div>
                 <div className="px-4 py-2 rounded-md text-sm" style={{ color: "#8892a4" }}>
-                  YouTube Link
+                  Tasks
+                </div>
+                <div className="px-4 py-2 rounded-md text-sm" style={{ color: "#8892a4" }}>
+                  Goals
+                </div>
+                <div className="px-4 py-2 rounded-md text-sm" style={{ color: "#8892a4" }}>
+                  Money
                 </div>
               </div>
               <div
@@ -416,9 +441,9 @@ const LandingPage = () => {
       >
         <div className="max-w-5xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
           {[
-            { val: "10x", label: "Faster Learning" },
-            { val: "∞", label: "Videos Supported" },
+            { val: "9+", label: "Productivity Tools" },
             { val: "AI", label: "Powered Insights" },
+            { val: "∞", label: "Videos Supported" },
             { val: "Free", label: "To Get Started" },
           ].map((s) => (
             <div key={s.label}>
@@ -438,7 +463,7 @@ const LandingPage = () => {
 
       {/* Features */}
       <section id="features" className="py-20 px-4">
-        <div className="max-w-5xl mx-auto">
+        <div className="max-w-6xl mx-auto">
           <p className="text-xs font-semibold tracking-widest uppercase text-center mb-3" style={{ color: "#00ff87" }}>
             Features
           </p>
@@ -446,10 +471,10 @@ const LandingPage = () => {
             className="text-3xl md:text-4xl font-bold text-center mb-3"
             style={{ fontFamily: "'Playfair Display', serif" }}
           >
-            Everything You Need to Learn Smarter
+            Everything You Need in One Place
           </h2>
           <p className="text-center max-w-xl mx-auto mb-12" style={{ color: "#8892a4" }}>
-            From instant summaries to organized notes — VidMind is your complete AI learning companion.
+            From AI summaries to task management, goal tracking, and financial tools — VidMind is your complete productivity companion.
           </p>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
             {features.map((f) => (
@@ -491,7 +516,7 @@ const LandingPage = () => {
             3 Simple Steps
           </h2>
           <p className="text-center max-w-md mx-auto mb-12" style={{ color: "#8892a4" }}>
-            From transcript to actionable insights in under 30 seconds.
+            Get started in under a minute and unlock your full productivity potential.
           </p>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {steps.map((s) => (
@@ -676,7 +701,7 @@ const LandingPage = () => {
             Loved by Entrepreneurs
           </h2>
           <p className="text-center max-w-md mx-auto mb-12" style={{ color: "#8892a4" }}>
-            Built for people who learn from YouTube and want to apply it fast.
+            Built for people who want to stay organized and grow their business faster.
           </p>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
             {testimonials.map((t) => (
@@ -741,7 +766,7 @@ const LandingPage = () => {
                   : { background: "transparent", border: "1px solid #1e2535" }
               }
             >
-              BDT
+              🇧🇩 BDT
             </button>
             <button
               onClick={() => setPricingCurrency("USD")}
@@ -752,37 +777,44 @@ const LandingPage = () => {
                   : { background: "transparent", border: "1px solid #1e2535" }
               }
             >
-              USD
+              🇺🇸 USD
             </button>
           </div>
           {(() => {
             const filtered = pricingPlans.filter((p: any) => (p.currency || "BDT") === pricingCurrency);
-            const cols = filtered.length > 0 ? Math.min(filtered.length, 3) : 2;
             return (
-              <div className={`grid grid-cols-1 md:grid-cols-${cols} gap-6 max-w-3xl mx-auto`}>
+              <div className={`grid grid-cols-1 ${filtered.length === 2 ? "md:grid-cols-2 max-w-2xl" : filtered.length >= 3 ? "md:grid-cols-3 max-w-4xl" : "md:grid-cols-1 max-w-md"} gap-6 mx-auto`}>
                 {filtered.length > 0 ? (
-                  filtered.map((plan: any) => (
-                    <div
-                      key={plan.id}
-                      className="rounded-xl p-6 relative flex flex-col"
-                      style={{
-                        background: "#111827",
-                        border: plan.is_popular ? "2px solid #00ff87" : "1px solid #1e2535",
-                      }}
-                    >
-                      {plan.is_popular && (
-                        <div
-                          className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-0.5 rounded-full text-xs font-semibold"
-                          style={{ background: "#00ff87", color: "#0a0d14" }}
-                        >
-                          Most Popular
+                  filtered.map((plan: any) => {
+                    const limits = plan.limits || {};
+                    return (
+                      <div
+                        key={plan.id}
+                        className={`rounded-2xl p-7 relative flex flex-col transition-all hover:-translate-y-1 ${plan.is_popular ? "hover:shadow-2xl hover:shadow-[#00ff87]/10" : "hover:shadow-xl hover:shadow-white/5"}`}
+                        style={{
+                          background: plan.is_popular ? "linear-gradient(135deg, #111827 0%, #0f1a2e 100%)" : "#111827",
+                          border: plan.is_popular ? "2px solid #00ff87" : "1px solid #1e2535",
+                        }}
+                      >
+                        {plan.is_popular && (
+                          <div
+                            className="absolute -top-3 left-1/2 -translate-x-1/2 px-4 py-1 rounded-full text-xs font-bold tracking-wide"
+                            style={{ background: "#00ff87", color: "#0a0d14" }}
+                          >
+                            ⭐ Most Popular
+                          </div>
+                        )}
+                        <div className="mb-5">
+                          <h3 className="text-xl font-bold mb-1" style={{ color: "#f0f4ff" }}>
+                            {plan.name}
+                          </h3>
+                          {plan.description && (
+                            <p className="text-sm" style={{ color: "#8892a4" }}>
+                              {plan.description}
+                            </p>
+                          )}
                         </div>
-                      )}
-                      <div className="mb-4">
-                        <h3 className="text-xl font-bold" style={{ color: "#f0f4ff" }}>
-                          {plan.name}
-                        </h3>
-                        <div className="mt-2">
+                        <div className="mb-5">
                           <span
                             className="text-4xl font-bold"
                             style={{ color: "#f0f4ff", fontFamily: "'Playfair Display', serif" }}
@@ -790,122 +822,59 @@ const LandingPage = () => {
                             {pricingCurrency === "BDT" ? "৳" : "$"}
                             {plan.price}
                           </span>
-                          <span className="text-sm" style={{ color: "#8892a4" }}>
-                            /
-                            {plan.duration_months
+                          <span className="text-sm ml-1" style={{ color: "#8892a4" }}>
+                            /{plan.duration_months
                               ? `${plan.duration_months} month${plan.duration_months > 1 ? "s" : ""}`
                               : plan.duration_days === -1
                                 ? "lifetime"
-                                : `${plan.duration_days}d`}
+                                : `${plan.duration_days} days`}
                           </span>
                         </div>
-                        {plan.description && (
-                          <p className="text-sm mt-1" style={{ color: "#8892a4" }}>
-                            {plan.description}
-                          </p>
+
+                        {/* Limits badges */}
+                        {Object.keys(limits).length > 0 && (
+                          <div className="flex flex-wrap gap-1.5 mb-4">
+                            {Object.entries(limits).map(([k, v]) => (
+                              <span
+                                key={k}
+                                className="text-xs px-2 py-0.5 rounded-full capitalize"
+                                style={{ background: "rgba(0,255,135,0.08)", color: "#00ff87", border: "1px solid rgba(0,255,135,0.15)" }}
+                              >
+                                {k}: {(v as number) === -1 ? "∞" : String(v)}/{plan.limit_period || "month"}
+                              </span>
+                            ))}
+                          </div>
                         )}
+
+                        <ul className="space-y-3 flex-1 mb-6">
+                          {(plan.features as string[]).map((f: string) => (
+                            <li key={f} className="flex items-start gap-2.5 text-sm" style={{ color: "#8892a4" }}>
+                              <div className="h-5 w-5 rounded-full flex items-center justify-center shrink-0 mt-0.5" style={{ background: "rgba(0,255,135,0.1)" }}>
+                                <Check className="h-3 w-3" style={{ color: "#00ff87" }} />
+                              </div>
+                              {f}
+                            </li>
+                          ))}
+                        </ul>
+                        <Link to={getPlanLink(plan.id)} className="mt-auto">
+                          <Button
+                            className={`w-full h-11 font-semibold text-sm ${plan.is_popular ? "text-[#0a0d14]" : ""}`}
+                            variant={plan.is_popular ? "default" : "outline"}
+                            style={
+                              plan.is_popular ? { background: "#00ff87" } : { borderColor: "#1e2535", color: "#f0f4ff" }
+                            }
+                          >
+                            {plan.button_text || "Subscribe Now"}
+                            {plan.is_popular && <ChevronRight className="h-4 w-4 ml-1" />}
+                          </Button>
+                        </Link>
                       </div>
-                      <ul className="space-y-3 flex-1 mb-5">
-                        {(plan.features as string[]).map((f: string) => (
-                          <li key={f} className="flex items-center gap-2 text-sm" style={{ color: "#8892a4" }}>
-                            <Check className="h-4 w-4 shrink-0" style={{ color: "#00ff87" }} />
-                            {f}
-                          </li>
-                        ))}
-                      </ul>
-                      <Link to={user ? "/app-subscription" : "/auth?redirect=subscription"} className="mt-auto">
-                        <Button
-                          className={`w-full font-semibold ${plan.is_popular ? "text-[#0a0d14]" : ""}`}
-                          variant={plan.is_popular ? "default" : "outline"}
-                          style={
-                            plan.is_popular ? { background: "#00ff87" } : { borderColor: "#1e2535", color: "#f0f4ff" }
-                          }
-                        >
-                          {plan.button_text || "Subscribe Now"}{" "}
-                          {plan.is_popular && <ChevronRight className="h-4 w-4 ml-1" />}
-                        </Button>
-                      </Link>
-                    </div>
-                  ))
+                    );
+                  })
                 ) : (
-                  <>
-                    <div
-                      className="rounded-xl p-6 space-y-5"
-                      style={{ background: "#111827", border: "1px solid #1e2535" }}
-                    >
-                      <div>
-                        <h3 className="text-xl font-bold" style={{ color: "#f0f4ff" }}>
-                          Free
-                        </h3>
-                        <div className="mt-2">
-                          <span className="text-4xl font-bold" style={{ color: "#f0f4ff" }}>
-                            {pricingCurrency === "BDT" ? "৳" : "$"}0
-                          </span>
-                          <span className="text-sm" style={{ color: "#8892a4" }}>
-                            /month
-                          </span>
-                        </div>
-                      </div>
-                      <ul className="space-y-3">
-                        {["10 summaries per month", "Basic notes editor", "3 channels"].map((f) => (
-                          <li key={f} className="flex items-center gap-2 text-sm" style={{ color: "#8892a4" }}>
-                            <Check className="h-4 w-4 shrink-0" style={{ color: "#00ff87" }} />
-                            {f}
-                          </li>
-                        ))}
-                      </ul>
-                      <Link to={user ? "/app-subscription" : "/auth?redirect=subscription"}>
-                        <Button
-                          variant="outline"
-                          className="w-full border-[#1e2535] text-[#f0f4ff] bg-transparent hover:bg-[#1e2535]"
-                        >
-                          Get Started Free
-                        </Button>
-                      </Link>
-                    </div>
-                    <div
-                      className="rounded-xl p-6 space-y-5 relative"
-                      style={{ background: "#111827", border: "2px solid #00ff87" }}
-                    >
-                      <div
-                        className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-0.5 rounded-full text-xs font-semibold"
-                        style={{ background: "#00ff87", color: "#0a0d14" }}
-                      >
-                        Most Popular
-                      </div>
-                      <div>
-                        <h3 className="text-xl font-bold" style={{ color: "#f0f4ff" }}>
-                          Pro
-                        </h3>
-                        <div className="mt-2">
-                          <span className="text-4xl font-bold" style={{ color: "#f0f4ff" }}>
-                            {pricingCurrency === "BDT" ? "৳" : "$"}9
-                          </span>
-                          <span className="text-sm" style={{ color: "#8892a4" }}>
-                            /month
-                          </span>
-                        </div>
-                      </div>
-                      <ul className="space-y-3">
-                        {[
-                          "Unlimited summaries",
-                          "Full rich text notes editor",
-                          "Unlimited channels",
-                          "Full history forever",
-                        ].map((f) => (
-                          <li key={f} className="flex items-center gap-2 text-sm" style={{ color: "#8892a4" }}>
-                            <Check className="h-4 w-4 shrink-0" style={{ color: "#00ff87" }} />
-                            {f}
-                          </li>
-                        ))}
-                      </ul>
-                      <Link to={user ? "/app-subscription" : "/auth?redirect=subscription"}>
-                        <Button className="w-full font-semibold text-[#0a0d14]" style={{ background: "#00ff87" }}>
-                          Start Pro <ChevronRight className="h-4 w-4 ml-1" />
-                        </Button>
-                      </Link>
-                    </div>
-                  </>
+                  <div className="col-span-full text-center py-12" style={{ color: "#8892a4" }}>
+                    No plans available for this currency yet.
+                  </div>
                 )}
               </div>
             );
@@ -923,12 +892,12 @@ const LandingPage = () => {
         />
         <div className="max-w-3xl mx-auto text-center relative z-10">
           <h2 className="text-3xl md:text-5xl font-bold mb-4" style={{ fontFamily: "'Playfair Display', serif" }}>
-            Start Learning Smarter
+            Start Being More Productive
             <br />
             <span style={{ color: "#00ff87" }}>Today</span>
           </h2>
           <p className="max-w-lg mx-auto mb-8" style={{ color: "#8892a4" }}>
-            Join entrepreneurs who use VidMind to turn YouTube videos into actionable business insights.
+            Join entrepreneurs who use VidMind to learn faster, stay organized, and grow their business with AI-powered tools.
           </p>
           <Link to="/auth">
             <Button
@@ -948,7 +917,7 @@ const LandingPage = () => {
           <div className="flex items-center gap-2">
             <img src="/favicon.ico" alt="VidMind" className="h-5 w-5" />
             <span className="text-sm" style={{ color: "#8892a4" }}>
-              Learn faster with AI
+              Your AI-powered productivity platform
             </span>
           </div>
           <div className="flex items-center gap-5 text-sm">
