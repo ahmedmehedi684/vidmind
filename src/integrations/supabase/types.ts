@@ -318,6 +318,7 @@ export type Database = {
       }
       subscription_plans: {
         Row: {
+          button_text: string
           created_at: string
           currency: string
           description: string | null
@@ -334,6 +335,7 @@ export type Database = {
           sort_order: number
         }
         Insert: {
+          button_text?: string
           created_at?: string
           currency?: string
           description?: string | null
@@ -350,6 +352,7 @@ export type Database = {
           sort_order?: number
         }
         Update: {
+          button_text?: string
           created_at?: string
           currency?: string
           description?: string | null
