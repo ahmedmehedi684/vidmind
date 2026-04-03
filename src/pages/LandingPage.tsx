@@ -389,9 +389,9 @@ const LandingPage = () => {
             return (
           <div className={`grid grid-cols-1 md:grid-cols-${cols} gap-6 max-w-3xl mx-auto`}>
             {filtered.length > 0 ? filtered.map((plan: any) => (
-              <div key={plan.id} className="rounded-xl p-6 space-y-5 relative" style={{ background: "#111827", border: plan.is_popular ? "2px solid #00ff87" : "1px solid #1e2535" }}>
+              <div key={plan.id} className="rounded-xl p-6 relative flex flex-col" style={{ background: "#111827", border: plan.is_popular ? "2px solid #00ff87" : "1px solid #1e2535" }}>
                 {plan.is_popular && <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-0.5 rounded-full text-xs font-semibold" style={{ background: "#00ff87", color: "#0a0d14" }}>Most Popular</div>}
-                <div>
+                <div className="mb-4">
                   <h3 className="text-xl font-bold" style={{ color: "#f0f4ff" }}>{plan.name}</h3>
                   <div className="mt-2">
                     <span className="text-4xl font-bold" style={{ color: "#f0f4ff", fontFamily: "'Playfair Display', serif" }}>{pricingCurrency === "BDT" ? "৳" : "$"}{plan.price}</span>
@@ -399,12 +399,12 @@ const LandingPage = () => {
                   </div>
                   {plan.description && <p className="text-sm mt-1" style={{ color: "#8892a4" }}>{plan.description}</p>}
                 </div>
-                <ul className="space-y-3">
+                <ul className="space-y-3 flex-1 mb-5">
                   {(plan.features as string[]).map((f: string) => (
                     <li key={f} className="flex items-center gap-2 text-sm" style={{ color: "#8892a4" }}><Check className="h-4 w-4 shrink-0" style={{ color: "#00ff87" }} />{f}</li>
                   ))}
                 </ul>
-                <Link to={user ? "/app-subscription" : "/auth?redirect=subscription"}>
+                <Link to={user ? "/app-subscription" : "/auth?redirect=subscription"} className="mt-auto">
                   <Button className={`w-full font-semibold ${plan.is_popular ? "text-[#0a0d14]" : ""}`} variant={plan.is_popular ? "default" : "outline"} style={plan.is_popular ? { background: "#00ff87" } : { borderColor: "#1e2535", color: "#f0f4ff" }}>
                     {plan.button_text || "Subscribe Now"} {plan.is_popular && <ChevronRight className="h-4 w-4 ml-1" />}
                   </Button>
