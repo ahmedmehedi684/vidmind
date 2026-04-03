@@ -72,6 +72,7 @@ const AdminSubscriptionPlans = () => {
     setPLimits(plan.limits && Object.keys(plan.limits).length > 0 ? plan.limits : DEFAULT_LIMITS);
     setPPopular(plan.is_popular || false); setPLimitPeriod(plan.limit_period || "monthly");
     setPDurationMonths(plan.duration_months ? plan.duration_months.toString() : "");
+    setPButtonText(plan.button_text || "Subscribe Now");
     setDialogOpen(true);
   };
 
