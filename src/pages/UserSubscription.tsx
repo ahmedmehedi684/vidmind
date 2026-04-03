@@ -91,6 +91,23 @@ const UserSubscription = () => {
     finally { setLoading(false); }
   };
 
+  // Auto-open checkout if plan param is in URL
+  useEffect(() => {
+    if (!loading && !autoOpenDone && plans.length > 0) {
+      const planId = searchParams.get("plan");
+      if (planId) {
+        const plan = plans.find(p => p.id === planId);
+        if (plan && plan.price > 0) {
+          setSelectedCurrency(plan.currency || "BDT");
+          setTimeout(() => openCheckout(plan), 300);
+          searchParams.delete("plan");
+          setSearchParams(searchParams, { replace: true });
+        }
+        setAutoOpenDone(true);
+      }
+    }
+  }, [loading, plans, autoOpenDone]);
+
   const activeSub = subscriptions.find(s => s.status === "active" && s.expires_at && new Date(s.expires_at) > new Date());
   const activePlan = activeSub ? plans.find(p => p.id === activeSub.plan_id) : null;
 
