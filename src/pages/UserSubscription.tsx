@@ -43,6 +43,7 @@ interface PaymentMethod {
 
 const UserSubscription = () => {
   const { user } = useAuth();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [plans, setPlans] = useState<Plan[]>([]);
   const [subscriptions, setSubscriptions] = useState<Subscription[]>([]);
   const [payments, setPayments] = useState<PaymentOrder[]>([]);
@@ -55,6 +56,7 @@ const UserSubscription = () => {
   const [paymentNumber, setPaymentNumber] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [selectedCurrency, setSelectedCurrency] = useState("BDT");
+  const [autoOpenDone, setAutoOpenDone] = useState(false);
 
   useEffect(() => { if (user) loadData(); }, [user]);
 
