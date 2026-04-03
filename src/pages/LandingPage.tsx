@@ -786,7 +786,6 @@ const LandingPage = () => {
               <div className={`grid grid-cols-1 ${filtered.length === 2 ? "md:grid-cols-2 max-w-2xl" : filtered.length >= 3 ? "md:grid-cols-3 max-w-4xl" : "md:grid-cols-1 max-w-md"} gap-6 mx-auto`}>
                 {filtered.length > 0 ? (
                   filtered.map((plan: any) => {
-                    const limits = plan.limits || {};
                     return (
                       <div
                         key={plan.id}
@@ -822,29 +821,14 @@ const LandingPage = () => {
                             {pricingCurrency === "BDT" ? "৳" : "$"}
                             {plan.price}
                           </span>
-                          <span className="text-sm ml-1" style={{ color: "#8892a4" }}>
-                            /{plan.duration_months
-                              ? `${plan.duration_months} month${plan.duration_months > 1 ? "s" : ""}`
-                              : plan.duration_days === -1
-                                ? "lifetime"
-                                : `${plan.duration_days} days`}
-                          </span>
+                          {plan.price > 0 && (
+                            <span className="text-sm ml-1" style={{ color: "#8892a4" }}>
+                              /{plan.duration_months
+                                ? `${plan.duration_months} month${plan.duration_months > 1 ? "s" : ""}`
+                                : "month"}
+                            </span>
+                          )}
                         </div>
-
-                        {/* Limits badges */}
-                        {Object.keys(limits).length > 0 && (
-                          <div className="flex flex-wrap gap-1.5 mb-4">
-                            {Object.entries(limits).map(([k, v]) => (
-                              <span
-                                key={k}
-                                className="text-xs px-2 py-0.5 rounded-full capitalize"
-                                style={{ background: "rgba(0,255,135,0.08)", color: "#00ff87", border: "1px solid rgba(0,255,135,0.15)" }}
-                              >
-                                {k}: {(v as number) === -1 ? "∞" : String(v)}/{plan.limit_period || "month"}
-                              </span>
-                            ))}
-                          </div>
-                        )}
 
                         <ul className="space-y-3 flex-1 mb-6">
                           {(plan.features as string[]).map((f: string) => (
