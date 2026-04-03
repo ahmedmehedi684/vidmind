@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
 import {
   CreditCard, Check, Clock, Loader2, Crown, Star, Zap,
   AlertCircle, CheckCircle2, Copy

@@ -20,8 +20,12 @@ const Auth = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
 
+  const planId = searchParams.get("plan");
+
   const getRedirectPath = () => {
-    if (redirectTo === "subscription") return "/app-subscription";
+    if (redirectTo === "subscription") {
+      return planId ? `/app-subscription?plan=${planId}` : "/app-subscription";
+    }
     return "/app";
   };
 
