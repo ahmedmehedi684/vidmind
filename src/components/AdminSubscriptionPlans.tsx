@@ -92,6 +92,8 @@ const AdminSubscriptionPlans = () => {
       name: pName.trim(), description: pDesc.trim(), price: parseFloat(pPrice) || 0,
       duration_days: parseInt(pDays) || 30, features, sort_order: parseInt(pOrder) || 0,
       is_active: true, currency: pCurrency, limits: pLimits,
+      is_popular: pPopular, limit_period: pLimitPeriod,
+      duration_months: pDurationMonths ? parseInt(pDurationMonths) : null,
     };
     try {
       if (editPlan) {
