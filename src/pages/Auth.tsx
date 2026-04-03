@@ -112,7 +112,7 @@ const Auth = () => {
             </h1>
           </div>
           <p className="mt-2 text-muted-foreground" style={{ fontFamily: "'DM Sans', sans-serif" }}>
-            AI-Powered YouTube Video Summarizer
+            Your AI-Powered Productivity Platform
           </p>
         </div>
 
