@@ -49,6 +49,7 @@ const ChannelManager = ({ channels, onChannelsChange, loading }: ChannelManagerP
       setNewName("");
       setNewUrl("");
       toast.success("Channel added");
+      usageLimits.refreshCount();
     } catch {
       toast.error("There was a problem adding the channel.ে");
     }
