@@ -265,13 +265,18 @@ const TaskManager = () => {
   const handleTaskDecision = async (status: "done" | "todo" | "not_done") => {
     if (!confirmTask) return;
     try {
+      const updateData: any = { status, updated_at: new Date().toISOString() };
+      // For daily tasks, also update due_date so isTaskDoneForDate works
+      if (confirmTask.notes?.includes("[DAILY]") && (status === "done" || status === "not_done")) {
+        updateData.due_date = selectedDateStr;
+      }
       const { error } = await supabase
         .from("tasks")
-        .update({ status, updated_at: new Date().toISOString() })
+        .update(updateData)
         .eq("id", confirmTask.id);
       if (error) throw error;
       setTasks((currentTasks) => currentTasks.map((task) => (
-        task.id === confirmTask.id ? { ...task, status } : task
+        task.id === confirmTask.id ? { ...task, ...updateData } : task
       )));
       toast.success(status === "done" ? "Task marked as done." : "Task marked as not done.");
     } catch (e) {
