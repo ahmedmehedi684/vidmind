@@ -125,6 +125,8 @@ const getIconColor = (title: string) => {
 
 const TaskManager = () => {
   const { user } = useAuth();
+  const usageLimits = useUsageLimits("tasks");
+  const [upgradeOpen, setUpgradeOpen] = useState(false);
   const [tasks, setTasks] = useState<Task[]>([]);
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
