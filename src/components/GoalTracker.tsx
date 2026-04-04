@@ -98,6 +98,7 @@ const GoalTracker = () => {
         if (error) throw error;
         if (data) setGoals([data as unknown as Goal, ...goals]);
         toast.success("Goal created!");
+        usageLimits.refreshCount();
       }
       setDialogOpen(false);
     } catch (e) { toast.error("Failed to save goal"); }
