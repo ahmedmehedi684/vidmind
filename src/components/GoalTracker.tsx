@@ -63,6 +63,7 @@ const GoalTracker = () => {
   const completedGoals = goals.filter(g => g.status === "completed");
 
   const openAdd = () => {
+    if (!usageLimits.canCreate) { setUpgradeOpen(true); return; }
     setEditGoal(null);
     setTitle(""); setDescription(""); setTargetDate(""); setPlan("");
     setBenefits(""); setProfitEstimate(""); setProfitTimeline(""); setProgressValue(0);
