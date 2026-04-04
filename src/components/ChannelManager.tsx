@@ -195,6 +195,7 @@ const ChannelManager = ({ channels, onChannelsChange, loading }: ChannelManagerP
           ))}
         </div>
       )}
+      <UpgradeLimitModal open={upgradeOpen} onOpenChange={setUpgradeOpen} featureName="Channels" />
     </div>
   );
 };
