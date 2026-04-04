@@ -210,6 +210,7 @@ const MoneyManager = () => {
             <DollarSign className="h-6 w-6 text-primary" /> Money Manager
           </h2>
           <p className="text-sm text-muted-foreground mt-1">Track income, expenses, investments & loans</p>
+          <UsageLimitBadge count={usageLimits.count} limit={usageLimits.limit} isUnlimited={usageLimits.isUnlimited} planName={usageLimits.planName} loading={usageLimits.loading} />
         </div>
         <div className="flex gap-2">
           <Button variant="outline" size="sm" onClick={() => { setShowCalendar(!showCalendar); if (showCalendar) setSelectedCalDate(null); }} className="gap-1">
