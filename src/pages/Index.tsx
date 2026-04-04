@@ -13,6 +13,9 @@ import { addToHistory, updateHistoryConversation } from "@/lib/history";
 import { getSettings, syncSettingsFromDb, hasAnyKey } from "@/lib/settings";
 import { useAuth } from "@/contexts/AuthContext";
 import FollowUpSection from "@/components/FollowUpSection";
+import { useUsageLimits } from "@/hooks/use-usage-limits";
+import UsageLimitBadge from "@/components/UsageLimitBadge";
+import UpgradeLimitModal from "@/components/UpgradeLimitModal";
 
 interface HowToApplyItem { title: string; detail: string; }
 interface SummaryResult { mainStory: string; bulletPoints: string[]; howToApply: HowToApplyItem[]; }
