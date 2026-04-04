@@ -105,6 +105,7 @@ const MoneyManager = () => {
         if (error) throw error;
         if (data) setTransactions([data as unknown as Transaction, ...transactions]);
         toast.success("Added!");
+        usageLimits.refreshCount();
       }
       setDialogOpen(false);
     } catch (e) { toast.error("Failed to save"); console.error(e); }
