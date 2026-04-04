@@ -70,6 +70,7 @@ const UserNotes = () => {
     if (data) setNotes([data as unknown as Note, ...notes]);
     setNewNote(""); setNewNoteTitle(""); setNewNoteChannelId("all"); setNewNoteVideoUrl("");
     toast.success("Note added");
+    usageLimits.refreshCount();
   };
 
   const deleteNote = async (id: string) => {
