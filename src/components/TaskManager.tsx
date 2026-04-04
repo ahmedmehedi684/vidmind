@@ -213,6 +213,7 @@ const TaskManager = () => {
   const remainingPercent = 100 - donePercent - notDonePercent;
 
   const openAddDialog = () => {
+    if (!usageLimits.canCreate) { setUpgradeOpen(true); return; }
     setEditTask(null); setTitle(""); setDescription(""); setCategory("Personal");
     setPriority("medium"); setDueDate(selectedDateStr); setDueTime("09:00");
     setDueEndTime("10:00"); setEstimatedMinutes(60); setNotes(""); setIsDaily(false);
