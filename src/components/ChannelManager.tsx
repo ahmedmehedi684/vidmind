@@ -37,6 +37,7 @@ const ChannelManager = ({ channels, onChannelsChange, loading }: ChannelManagerP
 
   const addChannel = async () => {
     if (!newName.trim() || !user) return;
+    if (!usageLimits.canCreate) { setUpgradeOpen(true); return; }
     try {
       const { data, error } = await supabase
         .from("channels")
