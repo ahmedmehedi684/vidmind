@@ -115,7 +115,10 @@ const UserNotes = () => {
 
   return (
     <div className="max-w-3xl mx-auto px-4 py-8 space-y-6">
-      <h1 className="text-2xl font-bold text-foreground">My Notes</h1>
+      <div className="flex items-center justify-between">
+        <h1 className="text-2xl font-bold text-foreground">My Notes</h1>
+        <UsageLimitBadge count={usageLimits.count} limit={usageLimits.limit} isUnlimited={usageLimits.isUnlimited} planName={usageLimits.planName} loading={usageLimits.loading} />
+      </div>
 
       {/* Filter */}
       <div className="flex flex-col sm:flex-row gap-3">
