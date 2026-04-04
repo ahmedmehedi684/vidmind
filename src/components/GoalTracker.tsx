@@ -136,6 +136,7 @@ const GoalTracker = () => {
             <Target className="h-6 w-6 text-primary" /> Goal Tracker
           </h2>
           <p className="text-sm text-muted-foreground mt-1">{activeGoals.length} active · {completedGoals.length} completed</p>
+          <UsageLimitBadge count={usageLimits.count} limit={usageLimits.limit} isUnlimited={usageLimits.isUnlimited} planName={usageLimits.planName} loading={usageLimits.loading} />
         </div>
         <Button onClick={openAdd} className="gap-2"><Plus className="h-4 w-4" /> New Goal</Button>
       </div>
