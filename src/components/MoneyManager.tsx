@@ -458,6 +458,7 @@ const MoneyManager = () => {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+      <UpgradeLimitModal open={upgradeOpen} onOpenChange={setUpgradeOpen} featureName="Transactions" />
     </div>
   );
 };

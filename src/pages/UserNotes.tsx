@@ -237,6 +237,7 @@ const UserNotes = () => {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+      <UpgradeLimitModal open={upgradeOpen} onOpenChange={setUpgradeOpen} featureName="Notes" />
     </div>
   );
 };
