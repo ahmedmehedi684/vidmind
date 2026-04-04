@@ -344,6 +344,7 @@ const TaskManager = () => {
             <span className="text-primary">To-do</span> List
           </h2>
           <p className="text-sm text-muted-foreground">{format(selectedDate, "EEEE, MMMM d, yyyy")}</p>
+          <UsageLimitBadge count={usageLimits.count} limit={usageLimits.limit} isUnlimited={usageLimits.isUnlimited} planName={usageLimits.planName} loading={usageLimits.loading} />
         </div>
         <div className="flex flex-wrap items-center justify-end gap-2">
           <Popover open={datePickerOpen} onOpenChange={setDatePickerOpen}>
