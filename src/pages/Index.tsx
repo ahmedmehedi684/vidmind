@@ -71,6 +71,8 @@ const Index = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { user } = useAuth();
+  const usageLimits = useUsageLimits("summaries");
+  const [upgradeOpen, setUpgradeOpen] = useState(false);
 
   const [mode, setMode] = useState<"link" | "transcript">("link");
   const [linkValue, setLinkValue] = useState("");
