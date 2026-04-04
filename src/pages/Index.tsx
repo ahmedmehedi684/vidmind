@@ -179,6 +179,9 @@ const Index = () => {
           <span className="text-primary">Summarizer</span>
         </h1>
         <p className="mt-2 text-muted-foreground text-base">Paste a YouTube video link or transcript to get a summary</p>
+        <div className="mt-2">
+          <UsageLimitBadge count={usageLimits.count} limit={usageLimits.limit} isUnlimited={usageLimits.isUnlimited} planName={usageLimits.planName} loading={usageLimits.loading} />
+        </div>
       </div>
 
       {!done && (
