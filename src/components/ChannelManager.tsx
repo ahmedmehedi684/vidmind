@@ -91,6 +91,9 @@ const ChannelManager = ({ channels, onChannelsChange, loading }: ChannelManagerP
 
   return (
     <div className="space-y-4">
+      <div className="flex justify-end">
+        <UsageLimitBadge count={usageLimits.count} limit={usageLimits.limit} isUnlimited={usageLimits.isUnlimited} planName={usageLimits.planName} loading={usageLimits.loading} />
+      </div>
       <Card>
         <CardContent className="pt-6 space-y-3">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
