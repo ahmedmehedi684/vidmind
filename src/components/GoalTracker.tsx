@@ -247,6 +247,7 @@ const GoalTracker = () => {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+      <UpgradeLimitModal open={upgradeOpen} onOpenChange={setUpgradeOpen} featureName="Goals" />
     </div>
   );
 };
