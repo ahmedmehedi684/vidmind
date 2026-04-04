@@ -258,6 +258,7 @@ const TaskManager = () => {
         if (error) throw error;
         if (data) setTasks([...tasks, data as unknown as Task]);
         toast.success("Task added!");
+        usageLimits.refreshCount();
       }
       setDialogOpen(false);
     } catch (e) { toast.error("Failed to save task"); console.error(e); }
