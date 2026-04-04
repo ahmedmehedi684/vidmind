@@ -147,6 +147,7 @@ const Index = () => {
   const handleSubmit = async () => {
     setError(""); setResult(null); setDone(false);
     if (!inputValue.trim()) { setError("Please paste a transcript"); return; }
+    if (!usageLimits.canCreate) { setUpgradeOpen(true); return; }
     setIsLoading(true);
     try {
       const aiSettings = getSettings();
