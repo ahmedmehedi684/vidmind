@@ -772,6 +772,7 @@ const TaskManager = () => {
           </Button>
         </DialogContent>
       </Dialog>
+      <UpgradeLimitModal open={upgradeOpen} onOpenChange={setUpgradeOpen} featureName="Tasks" />
     </div>
   );
 };
