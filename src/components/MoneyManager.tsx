@@ -75,6 +75,7 @@ const MoneyManager = () => {
   };
 
   const openAdd = () => {
+    if (!usageLimits.canCreate) { setUpgradeOpen(true); return; }
     setEditTx(null); setType("expense"); setAmount(""); setCategory("Food");
     setDescription(""); setTxDate(new Date().toISOString().split("T")[0]);
     setPriority("medium"); setNotes(""); setLoanPersonName(""); setDialogOpen(true);
