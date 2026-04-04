@@ -62,6 +62,7 @@ const UserNotes = () => {
 
   const addNote = async () => {
     if (!newNote.trim() || !user) return;
+    if (!usageLimits.canCreate) { setUpgradeOpen(true); return; }
     const insertData: any = { text: newNote.trim(), title: newNoteTitle.trim(), user_id: user.id, video_url: newNoteVideoUrl.trim() };
     if (newNoteChannelId !== "all") insertData.channel_id = newNoteChannelId;
     const { data, error } = await supabase.from("admin_notes").insert(insertData).select().single();
