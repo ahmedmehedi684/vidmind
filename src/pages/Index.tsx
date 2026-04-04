@@ -161,6 +161,7 @@ const Index = () => {
       if (user) {
         const id = await addToHistory({ inputType: mode, inputValue, mainStory: summary.mainStory, bulletPoints: summary.bulletPoints || [], howToApply: summary.howToApply || [] }, user.id);
         setHistoryId(id);
+        usageLimits.refreshCount();
       }
     } catch (e) {
       setError(e instanceof Error ? e.message : "Something went wrong");
