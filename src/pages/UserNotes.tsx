@@ -22,6 +22,8 @@ interface Note {
 
 const UserNotes = () => {
   const { user } = useAuth();
+  const usageLimits = useUsageLimits("notes");
+  const [upgradeOpen, setUpgradeOpen] = useState(false);
   const [notes, setNotes] = useState<Note[]>([]);
   const [channels, setChannels] = useState<Channel[]>([]);
   const [loading, setLoading] = useState(true);
