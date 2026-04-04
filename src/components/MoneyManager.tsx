@@ -33,6 +33,8 @@ const LOAN_CATS = ["Personal Loan", "Business Loan", "Family Loan", "Friend Loan
 
 const MoneyManager = () => {
   const { user } = useAuth();
+  const usageLimits = useUsageLimits("transactions");
+  const [upgradeOpen, setUpgradeOpen] = useState(false);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
