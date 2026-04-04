@@ -24,6 +24,9 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
+import { useUsageLimits } from "@/hooks/use-usage-limits";
+import UsageLimitBadge from "@/components/UsageLimitBadge";
+import UpgradeLimitModal from "@/components/UpgradeLimitModal";
 
 interface Task {
   id: string; user_id: string; parent_task_id: string | null;
@@ -122,6 +125,8 @@ const getIconColor = (title: string) => {
 
 const TaskManager = () => {
   const { user } = useAuth();
+  const usageLimits = useUsageLimits("tasks");
+  const [upgradeOpen, setUpgradeOpen] = useState(false);
   const [tasks, setTasks] = useState<Task[]>([]);
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -208,6 +213,7 @@ const TaskManager = () => {
   const remainingPercent = 100 - donePercent - notDonePercent;
 
   const openAddDialog = () => {
+    if (!usageLimits.canCreate) { setUpgradeOpen(true); return; }
     setEditTask(null); setTitle(""); setDescription(""); setCategory("Personal");
     setPriority("medium"); setDueDate(selectedDateStr); setDueTime("09:00");
     setDueEndTime("10:00"); setEstimatedMinutes(60); setNotes(""); setIsDaily(false);
@@ -252,6 +258,7 @@ const TaskManager = () => {
         if (error) throw error;
         if (data) setTasks([...tasks, data as unknown as Task]);
         toast.success("Task added!");
+        usageLimits.refreshCount();
       }
       setDialogOpen(false);
     } catch (e) { toast.error("Failed to save task"); console.error(e); }
@@ -337,6 +344,7 @@ const TaskManager = () => {
             <span className="text-primary">To-do</span> List
           </h2>
           <p className="text-sm text-muted-foreground">{format(selectedDate, "EEEE, MMMM d, yyyy")}</p>
+          <UsageLimitBadge count={usageLimits.count} limit={usageLimits.limit} isUnlimited={usageLimits.isUnlimited} planName={usageLimits.planName} loading={usageLimits.loading} />
         </div>
         <div className="flex flex-wrap items-center justify-end gap-2">
           <Popover open={datePickerOpen} onOpenChange={setDatePickerOpen}>
@@ -764,6 +772,7 @@ const TaskManager = () => {
           </Button>
         </DialogContent>
       </Dialog>
+      <UpgradeLimitModal open={upgradeOpen} onOpenChange={setUpgradeOpen} featureName="Tasks" />
     </div>
   );
 };

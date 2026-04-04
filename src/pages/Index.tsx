@@ -13,6 +13,9 @@ import { addToHistory, updateHistoryConversation } from "@/lib/history";
 import { getSettings, syncSettingsFromDb, hasAnyKey } from "@/lib/settings";
 import { useAuth } from "@/contexts/AuthContext";
 import FollowUpSection from "@/components/FollowUpSection";
+import { useUsageLimits } from "@/hooks/use-usage-limits";
+import UsageLimitBadge from "@/components/UsageLimitBadge";
+import UpgradeLimitModal from "@/components/UpgradeLimitModal";
 
 interface HowToApplyItem { title: string; detail: string; }
 interface SummaryResult { mainStory: string; bulletPoints: string[]; howToApply: HowToApplyItem[]; }
@@ -68,6 +71,8 @@ const Index = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { user } = useAuth();
+  const usageLimits = useUsageLimits("summaries");
+  const [upgradeOpen, setUpgradeOpen] = useState(false);
 
   const [mode, setMode] = useState<"link" | "transcript">("link");
   const [linkValue, setLinkValue] = useState("");
@@ -142,6 +147,7 @@ const Index = () => {
   const handleSubmit = async () => {
     setError(""); setResult(null); setDone(false);
     if (!inputValue.trim()) { setError("Please paste a transcript"); return; }
+    if (!usageLimits.canCreate) { setUpgradeOpen(true); return; }
     setIsLoading(true);
     try {
       const aiSettings = getSettings();
@@ -155,6 +161,7 @@ const Index = () => {
       if (user) {
         const id = await addToHistory({ inputType: mode, inputValue, mainStory: summary.mainStory, bulletPoints: summary.bulletPoints || [], howToApply: summary.howToApply || [] }, user.id);
         setHistoryId(id);
+        usageLimits.refreshCount();
       }
     } catch (e) {
       setError(e instanceof Error ? e.message : "Something went wrong");
@@ -172,6 +179,9 @@ const Index = () => {
           <span className="text-primary">Summarizer</span>
         </h1>
         <p className="mt-2 text-muted-foreground text-base">Paste a YouTube video link or transcript to get a summary</p>
+        <div className="mt-2">
+          <UsageLimitBadge count={usageLimits.count} limit={usageLimits.limit} isUnlimited={usageLimits.isUnlimited} planName={usageLimits.planName} loading={usageLimits.loading} />
+        </div>
       </div>
 
       {!done && (
@@ -303,6 +313,7 @@ const Index = () => {
           onConversationUpdate={(conv) => { if (historyId) updateHistoryConversation(historyId, conv); }}
         />
       )}
+      <UpgradeLimitModal open={upgradeOpen} onOpenChange={setUpgradeOpen} featureName="Summaries" />
     </div>
   );
 };

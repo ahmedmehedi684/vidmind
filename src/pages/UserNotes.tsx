@@ -10,6 +10,9 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import RichTextEditor from "@/components/RichTextEditor";
+import { useUsageLimits } from "@/hooks/use-usage-limits";
+import UsageLimitBadge from "@/components/UsageLimitBadge";
+import UpgradeLimitModal from "@/components/UpgradeLimitModal";
 
 interface Channel { id: string; name: string; url: string; user_id: string; created_at: string; }
 interface Note {
@@ -19,6 +22,8 @@ interface Note {
 
 const UserNotes = () => {
   const { user } = useAuth();
+  const usageLimits = useUsageLimits("notes");
+  const [upgradeOpen, setUpgradeOpen] = useState(false);
   const [notes, setNotes] = useState<Note[]>([]);
   const [channels, setChannels] = useState<Channel[]>([]);
   const [loading, setLoading] = useState(true);
@@ -57,6 +62,7 @@ const UserNotes = () => {
 
   const addNote = async () => {
     if (!newNote.trim() || !user) return;
+    if (!usageLimits.canCreate) { setUpgradeOpen(true); return; }
     const insertData: any = { text: newNote.trim(), title: newNoteTitle.trim(), user_id: user.id, video_url: newNoteVideoUrl.trim() };
     if (newNoteChannelId !== "all") insertData.channel_id = newNoteChannelId;
     const { data, error } = await supabase.from("admin_notes").insert(insertData).select().single();
@@ -64,6 +70,7 @@ const UserNotes = () => {
     if (data) setNotes([data as unknown as Note, ...notes]);
     setNewNote(""); setNewNoteTitle(""); setNewNoteChannelId("all"); setNewNoteVideoUrl("");
     toast.success("Note added");
+    usageLimits.refreshCount();
   };
 
   const deleteNote = async (id: string) => {
@@ -108,7 +115,10 @@ const UserNotes = () => {
 
   return (
     <div className="max-w-3xl mx-auto px-4 py-8 space-y-6">
-      <h1 className="text-2xl font-bold text-foreground">My Notes</h1>
+      <div className="flex items-center justify-between">
+        <h1 className="text-2xl font-bold text-foreground">My Notes</h1>
+        <UsageLimitBadge count={usageLimits.count} limit={usageLimits.limit} isUnlimited={usageLimits.isUnlimited} planName={usageLimits.planName} loading={usageLimits.loading} />
+      </div>
 
       {/* Filter */}
       <div className="flex flex-col sm:flex-row gap-3">
@@ -227,6 +237,7 @@ const UserNotes = () => {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+      <UpgradeLimitModal open={upgradeOpen} onOpenChange={setUpgradeOpen} featureName="Notes" />
     </div>
   );
 };

@@ -7,6 +7,9 @@ import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import { useUsageLimits } from "@/hooks/use-usage-limits";
+import UsageLimitBadge from "@/components/UsageLimitBadge";
+import UpgradeLimitModal from "@/components/UpgradeLimitModal";
 
 export interface Channel {
   id: string;
@@ -24,6 +27,8 @@ interface ChannelManagerProps {
 
 const ChannelManager = ({ channels, onChannelsChange, loading }: ChannelManagerProps) => {
   const { user } = useAuth();
+  const usageLimits = useUsageLimits("channels");
+  const [upgradeOpen, setUpgradeOpen] = useState(false);
   const [newName, setNewName] = useState("");
   const [newUrl, setNewUrl] = useState("");
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -32,6 +37,7 @@ const ChannelManager = ({ channels, onChannelsChange, loading }: ChannelManagerP
 
   const addChannel = async () => {
     if (!newName.trim() || !user) return;
+    if (!usageLimits.canCreate) { setUpgradeOpen(true); return; }
     try {
       const { data, error } = await supabase
         .from("channels")
@@ -43,6 +49,7 @@ const ChannelManager = ({ channels, onChannelsChange, loading }: ChannelManagerP
       setNewName("");
       setNewUrl("");
       toast.success("Channel added");
+      usageLimits.refreshCount();
     } catch {
       toast.error("There was a problem adding the channel.ে");
     }
@@ -84,6 +91,9 @@ const ChannelManager = ({ channels, onChannelsChange, loading }: ChannelManagerP
 
   return (
     <div className="space-y-4">
+      <div className="flex justify-end">
+        <UsageLimitBadge count={usageLimits.count} limit={usageLimits.limit} isUnlimited={usageLimits.isUnlimited} planName={usageLimits.planName} loading={usageLimits.loading} />
+      </div>
       <Card>
         <CardContent className="pt-6 space-y-3">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -185,6 +195,7 @@ const ChannelManager = ({ channels, onChannelsChange, loading }: ChannelManagerP
           ))}
         </div>
       )}
+      <UpgradeLimitModal open={upgradeOpen} onOpenChange={setUpgradeOpen} featureName="Channels" />
     </div>
   );
 };

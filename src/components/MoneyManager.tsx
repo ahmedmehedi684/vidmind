@@ -15,6 +15,9 @@ import { Textarea } from "@/components/ui/textarea";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
+import { useUsageLimits } from "@/hooks/use-usage-limits";
+import UsageLimitBadge from "@/components/UsageLimitBadge";
+import UpgradeLimitModal from "@/components/UpgradeLimitModal";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from "recharts";
 
 interface Transaction {
@@ -30,6 +33,8 @@ const LOAN_CATS = ["Personal Loan", "Business Loan", "Family Loan", "Friend Loan
 
 const MoneyManager = () => {
   const { user } = useAuth();
+  const usageLimits = useUsageLimits("transactions");
+  const [upgradeOpen, setUpgradeOpen] = useState(false);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -70,6 +75,7 @@ const MoneyManager = () => {
   };
 
   const openAdd = () => {
+    if (!usageLimits.canCreate) { setUpgradeOpen(true); return; }
     setEditTx(null); setType("expense"); setAmount(""); setCategory("Food");
     setDescription(""); setTxDate(new Date().toISOString().split("T")[0]);
     setPriority("medium"); setNotes(""); setLoanPersonName(""); setDialogOpen(true);
@@ -99,6 +105,7 @@ const MoneyManager = () => {
         if (error) throw error;
         if (data) setTransactions([data as unknown as Transaction, ...transactions]);
         toast.success("Added!");
+        usageLimits.refreshCount();
       }
       setDialogOpen(false);
     } catch (e) { toast.error("Failed to save"); console.error(e); }
@@ -203,6 +210,7 @@ const MoneyManager = () => {
             <DollarSign className="h-6 w-6 text-primary" /> Money Manager
           </h2>
           <p className="text-sm text-muted-foreground mt-1">Track income, expenses, investments & loans</p>
+          <UsageLimitBadge count={usageLimits.count} limit={usageLimits.limit} isUnlimited={usageLimits.isUnlimited} planName={usageLimits.planName} loading={usageLimits.loading} />
         </div>
         <div className="flex gap-2">
           <Button variant="outline" size="sm" onClick={() => { setShowCalendar(!showCalendar); if (showCalendar) setSelectedCalDate(null); }} className="gap-1">
@@ -450,6 +458,7 @@ const MoneyManager = () => {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+      <UpgradeLimitModal open={upgradeOpen} onOpenChange={setUpgradeOpen} featureName="Transactions" />
     </div>
   );
 };

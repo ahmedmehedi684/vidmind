@@ -16,6 +16,9 @@ import { Slider } from "@/components/ui/slider";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
+import { useUsageLimits } from "@/hooks/use-usage-limits";
+import UsageLimitBadge from "@/components/UsageLimitBadge";
+import UpgradeLimitModal from "@/components/UpgradeLimitModal";
 
 interface Goal {
   id: string; user_id: string; title: string; description: string;
@@ -26,6 +29,8 @@ interface Goal {
 
 const GoalTracker = () => {
   const { user } = useAuth();
+  const usageLimits = useUsageLimits("goals");
+  const [upgradeOpen, setUpgradeOpen] = useState(false);
   const [goals, setGoals] = useState<Goal[]>([]);
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -58,6 +63,7 @@ const GoalTracker = () => {
   const completedGoals = goals.filter(g => g.status === "completed");
 
   const openAdd = () => {
+    if (!usageLimits.canCreate) { setUpgradeOpen(true); return; }
     setEditGoal(null);
     setTitle(""); setDescription(""); setTargetDate(""); setPlan("");
     setBenefits(""); setProfitEstimate(""); setProfitTimeline(""); setProgressValue(0);
@@ -92,6 +98,7 @@ const GoalTracker = () => {
         if (error) throw error;
         if (data) setGoals([data as unknown as Goal, ...goals]);
         toast.success("Goal created!");
+        usageLimits.refreshCount();
       }
       setDialogOpen(false);
     } catch (e) { toast.error("Failed to save goal"); }
@@ -129,6 +136,7 @@ const GoalTracker = () => {
             <Target className="h-6 w-6 text-primary" /> Goal Tracker
           </h2>
           <p className="text-sm text-muted-foreground mt-1">{activeGoals.length} active · {completedGoals.length} completed</p>
+          <UsageLimitBadge count={usageLimits.count} limit={usageLimits.limit} isUnlimited={usageLimits.isUnlimited} planName={usageLimits.planName} loading={usageLimits.loading} />
         </div>
         <Button onClick={openAdd} className="gap-2"><Plus className="h-4 w-4" /> New Goal</Button>
       </div>
@@ -239,6 +247,7 @@ const GoalTracker = () => {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+      <UpgradeLimitModal open={upgradeOpen} onOpenChange={setUpgradeOpen} featureName="Goals" />
     </div>
   );
 };
