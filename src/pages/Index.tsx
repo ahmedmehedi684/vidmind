@@ -313,6 +313,7 @@ const Index = () => {
           onConversationUpdate={(conv) => { if (historyId) updateHistoryConversation(historyId, conv); }}
         />
       )}
+      <UpgradeLimitModal open={upgradeOpen} onOpenChange={setUpgradeOpen} featureName="Summaries" />
     </div>
   );
 };
