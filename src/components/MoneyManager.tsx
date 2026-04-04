@@ -15,6 +15,9 @@ import { Textarea } from "@/components/ui/textarea";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
+import { useUsageLimits } from "@/hooks/use-usage-limits";
+import UsageLimitBadge from "@/components/UsageLimitBadge";
+import UpgradeLimitModal from "@/components/UpgradeLimitModal";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from "recharts";
 
 interface Transaction {
