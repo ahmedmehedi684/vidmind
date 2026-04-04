@@ -27,6 +27,8 @@ interface ChannelManagerProps {
 
 const ChannelManager = ({ channels, onChannelsChange, loading }: ChannelManagerProps) => {
   const { user } = useAuth();
+  const usageLimits = useUsageLimits("channels");
+  const [upgradeOpen, setUpgradeOpen] = useState(false);
   const [newName, setNewName] = useState("");
   const [newUrl, setNewUrl] = useState("");
   const [editingId, setEditingId] = useState<string | null>(null);
