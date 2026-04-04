@@ -29,6 +29,8 @@ interface Goal {
 
 const GoalTracker = () => {
   const { user } = useAuth();
+  const usageLimits = useUsageLimits("goals");
+  const [upgradeOpen, setUpgradeOpen] = useState(false);
   const [goals, setGoals] = useState<Goal[]>([]);
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
