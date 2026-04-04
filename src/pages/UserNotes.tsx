@@ -10,6 +10,9 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import RichTextEditor from "@/components/RichTextEditor";
+import { useUsageLimits } from "@/hooks/use-usage-limits";
+import UsageLimitBadge from "@/components/UsageLimitBadge";
+import UpgradeLimitModal from "@/components/UpgradeLimitModal";
 
 interface Channel { id: string; name: string; url: string; user_id: string; created_at: string; }
 interface Note {
