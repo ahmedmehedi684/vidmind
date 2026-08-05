@@ -2,10 +2,13 @@ import { useLocation } from "react-router-dom";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { UserSidebar } from "@/components/UserSidebar";
 import UserNotificationBell from "@/components/UserNotificationBell";
+import { useStudyReminder } from "@/hooks/use-study-reminder";
 
 const UserLayout = ({ children }: { children: React.ReactNode }) => {
   const location = useLocation();
   const isTaskPage = location.pathname === "/app-tasks";
+  useStudyReminder();
+
 
   return (
     <SidebarProvider>
