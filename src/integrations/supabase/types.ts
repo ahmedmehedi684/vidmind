@@ -52,6 +52,56 @@ export type Database = {
           },
         ]
       }
+      affiliate_payouts: {
+        Row: {
+          admin_note: string | null
+          affiliate_id: string
+          amount: number
+          created_at: string
+          id: string
+          payment_details: string
+          payment_method: string
+          processed_at: string | null
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          admin_note?: string | null
+          affiliate_id: string
+          amount?: number
+          created_at?: string
+          id?: string
+          payment_details?: string
+          payment_method?: string
+          processed_at?: string | null
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          admin_note?: string | null
+          affiliate_id?: string
+          amount?: number
+          created_at?: string
+          id?: string
+          payment_details?: string
+          payment_method?: string
+          processed_at?: string | null
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "affiliate_payouts_affiliate_id_fkey"
+            columns: ["affiliate_id"]
+            isOneToOne: false
+            referencedRelation: "affiliates"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       affiliate_referrals: {
         Row: {
           affiliate_id: string
@@ -101,35 +151,98 @@ export type Database = {
         Row: {
           commission_percent: number
           created_at: string
+          date_of_birth: string | null
           id: string
+          occupation: string | null
+          payment_method: string | null
+          payment_method_locked_at: string | null
+          payment_number: string | null
+          phone: string | null
+          profile_completed: boolean | null
+          promo_code: string | null
           referral_code: string
+          social_media_link: string | null
           status: string
           total_earnings: number
           total_referrals: number
           updated_at: string
           user_id: string
+          wallet_balance: number | null
+          wallet_currency: string | null
         }
         Insert: {
           commission_percent?: number
           created_at?: string
+          date_of_birth?: string | null
           id?: string
+          occupation?: string | null
+          payment_method?: string | null
+          payment_method_locked_at?: string | null
+          payment_number?: string | null
+          phone?: string | null
+          profile_completed?: boolean | null
+          promo_code?: string | null
           referral_code: string
+          social_media_link?: string | null
           status?: string
           total_earnings?: number
           total_referrals?: number
           updated_at?: string
           user_id: string
+          wallet_balance?: number | null
+          wallet_currency?: string | null
         }
         Update: {
           commission_percent?: number
           created_at?: string
+          date_of_birth?: string | null
           id?: string
+          occupation?: string | null
+          payment_method?: string | null
+          payment_method_locked_at?: string | null
+          payment_number?: string | null
+          phone?: string | null
+          profile_completed?: boolean | null
+          promo_code?: string | null
           referral_code?: string
+          social_media_link?: string | null
           status?: string
           total_earnings?: number
           total_referrals?: number
           updated_at?: string
           user_id?: string
+          wallet_balance?: number | null
+          wallet_currency?: string | null
+        }
+        Relationships: []
+      }
+      bug_reports: {
+        Row: {
+          category: string
+          created_at: string
+          description: string
+          id: string
+          title: string
+          user_id: string
+          username: string
+        }
+        Insert: {
+          category?: string
+          created_at?: string
+          description?: string
+          id?: string
+          title?: string
+          user_id: string
+          username?: string
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          description?: string
+          id?: string
+          title?: string
+          user_id?: string
+          username?: string
         }
         Relationships: []
       }
@@ -359,6 +472,7 @@ export type Database = {
         Row: {
           admin_note: string | null
           amount: number
+          coupon_code: string | null
           created_at: string
           id: string
           payment_method: string
@@ -373,6 +487,7 @@ export type Database = {
         Insert: {
           admin_note?: string | null
           amount?: number
+          coupon_code?: string | null
           created_at?: string
           id?: string
           payment_method?: string
@@ -387,6 +502,7 @@ export type Database = {
         Update: {
           admin_note?: string | null
           amount?: number
+          coupon_code?: string | null
           created_at?: string
           id?: string
           payment_method?: string
@@ -439,6 +555,7 @@ export type Database = {
       subscription_plans: {
         Row: {
           button_text: string
+          compare_price: number | null
           created_at: string
           currency: string
           description: string | null
@@ -456,6 +573,7 @@ export type Database = {
         }
         Insert: {
           button_text?: string
+          compare_price?: number | null
           created_at?: string
           currency?: string
           description?: string | null
@@ -473,6 +591,7 @@ export type Database = {
         }
         Update: {
           button_text?: string
+          compare_price?: number | null
           created_at?: string
           currency?: string
           description?: string | null
@@ -599,6 +718,44 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      task_day_completions: {
+        Row: {
+          created_at: string
+          day: string
+          id: string
+          status: string
+          task_id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          day: string
+          id?: string
+          status: string
+          task_id: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          day?: string
+          id?: string
+          status?: string
+          task_id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "task_day_completions_task_id_fkey"
+            columns: ["task_id"]
+            isOneToOne: false
+            referencedRelation: "tasks"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       tasks: {
         Row: {
@@ -779,6 +936,54 @@ export type Database = {
         }
         Relationships: []
       }
+      user_streaks: {
+        Row: {
+          current_streak: number
+          id: string
+          last_active_date: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          current_streak?: number
+          id?: string
+          last_active_date?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          current_streak?: number
+          id?: string
+          last_active_date?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_xp: {
+        Row: {
+          id: string
+          rank: string
+          updated_at: string
+          user_id: string
+          xp: number
+        }
+        Insert: {
+          id?: string
+          rank?: string
+          updated_at?: string
+          user_id: string
+          xp?: number
+        }
+        Update: {
+          id?: string
+          rank?: string
+          updated_at?: string
+          user_id?: string
+          xp?: number
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -791,6 +996,7 @@ export type Database = {
         }
         Returns: boolean
       }
+      increment_coupon_usage: { Args: { _code: string }; Returns: undefined }
     }
     Enums: {
       app_role: "admin" | "moderator" | "user"
