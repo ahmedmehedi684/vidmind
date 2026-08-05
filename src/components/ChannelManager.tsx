@@ -43,17 +43,19 @@ const ChannelManager = ({ channels, onChannelsChange, loading }: ChannelManagerP
   const [upgradeOpen, setUpgradeOpen] = useState(false);
   const [newName, setNewName] = useState("");
   const [newUrl, setNewUrl] = useState("");
+  const [newPlatform, setNewPlatform] = useState("youtube");
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editName, setEditName] = useState("");
   const [editUrl, setEditUrl] = useState("");
+  const [editPlatform, setEditPlatform] = useState("youtube");
 
   const addChannel = async () => {
     if (!newName.trim() || !user) return;
     if (!usageLimits.canCreate) { setUpgradeOpen(true); return; }
     try {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from("channels")
-        .insert({ name: newName.trim(), url: newUrl.trim(), user_id: user.id })
+        .insert({ name: newName.trim(), url: newUrl.trim(), platform: newPlatform, user_id: user.id })
         .select()
         .single();
       if (error) throw error;
@@ -63,7 +65,7 @@ const ChannelManager = ({ channels, onChannelsChange, loading }: ChannelManagerP
       toast.success("Channel added");
       usageLimits.refreshCount();
     } catch {
-      toast.error("There was a problem adding the channel.ে");
+      toast.error("There was a problem adding the channel.");
     }
   };
 
@@ -81,18 +83,21 @@ const ChannelManager = ({ channels, onChannelsChange, loading }: ChannelManagerP
     setEditingId(ch.id);
     setEditName(ch.name);
     setEditUrl(ch.url);
+    setEditPlatform(ch.platform || "youtube");
   };
 
   const saveEdit = async () => {
     if (!editingId || !editName.trim()) return;
     try {
-      const { error } = await supabase
+      const { error } = await (supabase as any)
         .from("channels")
-        .update({ name: editName.trim(), url: editUrl.trim() })
+        .update({ name: editName.trim(), url: editUrl.trim(), platform: editPlatform })
         .eq("id", editingId);
       if (error) throw error;
       onChannelsChange(
-        channels.map((c) => (c.id === editingId ? { ...c, name: editName.trim(), url: editUrl.trim() } : c)),
+        channels.map((c) =>
+          c.id === editingId ? { ...c, name: editName.trim(), url: editUrl.trim(), platform: editPlatform } : c,
+        ),
       );
       setEditingId(null);
       toast.success("Channel updated");
@@ -108,7 +113,20 @@ const ChannelManager = ({ channels, onChannelsChange, loading }: ChannelManagerP
       </div>
       <Card>
         <CardContent className="pt-6 space-y-3">
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <div className="space-y-1.5">
+              <Label className="text-xs">Platform</Label>
+              <Select value={newPlatform} onValueChange={setNewPlatform}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  {PLATFORMS.map((p) => (
+                    <SelectItem key={p.value} value={p.value}>
+                      <span className="flex items-center gap-1.5"><p.icon className={`h-3.5 w-3.5 ${p.className}`} /> {p.label}</span>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
             <div className="space-y-1.5">
               <Label className="text-xs">Channel Name</Label>
               <Input
@@ -118,9 +136,9 @@ const ChannelManager = ({ channels, onChannelsChange, loading }: ChannelManagerP
               />
             </div>
             <div className="space-y-1.5">
-              <Label className="text-xs">YouTube Link</Label>
+              <Label className="text-xs">{getPlatform(newPlatform).label} Link</Label>
               <Input
-                placeholder="https://youtube.com/@..."
+                placeholder={getPlatform(newPlatform).placeholder}
                 value={newUrl}
                 onChange={(e) => setNewUrl(e.target.value)}
               />
@@ -131,6 +149,7 @@ const ChannelManager = ({ channels, onChannelsChange, loading }: ChannelManagerP
           </Button>
         </CardContent>
       </Card>
+
 
       {channels.length === 0 ? (
         <Card>
