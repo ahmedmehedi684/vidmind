@@ -23,7 +23,11 @@ export default function UserNotificationBell() {
   useEffect(() => {
     if (!user) return;
     loadNotifications();
+    const onRefresh = () => loadNotifications();
+    window.addEventListener("notifications:refresh", onRefresh);
+    return () => window.removeEventListener("notifications:refresh", onRefresh);
   }, [user]);
+
 
   useEffect(() => {
     const handleClick = (e: MouseEvent) => {

@@ -1,9 +1,10 @@
 import { useState, useEffect } from "react";
-import { Plus, Trash2, ExternalLink, Youtube, Pencil, Check, X } from "lucide-react";
+import { Plus, Trash2, ExternalLink, Youtube, Pencil, Check, X, Facebook, Instagram, Music2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
@@ -16,8 +17,19 @@ export interface Channel {
   user_id: string;
   name: string;
   url: string;
+  platform?: string;
   created_at: string;
 }
+
+export const PLATFORMS = [
+  { value: "youtube", label: "YouTube", icon: Youtube, className: "text-destructive", placeholder: "https://youtube.com/@..." },
+  { value: "facebook", label: "Facebook", icon: Facebook, className: "text-blue-500", placeholder: "https://facebook.com/..." },
+  { value: "instagram", label: "Instagram", icon: Instagram, className: "text-pink-500", placeholder: "https://instagram.com/..." },
+  { value: "tiktok", label: "TikTok", icon: Music2, className: "text-foreground", placeholder: "https://tiktok.com/@..." },
+] as const;
+
+export const getPlatform = (value?: string) =>
+  PLATFORMS.find((p) => p.value === value) ?? PLATFORMS[0];
 
 interface ChannelManagerProps {
   channels: Channel[];
@@ -31,17 +43,19 @@ const ChannelManager = ({ channels, onChannelsChange, loading }: ChannelManagerP
   const [upgradeOpen, setUpgradeOpen] = useState(false);
   const [newName, setNewName] = useState("");
   const [newUrl, setNewUrl] = useState("");
+  const [newPlatform, setNewPlatform] = useState("youtube");
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editName, setEditName] = useState("");
   const [editUrl, setEditUrl] = useState("");
+  const [editPlatform, setEditPlatform] = useState("youtube");
 
   const addChannel = async () => {
     if (!newName.trim() || !user) return;
     if (!usageLimits.canCreate) { setUpgradeOpen(true); return; }
     try {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from("channels")
-        .insert({ name: newName.trim(), url: newUrl.trim(), user_id: user.id })
+        .insert({ name: newName.trim(), url: newUrl.trim(), platform: newPlatform, user_id: user.id })
         .select()
         .single();
       if (error) throw error;
@@ -51,7 +65,7 @@ const ChannelManager = ({ channels, onChannelsChange, loading }: ChannelManagerP
       toast.success("Channel added");
       usageLimits.refreshCount();
     } catch {
-      toast.error("There was a problem adding the channel.ে");
+      toast.error("There was a problem adding the channel.");
     }
   };
 
@@ -69,18 +83,21 @@ const ChannelManager = ({ channels, onChannelsChange, loading }: ChannelManagerP
     setEditingId(ch.id);
     setEditName(ch.name);
     setEditUrl(ch.url);
+    setEditPlatform(ch.platform || "youtube");
   };
 
   const saveEdit = async () => {
     if (!editingId || !editName.trim()) return;
     try {
-      const { error } = await supabase
+      const { error } = await (supabase as any)
         .from("channels")
-        .update({ name: editName.trim(), url: editUrl.trim() })
+        .update({ name: editName.trim(), url: editUrl.trim(), platform: editPlatform })
         .eq("id", editingId);
       if (error) throw error;
       onChannelsChange(
-        channels.map((c) => (c.id === editingId ? { ...c, name: editName.trim(), url: editUrl.trim() } : c)),
+        channels.map((c) =>
+          c.id === editingId ? { ...c, name: editName.trim(), url: editUrl.trim(), platform: editPlatform } : c,
+        ),
       );
       setEditingId(null);
       toast.success("Channel updated");
@@ -96,7 +113,20 @@ const ChannelManager = ({ channels, onChannelsChange, loading }: ChannelManagerP
       </div>
       <Card>
         <CardContent className="pt-6 space-y-3">
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <div className="space-y-1.5">
+              <Label className="text-xs">Platform</Label>
+              <Select value={newPlatform} onValueChange={setNewPlatform}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  {PLATFORMS.map((p) => (
+                    <SelectItem key={p.value} value={p.value}>
+                      <span className="flex items-center gap-1.5"><p.icon className={`h-3.5 w-3.5 ${p.className}`} /> {p.label}</span>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
             <div className="space-y-1.5">
               <Label className="text-xs">Channel Name</Label>
               <Input
@@ -106,9 +136,9 @@ const ChannelManager = ({ channels, onChannelsChange, loading }: ChannelManagerP
               />
             </div>
             <div className="space-y-1.5">
-              <Label className="text-xs">YouTube Link</Label>
+              <Label className="text-xs">{getPlatform(newPlatform).label} Link</Label>
               <Input
-                placeholder="https://youtube.com/@..."
+                placeholder={getPlatform(newPlatform).placeholder}
                 value={newUrl}
                 onChange={(e) => setNewUrl(e.target.value)}
               />
@@ -120,9 +150,10 @@ const ChannelManager = ({ channels, onChannelsChange, loading }: ChannelManagerP
         </CardContent>
       </Card>
 
+
       {channels.length === 0 ? (
         <Card>
-          <CardContent className="py-8 text-center text-muted-foreground">No channel।</CardContent>
+          <CardContent className="py-8 text-center text-muted-foreground">No channels yet.</CardContent>
         </Card>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -131,6 +162,16 @@ const ChannelManager = ({ channels, onChannelsChange, loading }: ChannelManagerP
               <CardContent className="py-3 px-4">
                 {editingId === ch.id ? (
                   <div className="space-y-2">
+                    <Select value={editPlatform} onValueChange={setEditPlatform}>
+                      <SelectTrigger className="text-sm h-9"><SelectValue /></SelectTrigger>
+                      <SelectContent>
+                        {PLATFORMS.map((p) => (
+                          <SelectItem key={p.value} value={p.value}>
+                            <span className="flex items-center gap-1.5"><p.icon className={`h-3.5 w-3.5 ${p.className}`} /> {p.label}</span>
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                     <Input
                       value={editName}
                       onChange={(e) => setEditName(e.target.value)}
@@ -140,7 +181,7 @@ const ChannelManager = ({ channels, onChannelsChange, loading }: ChannelManagerP
                     <Input
                       value={editUrl}
                       onChange={(e) => setEditUrl(e.target.value)}
-                      placeholder="YouTube Link"
+                      placeholder={getPlatform(editPlatform).placeholder}
                       className="text-sm"
                     />
                     <div className="flex gap-2">
@@ -155,7 +196,8 @@ const ChannelManager = ({ channels, onChannelsChange, loading }: ChannelManagerP
                 ) : (
                   <div className="flex items-center justify-between gap-2">
                     <div className="flex items-center gap-2 flex-1 min-w-0">
-                      <Youtube className="h-5 w-5 text-destructive shrink-0" />
+                      {(() => { const P = getPlatform(ch.platform); return <P.icon className={`h-5 w-5 shrink-0 ${P.className}`} />; })()}
+
                       <div className="min-w-0">
                         <p className="font-medium text-foreground text-sm truncate">{ch.name}</p>
                         {ch.url && (
