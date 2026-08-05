@@ -362,6 +362,7 @@ export type Database = {
       }
       important_links: {
         Row: {
+          channel_id: string | null
           created_at: string
           id: string
           note: string
@@ -370,6 +371,7 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          channel_id?: string | null
           created_at?: string
           id?: string
           note?: string
@@ -378,6 +380,7 @@ export type Database = {
           user_id: string
         }
         Update: {
+          channel_id?: string | null
           created_at?: string
           id?: string
           note?: string
@@ -385,7 +388,15 @@ export type Database = {
           url?: string
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "important_links_channel_id_fkey"
+            columns: ["channel_id"]
+            isOneToOne: false
+            referencedRelation: "channels"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       landing_showcase: {
         Row: {

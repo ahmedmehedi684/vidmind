@@ -35,7 +35,7 @@ const Channels = () => {
         )}
       </div>
 
-      <ImportantLinks />
+      <ImportantLinks channels={channels} />
 
       <StudyReminderSettings />
     </div>
