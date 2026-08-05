@@ -153,7 +153,7 @@ const ChannelManager = ({ channels, onChannelsChange, loading }: ChannelManagerP
 
       {channels.length === 0 ? (
         <Card>
-          <CardContent className="py-8 text-center text-muted-foreground">No channel।</CardContent>
+          <CardContent className="py-8 text-center text-muted-foreground">No channels yet.</CardContent>
         </Card>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -162,6 +162,16 @@ const ChannelManager = ({ channels, onChannelsChange, loading }: ChannelManagerP
               <CardContent className="py-3 px-4">
                 {editingId === ch.id ? (
                   <div className="space-y-2">
+                    <Select value={editPlatform} onValueChange={setEditPlatform}>
+                      <SelectTrigger className="text-sm h-9"><SelectValue /></SelectTrigger>
+                      <SelectContent>
+                        {PLATFORMS.map((p) => (
+                          <SelectItem key={p.value} value={p.value}>
+                            <span className="flex items-center gap-1.5"><p.icon className={`h-3.5 w-3.5 ${p.className}`} /> {p.label}</span>
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                     <Input
                       value={editName}
                       onChange={(e) => setEditName(e.target.value)}
@@ -171,7 +181,7 @@ const ChannelManager = ({ channels, onChannelsChange, loading }: ChannelManagerP
                     <Input
                       value={editUrl}
                       onChange={(e) => setEditUrl(e.target.value)}
-                      placeholder="YouTube Link"
+                      placeholder={getPlatform(editPlatform).placeholder}
                       className="text-sm"
                     />
                     <div className="flex gap-2">
@@ -186,7 +196,8 @@ const ChannelManager = ({ channels, onChannelsChange, loading }: ChannelManagerP
                 ) : (
                   <div className="flex items-center justify-between gap-2">
                     <div className="flex items-center gap-2 flex-1 min-w-0">
-                      <Youtube className="h-5 w-5 text-destructive shrink-0" />
+                      {(() => { const P = getPlatform(ch.platform); return <P.icon className={`h-5 w-5 shrink-0 ${P.className}`} />; })()}
+
                       <div className="min-w-0">
                         <p className="font-medium text-foreground text-sm truncate">{ch.name}</p>
                         {ch.url && (
