@@ -1,0 +1,1 @@
+ALTER TABLE public.important_links ADD COLUMN IF NOT EXISTS channel_id uuid REFERENCES public.channels(id) ON DELETE SET NULL;
