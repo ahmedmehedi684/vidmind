@@ -1,9 +1,10 @@
 import { useState, useEffect } from "react";
-import { Plus, Trash2, ExternalLink, Youtube, Pencil, Check, X } from "lucide-react";
+import { Plus, Trash2, ExternalLink, Youtube, Pencil, Check, X, Facebook, Instagram, Music2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
@@ -16,8 +17,19 @@ export interface Channel {
   user_id: string;
   name: string;
   url: string;
+  platform?: string;
   created_at: string;
 }
+
+export const PLATFORMS = [
+  { value: "youtube", label: "YouTube", icon: Youtube, className: "text-destructive", placeholder: "https://youtube.com/@..." },
+  { value: "facebook", label: "Facebook", icon: Facebook, className: "text-blue-500", placeholder: "https://facebook.com/..." },
+  { value: "instagram", label: "Instagram", icon: Instagram, className: "text-pink-500", placeholder: "https://instagram.com/..." },
+  { value: "tiktok", label: "TikTok", icon: Music2, className: "text-foreground", placeholder: "https://tiktok.com/@..." },
+] as const;
+
+export const getPlatform = (value?: string) =>
+  PLATFORMS.find((p) => p.value === value) ?? PLATFORMS[0];
 
 interface ChannelManagerProps {
   channels: Channel[];
