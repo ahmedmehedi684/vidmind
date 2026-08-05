@@ -251,6 +251,7 @@ export type Database = {
           created_at: string
           id: string
           name: string
+          platform: string
           url: string
           user_id: string
         }
@@ -258,6 +259,7 @@ export type Database = {
           created_at?: string
           id?: string
           name: string
+          platform?: string
           url?: string
           user_id: string
         }
@@ -265,6 +267,7 @@ export type Database = {
           created_at?: string
           id?: string
           name?: string
+          platform?: string
           url?: string
           user_id?: string
         }
@@ -353,6 +356,33 @@ export type Database = {
           target_date?: string | null
           title?: string
           updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      important_links: {
+        Row: {
+          created_at: string
+          id: string
+          note: string
+          title: string
+          url: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          note?: string
+          title: string
+          url?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          note?: string
+          title?: string
+          url?: string
           user_id?: string
         }
         Relationships: []
@@ -549,6 +579,36 @@ export type Database = {
           email?: string | null
           id?: string
           name?: string | null
+        }
+        Relationships: []
+      }
+      study_reminders: {
+        Row: {
+          created_at: string
+          id: string
+          is_enabled: boolean
+          last_notified_on: string | null
+          remind_at: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_enabled?: boolean
+          last_notified_on?: string | null
+          remind_at?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_enabled?: boolean
+          last_notified_on?: string | null
+          remind_at?: string
+          updated_at?: string
+          user_id?: string
         }
         Relationships: []
       }
