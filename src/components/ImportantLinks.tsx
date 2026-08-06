@@ -88,6 +88,35 @@ const ImportantLinks = ({ channels }: ImportantLinksProps) => {
 
   const isYoutube = platform === "youtube";
 
+  const youtubeId = (u: string) => {
+    const m = u.match(/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([\w-]{11})/);
+    return m ? m[1] : null;
+  };
+  const isImageUrl = (u: string) => /\.(png|jpe?g|gif|webp|avif|svg|bmp)(\?|#|$)/i.test(u);
+  const isVideoFile = (u: string) => /\.(mp4|webm|ogg|mov|m4v)(\?|#|$)/i.test(u);
+
+  const MediaPreview = ({ url }: { url: string }) => {
+    const yt = youtubeId(url);
+    if (yt) {
+      return (
+        <div className="relative w-full aspect-video bg-muted overflow-hidden rounded-md">
+          <img src={`https://img.youtube.com/vi/${yt}/hqdefault.jpg`} alt="Video preview" loading="lazy" className="w-full h-full object-cover" />
+          <div className="absolute inset-0 flex items-center justify-center bg-background/20">
+            <PlayCircle className="h-10 w-10 text-primary drop-shadow" />
+          </div>
+        </div>
+      );
+    }
+    if (isVideoFile(url)) {
+      return <video src={url} className="w-full rounded-md bg-muted" preload="metadata" muted playsInline />;
+    }
+    if (isImageUrl(url)) {
+      return <img src={url} alt="Link preview" loading="lazy" className="w-full rounded-md object-contain bg-muted/30" />;
+    }
+    return null;
+  };
+
+
   return (
     <div className="space-y-4">
       <h2 className="text-lg font-semibold text-foreground flex items-center gap-2">
