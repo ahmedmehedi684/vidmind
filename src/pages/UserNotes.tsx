@@ -33,9 +33,14 @@ const UserNotes = () => {
 
   // New note
   const [newNote, setNewNote] = useState("");
+  const [newNotePlatform, setNewNotePlatform] = useState("youtube");
   const [newNoteTitle, setNewNoteTitle] = useState("");
   const [newNoteChannelId, setNewNoteChannelId] = useState("all");
   const [newNoteVideoUrl, setNewNoteVideoUrl] = useState("");
+
+  const platformChannels = channels.filter((c) => (c.platform || "youtube") === newNotePlatform);
+  const isYoutube = newNotePlatform === "youtube";
+
 
   // Filter
   const [filterChannel, setFilterChannel] = useState("all");
