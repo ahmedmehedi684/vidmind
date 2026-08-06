@@ -165,8 +165,14 @@ const MenuBar = ({ editor }: { editor: any }) => {
           </button>
         );
       })}
+      <ImageDialog
+        open={imageOpen}
+        onOpenChange={setImageOpen}
+        onInsert={(src) => editor.chain().focus().setImage({ src }).run()}
+      />
     </div>
   );
+
 };
 
 const RichTextEditor = ({ value, onChange, placeholder = "Write your note here..." }: RichTextEditorProps) => {
