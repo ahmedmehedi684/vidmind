@@ -86,6 +86,8 @@ const ImportantLinks = ({ channels }: ImportantLinksProps) => {
 
   const channelOf = (id: string | null) => channels.find((c) => c.id === id);
 
+  const isYoutube = platform === "youtube";
+
   return (
     <div className="space-y-4">
       <h2 className="text-lg font-semibold text-foreground flex items-center gap-2">
