@@ -13,12 +13,15 @@ import RichTextEditor from "@/components/RichTextEditor";
 import { useUsageLimits } from "@/hooks/use-usage-limits";
 import UsageLimitBadge from "@/components/UsageLimitBadge";
 import UpgradeLimitModal from "@/components/UpgradeLimitModal";
+import { Label } from "@/components/ui/label";
+import { PLATFORMS, getPlatform } from "@/components/ChannelManager";
 
-interface Channel { id: string; name: string; url: string; user_id: string; created_at: string; }
+interface Channel { id: string; name: string; url: string; user_id: string; platform?: string; created_at: string; }
 interface Note {
   id: string; user_id: string; title: string; text: string;
   channel_id: string | null; video_url: string; created_at: string;
 }
+
 
 const UserNotes = () => {
   const { user } = useAuth();
