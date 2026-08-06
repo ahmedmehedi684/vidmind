@@ -126,8 +126,8 @@ const ImportantLinks = ({ channels }: ImportantLinksProps) => {
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div className="space-y-1.5">
-              <Label className="text-xs">3. Title</Label>
-              <Input placeholder="Example: Course playlist" value={title} onChange={(e) => setTitle(e.target.value)} />
+              <Label className="text-xs">3. {isYoutube ? "Title" : "Caption"}</Label>
+              <Input placeholder={isYoutube ? "Example: Course playlist" : "Example: Reel caption"} value={title} onChange={(e) => setTitle(e.target.value)} />
             </div>
             <div className="space-y-1.5">
               <Label className="text-xs">4. Video / Image Link</Label>
