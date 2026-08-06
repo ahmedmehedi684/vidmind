@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Loader2, Youtube, Sparkles } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import ChannelManager, { type Channel } from "@/components/ChannelManager";
-import ImportantLinks from "@/components/ImportantLinks";
+
 import StudyReminderSettings from "@/components/StudyReminderSettings";
 
 const Channels = () => {
@@ -35,7 +35,7 @@ const Channels = () => {
         )}
       </div>
 
-      <ImportantLinks channels={channels} />
+      
 
       <StudyReminderSettings />
     </div>

@@ -86,6 +86,8 @@ const ImportantLinks = ({ channels }: ImportantLinksProps) => {
 
   const channelOf = (id: string | null) => channels.find((c) => c.id === id);
 
+  const isYoutube = platform === "youtube";
+
   return (
     <div className="space-y-4">
       <h2 className="text-lg font-semibold text-foreground flex items-center gap-2">
@@ -124,8 +126,8 @@ const ImportantLinks = ({ channels }: ImportantLinksProps) => {
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div className="space-y-1.5">
-              <Label className="text-xs">3. Title</Label>
-              <Input placeholder="Example: Course playlist" value={title} onChange={(e) => setTitle(e.target.value)} />
+              <Label className="text-xs">3. {isYoutube ? "Title" : "Caption"}</Label>
+              <Input placeholder={isYoutube ? "Example: Course playlist" : "Example: Reel caption"} value={title} onChange={(e) => setTitle(e.target.value)} />
             </div>
             <div className="space-y-1.5">
               <Label className="text-xs">4. Video / Image Link</Label>
