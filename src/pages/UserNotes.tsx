@@ -14,7 +14,7 @@ import { useUsageLimits } from "@/hooks/use-usage-limits";
 import UsageLimitBadge from "@/components/UsageLimitBadge";
 import UpgradeLimitModal from "@/components/UpgradeLimitModal";
 import { Label } from "@/components/ui/label";
-import { PLATFORMS, getPlatform } from "@/components/ChannelManager";
+import { PLATFORMS } from "@/components/ChannelManager";
 
 interface Channel { id: string; name: string; url: string; user_id: string; platform?: string; created_at: string; }
 interface Note {
