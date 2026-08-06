@@ -138,7 +138,7 @@ const MenuBar = ({ editor }: { editor: any }) => {
     { icon: Minus, action: () => editor.chain().focus().setHorizontalRule().run(), active: false, title: "Divider" },
     "sep",
     { icon: LinkIcon, action: addLink, active: editor.isActive("link"), title: "Link" },
-    { icon: ImageIcon, action: addImage, active: false, title: "Image" },
+    { icon: ImageIcon, action: () => setImageOpen(true), active: false, title: "Image" },
     { icon: TableIcon, action: addTable, active: false, title: "Table" },
     "sep",
     { icon: Undo, action: () => editor.chain().focus().undo().run(), active: false, title: "Undo" },
