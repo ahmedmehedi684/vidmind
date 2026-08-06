@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Plus, Trash2, ExternalLink, Link2, Loader2 } from "lucide-react";
+import { Plus, Trash2, ExternalLink, Link2, Loader2, PlayCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -88,6 +88,35 @@ const ImportantLinks = ({ channels }: ImportantLinksProps) => {
 
   const isYoutube = platform === "youtube";
 
+  const youtubeId = (u: string) => {
+    const m = u.match(/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([\w-]{11})/);
+    return m ? m[1] : null;
+  };
+  const isImageUrl = (u: string) => /\.(png|jpe?g|gif|webp|avif|svg|bmp)(\?|#|$)/i.test(u);
+  const isVideoFile = (u: string) => /\.(mp4|webm|ogg|mov|m4v)(\?|#|$)/i.test(u);
+
+  const MediaPreview = ({ url }: { url: string }) => {
+    const yt = youtubeId(url);
+    if (yt) {
+      return (
+        <div className="relative w-full aspect-video bg-muted overflow-hidden rounded-md">
+          <img src={`https://img.youtube.com/vi/${yt}/hqdefault.jpg`} alt="Video preview" loading="lazy" className="w-full h-full object-cover" />
+          <div className="absolute inset-0 flex items-center justify-center bg-background/20">
+            <PlayCircle className="h-10 w-10 text-primary drop-shadow" />
+          </div>
+        </div>
+      );
+    }
+    if (isVideoFile(url)) {
+      return <video src={url} className="w-full rounded-md bg-muted" preload="metadata" muted playsInline />;
+    }
+    if (isImageUrl(url)) {
+      return <img src={url} alt="Link preview" loading="lazy" className="w-full rounded-md object-contain bg-muted/30" />;
+    }
+    return null;
+  };
+
+
   return (
     <div className="space-y-4">
       <h2 className="text-lg font-semibold text-foreground flex items-center gap-2">
@@ -154,27 +183,35 @@ const ImportantLinks = ({ channels }: ImportantLinksProps) => {
             const ch = channelOf(l.channel_id);
             const P = getPlatform(ch?.platform);
             return (
-              <Card key={l.id} className="hover:border-primary/30 transition-colors">
-                <CardContent className="py-3 px-4 flex items-center justify-between gap-2">
-                  <div className="min-w-0">
-                    {ch && (
-                      <p className="text-[11px] text-muted-foreground flex items-center gap-1 truncate">
-                        <P.icon className={`h-3 w-3 shrink-0 ${P.className}`} /> {ch.name}
-                      </p>
-                    )}
-                    <p className="font-medium text-foreground text-sm truncate">{l.title}</p>
-                    {l.url && (
-                      <a href={l.url} target="_blank" rel="noopener noreferrer" className="text-xs text-primary hover:underline flex items-center gap-0.5 truncate">
-                        <ExternalLink className="h-3 w-3 shrink-0" /> {l.url}
-                      </a>
-                    )}
-                    {l.note && <p className="text-xs text-muted-foreground truncate">{l.note}</p>}
+              <Card key={l.id} className="hover:border-primary/30 transition-colors overflow-hidden">
+                <CardContent className="p-3 space-y-2">
+                  {l.url && (
+                    <a href={l.url} target="_blank" rel="noopener noreferrer" className="block cursor-pointer">
+                      <MediaPreview url={l.url} />
+                    </a>
+                  )}
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="min-w-0">
+                      {ch && (
+                        <p className="text-[11px] text-muted-foreground flex items-center gap-1 truncate">
+                          <P.icon className={`h-3 w-3 shrink-0 ${P.className}`} /> {ch.name}
+                        </p>
+                      )}
+                      <p className="font-medium text-foreground text-sm truncate">{l.title}</p>
+                      {l.url && (
+                        <a href={l.url} target="_blank" rel="noopener noreferrer" className="text-xs text-primary hover:underline flex items-center gap-0.5 truncate">
+                          <ExternalLink className="h-3 w-3 shrink-0" /> {l.url}
+                        </a>
+                      )}
+                      {l.note && <p className="text-xs text-muted-foreground truncate">{l.note}</p>}
+                    </div>
+                    <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground hover:text-destructive shrink-0" onClick={() => deleteLink(l.id)}>
+                      <Trash2 className="h-3.5 w-3.5" />
+                    </Button>
                   </div>
-                  <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground hover:text-destructive shrink-0" onClick={() => deleteLink(l.id)}>
-                    <Trash2 className="h-3.5 w-3.5" />
-                  </Button>
                 </CardContent>
               </Card>
+
             );
           })}
         </div>

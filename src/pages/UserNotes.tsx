@@ -13,12 +13,15 @@ import RichTextEditor from "@/components/RichTextEditor";
 import { useUsageLimits } from "@/hooks/use-usage-limits";
 import UsageLimitBadge from "@/components/UsageLimitBadge";
 import UpgradeLimitModal from "@/components/UpgradeLimitModal";
+import { Label } from "@/components/ui/label";
+import { PLATFORMS } from "@/components/ChannelManager";
 
-interface Channel { id: string; name: string; url: string; user_id: string; created_at: string; }
+interface Channel { id: string; name: string; url: string; user_id: string; platform?: string; created_at: string; }
 interface Note {
   id: string; user_id: string; title: string; text: string;
   channel_id: string | null; video_url: string; created_at: string;
 }
+
 
 const UserNotes = () => {
   const { user } = useAuth();
@@ -30,9 +33,14 @@ const UserNotes = () => {
 
   // New note
   const [newNote, setNewNote] = useState("");
+  const [newNotePlatform, setNewNotePlatform] = useState("youtube");
   const [newNoteTitle, setNewNoteTitle] = useState("");
   const [newNoteChannelId, setNewNoteChannelId] = useState("all");
   const [newNoteVideoUrl, setNewNoteVideoUrl] = useState("");
+
+  const platformChannels = channels.filter((c) => (c.platform || "youtube") === newNotePlatform);
+  const isYoutube = newNotePlatform === "youtube";
+
 
   // Filter
   const [filterChannel, setFilterChannel] = useState("all");
@@ -138,19 +146,46 @@ const UserNotes = () => {
       {/* New Note */}
       <Card>
         <CardContent className="pt-6 space-y-3">
-          <Input placeholder="Note title..." value={newNoteTitle} onChange={e => setNewNoteTitle(e.target.value)} className="font-semibold" />
-          <Select value={newNoteChannelId} onValueChange={setNewNoteChannelId}>
-            <SelectTrigger><SelectValue placeholder="Select Channel" /></SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">No Channel</SelectItem>
-              {channels.map(ch => <SelectItem key={ch.id} value={ch.id}>{ch.name}</SelectItem>)}
-            </SelectContent>
-          </Select>
-          <div className="flex items-center gap-2">
-            <LinkIcon className="h-4 w-4 text-muted-foreground shrink-0" />
-            <Input placeholder="Video URL (optional)..." value={newNoteVideoUrl} onChange={e => setNewNoteVideoUrl(e.target.value)} />
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div className="space-y-1.5">
+              <Label className="text-xs">1. Platform</Label>
+              <Select value={newNotePlatform} onValueChange={(v) => { setNewNotePlatform(v); setNewNoteChannelId("all"); }}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  {PLATFORMS.map(p => (
+                    <SelectItem key={p.value} value={p.value}>
+                      <span className="flex items-center gap-1.5"><p.icon className={`h-3.5 w-3.5 ${p.className}`} /> {p.label}</span>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-1.5">
+              <Label className="text-xs">2. Channel Name</Label>
+              <Select value={newNoteChannelId} onValueChange={setNewNoteChannelId}>
+                <SelectTrigger>
+                  <SelectValue placeholder={platformChannels.length === 0 ? "No channel on this platform" : "Select a channel"} />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">No Channel</SelectItem>
+                  {platformChannels.map(ch => <SelectItem key={ch.id} value={ch.id}>{ch.name}</SelectItem>)}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+          <div className="space-y-1.5">
+            <Label className="text-xs">3. {isYoutube ? "Title" : "Caption"}</Label>
+            <Input placeholder={isYoutube ? "Note title..." : "Caption..."} value={newNoteTitle} onChange={e => setNewNoteTitle(e.target.value)} className="font-semibold" />
+          </div>
+          <div className="space-y-1.5">
+            <Label className="text-xs">4. Video Link (optional)</Label>
+            <div className="flex items-center gap-2">
+              <LinkIcon className="h-4 w-4 text-muted-foreground shrink-0" />
+              <Input placeholder="https://..." value={newNoteVideoUrl} onChange={e => setNewNoteVideoUrl(e.target.value)} />
+            </div>
           </div>
           <RichTextEditor value={newNote} onChange={setNewNote} />
+
           <Button onClick={addNote} disabled={!newNote.trim()} className="gap-2"><Plus className="h-4 w-4" /> Add Note</Button>
         </CardContent>
       </Card>
