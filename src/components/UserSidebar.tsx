@@ -26,6 +26,8 @@ const navItems = [
   { title: "My Notes", url: "/app-notes", icon: StickyNote },
   { title: "Channels", url: "/app-channels", icon: Youtube },
   { title: "Important Links", url: "/app-links", icon: Link2 },
+  { title: "My Books", url: "/app-books", icon: BookOpen },
+
   { title: "History", url: "/app-history", icon: Clock },
   { title: "Subscription", url: "/app-subscription", icon: CreditCard },
   { title: "Support", url: "/app-support", icon: HeadphonesIcon },
