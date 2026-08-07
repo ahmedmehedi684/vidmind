@@ -1,5 +1,7 @@
 import { useState, useEffect } from "react";
-import { Plus, Trash2, ExternalLink, Link2, Loader2, PlayCircle } from "lucide-react";
+import { Plus, Trash2, ExternalLink, Link2, Loader2 } from "lucide-react";
+import MediaPreview, { openExternal } from "@/components/MediaPreview";
+
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
