@@ -199,13 +199,16 @@ const UserNotes = () => {
         <Card><CardContent className="py-12 text-center text-muted-foreground">No notes found.</CardContent></Card>
       ) : (
         <div className="space-y-2">
-          {filtered.map(note => (
+          {filtered.map(note => {
+            const ch = getChannel(note.channel_id);
+            const P = getPlatform(ch?.platform);
+            return (
             <Card key={note.id} className="cursor-pointer hover:border-primary/50 transition-colors" onClick={() => openDialog(note)}>
               <CardContent className="py-3 flex items-center justify-between gap-3">
                 <div className="flex items-center gap-3 min-w-0 flex-1">
-                  {getChannelName(note.channel_id) && (
+                  {ch && (
                     <Badge variant="secondary" className="gap-1 text-xs shrink-0">
-                      <Youtube className="h-3 w-3 text-destructive" /> {getChannelName(note.channel_id)}
+                      <P.icon className={`h-3 w-3 ${P.className}`} /> {ch.name}
                     </Badge>
                   )}
                   <span className="font-medium text-foreground truncate">{note.title || "Untitled"}</span>
@@ -213,7 +216,8 @@ const UserNotes = () => {
                 <span className="text-xs text-muted-foreground shrink-0">{formatDate(note.created_at)}</span>
               </CardContent>
             </Card>
-          ))}
+            );
+          })}
         </div>
       )}
 
@@ -227,14 +231,21 @@ const UserNotes = () => {
 
           {selectedNote && !editing && (
             <div className="space-y-4">
-              {getChannelName(selectedNote.channel_id) && (
-                <Badge variant="secondary" className="gap-1 text-xs"><Youtube className="h-3 w-3 text-destructive" /> {getChannelName(selectedNote.channel_id)}</Badge>
-              )}
+              {(() => {
+                const ch = getChannel(selectedNote.channel_id);
+                if (!ch) return null;
+                const P = getPlatform(ch.platform);
+                return <Badge variant="secondary" className="gap-1 text-xs"><P.icon className={`h-3 w-3 ${P.className}`} /> {ch.name}</Badge>;
+              })()}
               {selectedNote.video_url && (
-                <a href={selectedNote.video_url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-sm text-primary hover:underline">
-                  <LinkIcon className="h-4 w-4" /> Watch Video
-                </a>
+                <div className="space-y-2">
+                  <MediaPreview url={selectedNote.video_url} platform={getChannel(selectedNote.channel_id)?.platform} />
+                  <button onClick={() => openExternal(selectedNote.video_url)} className="flex items-center gap-2 text-sm text-primary hover:underline">
+                    <LinkIcon className="h-4 w-4" /> Open link
+                  </button>
+                </div>
               )}
+
               <div className="prose prose-sm dark:prose-invert max-w-none border rounded-md p-4 bg-muted/20"
                 dangerouslySetInnerHTML={{ __html: selectedNote.text }} />
             </div>
