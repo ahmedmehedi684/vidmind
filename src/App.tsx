@@ -20,6 +20,8 @@ import Profile from "./pages/Profile.tsx";
 import Dashboard from "./pages/Dashboard.tsx";
 import UserNotes from "./pages/UserNotes.tsx";
 import UserLinks from "./pages/UserLinks.tsx";
+import UserBooks from "./pages/UserBooks.tsx";
+
 import UserTasks from "./pages/UserTasks.tsx";
 import UserGoals from "./pages/UserGoals.tsx";
 import UserMoney from "./pages/UserMoney.tsx";
@@ -78,6 +80,8 @@ const App = () => (
               <Route path="/app-profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
               <Route path="/app-notes" element={<ProtectedRoute><UserNotes /></ProtectedRoute>} />
               <Route path="/app-links" element={<ProtectedRoute><UserLinks /></ProtectedRoute>} />
+              <Route path="/app-books" element={<ProtectedRoute><UserBooks /></ProtectedRoute>} />
+
               <Route path="/app-tasks" element={<ProtectedRoute><UserTasks /></ProtectedRoute>} />
               <Route path="/app-goals" element={<ProtectedRoute><UserGoals /></ProtectedRoute>} />
               <Route path="/app-money" element={<ProtectedRoute><UserMoney /></ProtectedRoute>} />

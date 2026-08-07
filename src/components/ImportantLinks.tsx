@@ -1,5 +1,7 @@
 import { useState, useEffect } from "react";
-import { Plus, Trash2, ExternalLink, Link2, Loader2, PlayCircle } from "lucide-react";
+import { Plus, Trash2, ExternalLink, Link2, Loader2 } from "lucide-react";
+import MediaPreview, { openExternal } from "@/components/MediaPreview";
+
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -88,33 +90,7 @@ const ImportantLinks = ({ channels }: ImportantLinksProps) => {
 
   const isYoutube = platform === "youtube";
 
-  const youtubeId = (u: string) => {
-    const m = u.match(/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([\w-]{11})/);
-    return m ? m[1] : null;
-  };
-  const isImageUrl = (u: string) => /\.(png|jpe?g|gif|webp|avif|svg|bmp)(\?|#|$)/i.test(u);
-  const isVideoFile = (u: string) => /\.(mp4|webm|ogg|mov|m4v)(\?|#|$)/i.test(u);
 
-  const MediaPreview = ({ url }: { url: string }) => {
-    const yt = youtubeId(url);
-    if (yt) {
-      return (
-        <div className="relative w-full aspect-video bg-muted overflow-hidden rounded-md">
-          <img src={`https://img.youtube.com/vi/${yt}/hqdefault.jpg`} alt="Video preview" loading="lazy" className="w-full h-full object-cover" />
-          <div className="absolute inset-0 flex items-center justify-center bg-background/20">
-            <PlayCircle className="h-10 w-10 text-primary drop-shadow" />
-          </div>
-        </div>
-      );
-    }
-    if (isVideoFile(url)) {
-      return <video src={url} className="w-full rounded-md bg-muted" preload="metadata" muted playsInline />;
-    }
-    if (isImageUrl(url)) {
-      return <img src={url} alt="Link preview" loading="lazy" className="w-full rounded-md object-contain bg-muted/30" />;
-    }
-    return null;
-  };
 
 
   return (
@@ -185,11 +161,7 @@ const ImportantLinks = ({ channels }: ImportantLinksProps) => {
             return (
               <Card key={l.id} className="hover:border-primary/30 transition-colors overflow-hidden">
                 <CardContent className="p-3 space-y-2">
-                  {l.url && (
-                    <a href={l.url} target="_blank" rel="noopener noreferrer" className="block cursor-pointer">
-                      <MediaPreview url={l.url} />
-                    </a>
-                  )}
+                  {l.url && <MediaPreview url={l.url} platform={ch?.platform} />}
                   <div className="flex items-start justify-between gap-2">
                     <div className="min-w-0">
                       {ch && (
@@ -199,10 +171,11 @@ const ImportantLinks = ({ channels }: ImportantLinksProps) => {
                       )}
                       <p className="font-medium text-foreground text-sm truncate">{l.title}</p>
                       {l.url && (
-                        <a href={l.url} target="_blank" rel="noopener noreferrer" className="text-xs text-primary hover:underline flex items-center gap-0.5 truncate">
-                          <ExternalLink className="h-3 w-3 shrink-0" /> {l.url}
-                        </a>
+                        <button onClick={() => openExternal(l.url)} className="text-xs text-primary hover:underline flex items-center gap-0.5 truncate max-w-full">
+                          <ExternalLink className="h-3 w-3 shrink-0" /> <span className="truncate">{l.url}</span>
+                        </button>
                       )}
+
                       {l.note && <p className="text-xs text-muted-foreground truncate">{l.note}</p>}
                     </div>
                     <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground hover:text-destructive shrink-0" onClick={() => deleteLink(l.id)}>

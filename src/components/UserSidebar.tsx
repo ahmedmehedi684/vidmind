@@ -1,4 +1,4 @@
-import { FileText, Clock, Settings, Youtube, User, LogOut, StickyNote, LayoutDashboard, ListChecks, Target, DollarSign, CreditCard, HeadphonesIcon, Link2 } from "lucide-react";
+import { FileText, Clock, Settings, Youtube, User, LogOut, StickyNote, LayoutDashboard, ListChecks, Target, DollarSign, CreditCard, HeadphonesIcon, Link2, BookOpen } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useLocation } from "react-router-dom";
 import ThemeToggle from "@/components/ThemeToggle";
@@ -26,6 +26,8 @@ const navItems = [
   { title: "My Notes", url: "/app-notes", icon: StickyNote },
   { title: "Channels", url: "/app-channels", icon: Youtube },
   { title: "Important Links", url: "/app-links", icon: Link2 },
+  { title: "My Books", url: "/app-books", icon: BookOpen },
+
   { title: "History", url: "/app-history", icon: Clock },
   { title: "Subscription", url: "/app-subscription", icon: CreditCard },
   { title: "Support", url: "/app-support", icon: HeadphonesIcon },
