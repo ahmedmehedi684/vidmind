@@ -80,6 +80,8 @@ const App = () => (
               <Route path="/app-profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
               <Route path="/app-notes" element={<ProtectedRoute><UserNotes /></ProtectedRoute>} />
               <Route path="/app-links" element={<ProtectedRoute><UserLinks /></ProtectedRoute>} />
+              <Route path="/app-books" element={<ProtectedRoute><UserBooks /></ProtectedRoute>} />
+
               <Route path="/app-tasks" element={<ProtectedRoute><UserTasks /></ProtectedRoute>} />
               <Route path="/app-goals" element={<ProtectedRoute><UserGoals /></ProtectedRoute>} />
               <Route path="/app-money" element={<ProtectedRoute><UserMoney /></ProtectedRoute>} />
