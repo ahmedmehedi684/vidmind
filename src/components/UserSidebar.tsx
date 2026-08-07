@@ -1,4 +1,4 @@
-import { FileText, Clock, Settings, Youtube, User, LogOut, StickyNote, LayoutDashboard, ListChecks, Target, DollarSign, CreditCard, HeadphonesIcon, Link2 } from "lucide-react";
+import { FileText, Clock, Settings, Youtube, User, LogOut, StickyNote, LayoutDashboard, ListChecks, Target, DollarSign, CreditCard, HeadphonesIcon, Link2, BookOpen } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useLocation } from "react-router-dom";
 import ThemeToggle from "@/components/ThemeToggle";
