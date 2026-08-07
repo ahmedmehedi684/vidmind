@@ -159,11 +159,7 @@ const ImportantLinks = ({ channels }: ImportantLinksProps) => {
             return (
               <Card key={l.id} className="hover:border-primary/30 transition-colors overflow-hidden">
                 <CardContent className="p-3 space-y-2">
-                  {l.url && (
-                    <a href={l.url} target="_blank" rel="noopener noreferrer" className="block cursor-pointer">
-                      <MediaPreview url={l.url} />
-                    </a>
-                  )}
+                  {l.url && <MediaPreview url={l.url} platform={ch?.platform} />}
                   <div className="flex items-start justify-between gap-2">
                     <div className="min-w-0">
                       {ch && (
@@ -173,10 +169,11 @@ const ImportantLinks = ({ channels }: ImportantLinksProps) => {
                       )}
                       <p className="font-medium text-foreground text-sm truncate">{l.title}</p>
                       {l.url && (
-                        <a href={l.url} target="_blank" rel="noopener noreferrer" className="text-xs text-primary hover:underline flex items-center gap-0.5 truncate">
-                          <ExternalLink className="h-3 w-3 shrink-0" /> {l.url}
-                        </a>
+                        <button onClick={() => openExternal(l.url)} className="text-xs text-primary hover:underline flex items-center gap-0.5 truncate max-w-full">
+                          <ExternalLink className="h-3 w-3 shrink-0" /> <span className="truncate">{l.url}</span>
+                        </button>
                       )}
+
                       {l.note && <p className="text-xs text-muted-foreground truncate">{l.note}</p>}
                     </div>
                     <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground hover:text-destructive shrink-0" onClick={() => deleteLink(l.id)}>
