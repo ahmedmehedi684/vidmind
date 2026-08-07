@@ -111,7 +111,9 @@ const UserNotes = () => {
     setDialogOpen(true);
   };
 
-  const getChannelName = (id: string | null) => id ? channels.find(c => c.id === id)?.name || null : null;
+  const getChannel = (id: string | null) => (id ? channels.find(c => c.id === id) : undefined);
+  const getChannelName = (id: string | null) => getChannel(id)?.name || null;
+
 
   const filtered = notes.filter(n => {
     const matchCh = filterChannel === "all" || n.channel_id === filterChannel;
