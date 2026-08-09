@@ -34,6 +34,7 @@ const UserNotes = () => {
   const [loading, setLoading] = useState(true);
 
   // New note
+  const [addOpen, setAddOpen] = useState(false);
   const [newNote, setNewNote] = useState("");
   const [newNotePlatform, setNewNotePlatform] = useState("youtube");
   const [newNoteTitle, setNewNoteTitle] = useState("");
