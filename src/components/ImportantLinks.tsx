@@ -7,6 +7,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
@@ -29,6 +30,7 @@ const ImportantLinks = ({ channels }: ImportantLinksProps) => {
   const { user } = useAuth();
   const [links, setLinks] = useState<ImportantLink[]>([]);
   const [loading, setLoading] = useState(true);
+  const [open, setOpen] = useState(false);
   const [platform, setPlatform] = useState("youtube");
   const [channelId, setChannelId] = useState("");
   const [title, setTitle] = useState("");
@@ -70,6 +72,7 @@ const ImportantLinks = ({ channels }: ImportantLinksProps) => {
       if (error) throw error;
       setLinks([data as ImportantLink, ...links]);
       setTitle(""); setUrl(""); setNote("");
+      setOpen(false);
       toast.success("Link saved");
     } catch {
       toast.error("There was a problem saving the link.");
@@ -99,8 +102,15 @@ const ImportantLinks = ({ channels }: ImportantLinksProps) => {
         <Link2 className="h-4 w-4 text-primary" /> Important Links
       </h2>
 
-      <Card>
-        <CardContent className="pt-6 space-y-3">
+      <Button onClick={() => setOpen(true)} className="gap-2"><Plus className="h-4 w-4" /> Add Important Link</Button>
+
+      <Dialog open={open} onOpenChange={setOpen}>
+        <DialogContent className="max-w-lg max-h-[85vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Add Important Link</DialogTitle>
+            <DialogDescription>Pick a platform and channel, then save the link.</DialogDescription>
+          </DialogHeader>
+          <div className="space-y-3">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div className="space-y-1.5">
               <Label className="text-xs">1. Platform</Label>
@@ -143,11 +153,15 @@ const ImportantLinks = ({ channels }: ImportantLinksProps) => {
             <Label className="text-xs">Note (optional)</Label>
             <Input placeholder="Why is this important?" value={note} onChange={(e) => setNote(e.target.value)} />
           </div>
-          <Button onClick={addLink} disabled={!title.trim() || !channelId} className="gap-2">
-            <Plus className="h-4 w-4" /> Add Link
-          </Button>
-        </CardContent>
-      </Card>
+                  </div>
+          <DialogFooter>
+            <Button onClick={addLink} disabled={!title.trim() || !channelId} className="gap-2">
+              <Plus className="h-4 w-4" /> Add Link
+            </Button>
+            <Button variant="outline" onClick={() => setOpen(false)}>Cancel</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       {loading ? (
         <div className="flex justify-center py-6"><Loader2 className="h-6 w-6 animate-spin text-primary" /></div>
