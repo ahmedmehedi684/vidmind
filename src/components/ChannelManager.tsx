@@ -5,6 +5,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
@@ -41,6 +42,7 @@ const ChannelManager = ({ channels, onChannelsChange, loading }: ChannelManagerP
   const { user } = useAuth();
   const usageLimits = useUsageLimits("channels");
   const [upgradeOpen, setUpgradeOpen] = useState(false);
+  const [addOpen, setAddOpen] = useState(false);
   const [newName, setNewName] = useState("");
   const [newUrl, setNewUrl] = useState("");
   const [newPlatform, setNewPlatform] = useState("youtube");
@@ -62,6 +64,7 @@ const ChannelManager = ({ channels, onChannelsChange, loading }: ChannelManagerP
       onChannelsChange([data as unknown as Channel, ...channels]);
       setNewName("");
       setNewUrl("");
+      setAddOpen(false);
       toast.success("Channel added");
       usageLimits.refreshCount();
     } catch {
@@ -111,9 +114,16 @@ const ChannelManager = ({ channels, onChannelsChange, loading }: ChannelManagerP
       <div className="flex justify-end">
         <UsageLimitBadge count={usageLimits.count} limit={usageLimits.limit} isUnlimited={usageLimits.isUnlimited} planName={usageLimits.planName} loading={usageLimits.loading} />
       </div>
-      <Card>
-        <CardContent className="pt-6 space-y-3">
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+      <Button onClick={() => setAddOpen(true)} className="gap-2"><Plus className="h-4 w-4" /> Add Channel</Button>
+
+      <Dialog open={addOpen} onOpenChange={setAddOpen}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader>
+            <DialogTitle>Add Channel</DialogTitle>
+            <DialogDescription>Choose a platform, then add the channel name and link.</DialogDescription>
+          </DialogHeader>
+          <div className="space-y-3">
+          <div className="grid grid-cols-1 gap-3">
             <div className="space-y-1.5">
               <Label className="text-xs">Platform</Label>
               <Select value={newPlatform} onValueChange={setNewPlatform}>
@@ -144,12 +154,15 @@ const ChannelManager = ({ channels, onChannelsChange, loading }: ChannelManagerP
               />
             </div>
           </div>
-          <Button onClick={addChannel} disabled={!newName.trim()} className="gap-2">
-            <Plus className="h-4 w-4" /> Add Channel
-          </Button>
-        </CardContent>
-      </Card>
-
+                  </div>
+          <DialogFooter>
+            <Button onClick={addChannel} disabled={!newName.trim()} className="gap-2">
+              <Plus className="h-4 w-4" /> Add Channel
+            </Button>
+            <Button variant="outline" onClick={() => setAddOpen(false)}>Cancel</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       {channels.length === 0 ? (
         <Card>

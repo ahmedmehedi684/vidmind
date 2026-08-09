@@ -1,11 +1,12 @@
 import { useEffect, useState } from "react";
-import { BookOpen, Plus, Trash2, Loader2, CalendarDays, Check, Clock } from "lucide-react";
+import { BookOpen, Plus, Trash2, Loader2, CalendarDays, Check, Clock, ShoppingCart, ExternalLink } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
@@ -15,6 +16,7 @@ interface Book {
   title: string;
   author: string | null;
   cover_url: string | null;
+  buy_link: string | null;
   note: string | null;
   status: string;
   target_date: string | null;
@@ -22,9 +24,9 @@ interface Book {
 }
 
 const STATUSES = [
-  { value: "not_started", label: "Not started" },
+  { value: "not_started", label: "Not bought yet" },
   { value: "reading", label: "Reading" },
-  { value: "done", label: "Done" },
+  { value: "done", label: "Bought (Done)" },
 ];
 
 const daysLeft = (date: string | null) => {
@@ -40,10 +42,12 @@ const UserBooks = () => {
   const [books, setBooks] = useState<Book[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState("all");
+  const [open, setOpen] = useState(false);
 
   const [title, setTitle] = useState("");
   const [author, setAuthor] = useState("");
   const [coverUrl, setCoverUrl] = useState("");
+  const [buyLink, setBuyLink] = useState("");
   const [note, setNote] = useState("");
   const [status, setStatus] = useState("not_started");
   const [targetDate, setTargetDate] = useState("");
@@ -69,6 +73,7 @@ const UserBooks = () => {
         title: title.trim(),
         author: author.trim() || null,
         cover_url: coverUrl.trim() || null,
+        buy_link: buyLink.trim() || null,
         note: note.trim() || null,
         status,
         target_date: targetDate || null,
@@ -77,7 +82,8 @@ const UserBooks = () => {
       .single();
     if (error) { toast.error("Could not save the book"); return; }
     setBooks([data as Book, ...books]);
-    setTitle(""); setAuthor(""); setCoverUrl(""); setNote(""); setStatus("not_started"); setTargetDate("");
+    setTitle(""); setAuthor(""); setCoverUrl(""); setBuyLink(""); setNote(""); setStatus("not_started"); setTargetDate("");
+    setOpen(false);
     toast.success("Book added");
   };
 
@@ -94,6 +100,9 @@ const UserBooks = () => {
   };
 
   const filtered = books.filter(b => filter === "all" || b.status === filter);
+  const boughtCount = books.filter(b => b.status === "done").length;
+  const readingCount = books.filter(b => b.status === "reading").length;
+  const wishlistCount = books.filter(b => b.status === "not_started").length;
 
   return (
     <div className="max-w-3xl mx-auto px-4 py-8 space-y-6">
@@ -101,52 +110,85 @@ const UserBooks = () => {
         <h1 className="text-2xl font-bold text-foreground flex items-center gap-2">
           <BookOpen className="h-5 w-5 text-primary" /> My Books
         </h1>
-        <Select value={filter} onValueChange={setFilter}>
-          <SelectTrigger className="w-[160px]"><SelectValue /></SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All books</SelectItem>
-            {STATUSES.map(s => <SelectItem key={s.value} value={s.value}>{s.label}</SelectItem>)}
-          </SelectContent>
-        </Select>
+        <div className="flex items-center gap-2">
+          <Select value={filter} onValueChange={setFilter}>
+            <SelectTrigger className="w-[170px]"><SelectValue /></SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All books</SelectItem>
+              {STATUSES.map(s => <SelectItem key={s.value} value={s.value}>{s.label}</SelectItem>)}
+            </SelectContent>
+          </Select>
+          <Button onClick={() => setOpen(true)} className="gap-2"><Plus className="h-4 w-4" /> Add Book</Button>
+        </div>
       </div>
 
-      <Card>
-        <CardContent className="pt-6 space-y-3">
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <div className="space-y-1.5">
-              <Label className="text-xs">1. Book name</Label>
-              <Input placeholder="Example: Atomic Habits" value={title} onChange={e => setTitle(e.target.value)} />
+      {/* Totals */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+        {[
+          { label: "Total books", value: books.length },
+          { label: "Bought", value: boughtCount },
+          { label: "Reading", value: readingCount },
+          { label: "Wishlist", value: wishlistCount },
+        ].map(s => (
+          <Card key={s.label}>
+            <CardContent className="p-3 text-center">
+              <p className="text-2xl font-bold text-foreground">{s.value}</p>
+              <p className="text-xs text-muted-foreground">{s.label}</p>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+
+      <Dialog open={open} onOpenChange={setOpen}>
+        <DialogContent className="max-w-lg max-h-[85vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Add Book</DialogTitle>
+            <DialogDescription>Save a book to your list, with where to buy it and a finish-by date.</DialogDescription>
+          </DialogHeader>
+          <div className="space-y-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div className="space-y-1.5">
+                <Label className="text-xs">1. Book name</Label>
+                <Input placeholder="Example: Atomic Habits" value={title} onChange={e => setTitle(e.target.value)} />
+              </div>
+              <div className="space-y-1.5">
+                <Label className="text-xs">2. Author (optional)</Label>
+                <Input placeholder="Example: James Clear" value={author} onChange={e => setAuthor(e.target.value)} />
+              </div>
+              <div className="space-y-1.5">
+                <Label className="text-xs">3. Status</Label>
+                <Select value={status} onValueChange={setStatus}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    {STATUSES.map(s => <SelectItem key={s.value} value={s.value}>{s.label}</SelectItem>)}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-1.5">
+                <Label className="text-xs">4. Buy by (reminder date)</Label>
+                <Input type="date" value={targetDate} onChange={e => setTargetDate(e.target.value)} />
+              </div>
             </div>
             <div className="space-y-1.5">
-              <Label className="text-xs">2. Author (optional)</Label>
-              <Input placeholder="Example: James Clear" value={author} onChange={e => setAuthor(e.target.value)} />
+              <Label className="text-xs">5. Where to buy (link)</Label>
+              <Input placeholder="https://rokomari.com/..." value={buyLink} onChange={e => setBuyLink(e.target.value)} />
             </div>
             <div className="space-y-1.5">
-              <Label className="text-xs">3. Status</Label>
-              <Select value={status} onValueChange={setStatus}>
-                <SelectTrigger><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  {STATUSES.map(s => <SelectItem key={s.value} value={s.value}>{s.label}</SelectItem>)}
-                </SelectContent>
-              </Select>
+              <Label className="text-xs">Cover image link (optional)</Label>
+              <Input placeholder="https://..." value={coverUrl} onChange={e => setCoverUrl(e.target.value)} />
             </div>
             <div className="space-y-1.5">
-              <Label className="text-xs">4. Finish by (reminder date)</Label>
-              <Input type="date" value={targetDate} onChange={e => setTargetDate(e.target.value)} />
+              <Label className="text-xs">Note (optional)</Label>
+              <Input placeholder="Why do you want to read it?" value={note} onChange={e => setNote(e.target.value)} />
             </div>
+            <p className="text-xs text-muted-foreground">You get a reminder notification 3 days before the date.</p>
           </div>
-          <div className="space-y-1.5">
-            <Label className="text-xs">Cover image link (optional)</Label>
-            <Input placeholder="https://..." value={coverUrl} onChange={e => setCoverUrl(e.target.value)} />
-          </div>
-          <div className="space-y-1.5">
-            <Label className="text-xs">Note (optional)</Label>
-            <Input placeholder="Why do you want to read it?" value={note} onChange={e => setNote(e.target.value)} />
-          </div>
-          <p className="text-xs text-muted-foreground">You get a reminder notification 3 days before the finish date.</p>
-          <Button onClick={addBook} disabled={!title.trim()} className="gap-2"><Plus className="h-4 w-4" /> Add Book</Button>
-        </CardContent>
-      </Card>
+          <DialogFooter>
+            <Button onClick={addBook} disabled={!title.trim()} className="gap-2"><Plus className="h-4 w-4" /> Add Book</Button>
+            <Button variant="outline" onClick={() => setOpen(false)}>Cancel</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       {loading ? (
         <div className="flex justify-center py-10"><Loader2 className="h-6 w-6 animate-spin text-primary" /></div>
@@ -164,12 +206,17 @@ const UserBooks = () => {
                     <img src={b.cover_url} alt={`${b.title} cover`} loading="lazy" className="h-20 w-14 object-cover rounded-md border shrink-0" />
                   )}
                   <div className="min-w-0 flex-1 space-y-1">
-                    <p className={`font-medium truncate ${done ? "line-through text-muted-foreground" : "text-foreground"}`}>{b.title}</p>
+                    <p className={`font-medium truncate ${done ? "text-muted-foreground" : "text-foreground"}`}>{b.title}</p>
                     {b.author && <p className="text-xs text-muted-foreground truncate">{b.author}</p>}
                     {b.note && <p className="text-xs text-muted-foreground truncate">{b.note}</p>}
+                    {b.buy_link && (
+                      <a href={b.buy_link} target="_blank" rel="noopener noreferrer" className="text-xs text-primary hover:underline inline-flex items-center gap-1 max-w-full truncate">
+                        <ExternalLink className="h-3 w-3 shrink-0" /> <span className="truncate">Where to buy</span>
+                      </a>
+                    )}
                     <div className="flex flex-wrap items-center gap-2 pt-1">
                       <Badge variant={done ? "default" : "secondary"} className="gap-1 text-[11px]">
-                        {done ? <Check className="h-3 w-3" /> : <Clock className="h-3 w-3" />}
+                        {done ? <ShoppingCart className="h-3 w-3" /> : <Clock className="h-3 w-3" />}
                         {STATUSES.find(s => s.value === b.status)?.label ?? b.status}
                       </Badge>
                       {b.target_date && (
@@ -182,7 +229,7 @@ const UserBooks = () => {
                   </div>
                   <div className="flex flex-col gap-1 shrink-0">
                     <Select value={b.status} onValueChange={(v) => updateBook(b.id, { status: v })}>
-                      <SelectTrigger className="h-8 w-[130px] text-xs"><SelectValue /></SelectTrigger>
+                      <SelectTrigger className="h-8 w-[150px] text-xs"><SelectValue /></SelectTrigger>
                       <SelectContent>
                         {STATUSES.map(s => <SelectItem key={s.value} value={s.value}>{s.label}</SelectItem>)}
                       </SelectContent>

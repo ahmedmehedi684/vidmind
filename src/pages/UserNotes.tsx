@@ -34,6 +34,7 @@ const UserNotes = () => {
   const [loading, setLoading] = useState(true);
 
   // New note
+  const [addOpen, setAddOpen] = useState(false);
   const [newNote, setNewNote] = useState("");
   const [newNotePlatform, setNewNotePlatform] = useState("youtube");
   const [newNoteTitle, setNewNoteTitle] = useState("");
@@ -79,6 +80,7 @@ const UserNotes = () => {
     if (error) { toast.error("Failed to save note"); return; }
     if (data) setNotes([data as unknown as Note, ...notes]);
     setNewNote(""); setNewNoteTitle(""); setNewNoteChannelId("all"); setNewNoteVideoUrl("");
+    setAddOpen(false);
     toast.success("Note added");
     usageLimits.refreshCount();
   };
@@ -148,51 +150,62 @@ const UserNotes = () => {
       </div>
 
       {/* New Note */}
-      <Card>
-        <CardContent className="pt-6 space-y-3">
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <div className="space-y-1.5">
-              <Label className="text-xs">1. Platform</Label>
-              <Select value={newNotePlatform} onValueChange={(v) => { setNewNotePlatform(v); setNewNoteChannelId("all"); }}>
-                <SelectTrigger><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  {PLATFORMS.map(p => (
-                    <SelectItem key={p.value} value={p.value}>
-                      <span className="flex items-center gap-1.5"><p.icon className={`h-3.5 w-3.5 ${p.className}`} /> {p.label}</span>
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="space-y-1.5">
-              <Label className="text-xs">2. Channel Name</Label>
-              <Select value={newNoteChannelId} onValueChange={setNewNoteChannelId}>
-                <SelectTrigger>
-                  <SelectValue placeholder={platformChannels.length === 0 ? "No channel on this platform" : "Select a channel"} />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">No Channel</SelectItem>
-                  {platformChannels.map(ch => <SelectItem key={ch.id} value={ch.id}>{ch.name}</SelectItem>)}
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-          <div className="space-y-1.5">
-            <Label className="text-xs">3. {isYoutube ? "Title" : "Caption"}</Label>
-            <Input placeholder={isYoutube ? "Note title..." : "Caption..."} value={newNoteTitle} onChange={e => setNewNoteTitle(e.target.value)} className="font-semibold" />
-          </div>
-          <div className="space-y-1.5">
-            <Label className="text-xs">4. Video Link (optional)</Label>
-            <div className="flex items-center gap-2">
-              <LinkIcon className="h-4 w-4 text-muted-foreground shrink-0" />
-              <Input placeholder="https://..." value={newNoteVideoUrl} onChange={e => setNewNoteVideoUrl(e.target.value)} />
-            </div>
-          </div>
-          <RichTextEditor value={newNote} onChange={setNewNote} />
+      <Button onClick={() => setAddOpen(true)} className="gap-2"><Plus className="h-4 w-4" /> Add Note</Button>
 
-          <Button onClick={addNote} disabled={!newNote.trim()} className="gap-2"><Plus className="h-4 w-4" /> Add Note</Button>
-        </CardContent>
-      </Card>
+      <Dialog open={addOpen} onOpenChange={setAddOpen}>
+        <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Add Note</DialogTitle>
+            <DialogDescription>Pick a channel, add a title and link, then write your note.</DialogDescription>
+          </DialogHeader>
+          <div className="space-y-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div className="space-y-1.5">
+                <Label className="text-xs">1. Platform</Label>
+                <Select value={newNotePlatform} onValueChange={(v) => { setNewNotePlatform(v); setNewNoteChannelId("all"); }}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    {PLATFORMS.map(p => (
+                      <SelectItem key={p.value} value={p.value}>
+                        <span className="flex items-center gap-1.5"><p.icon className={`h-3.5 w-3.5 ${p.className}`} /> {p.label}</span>
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-1.5">
+                <Label className="text-xs">2. Channel Name</Label>
+                <Select value={newNoteChannelId} onValueChange={setNewNoteChannelId}>
+                  <SelectTrigger>
+                    <SelectValue placeholder={platformChannels.length === 0 ? "No channel on this platform" : "Select a channel"} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">No Channel</SelectItem>
+                    {platformChannels.map(ch => <SelectItem key={ch.id} value={ch.id}>{ch.name}</SelectItem>)}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+            <div className="space-y-1.5">
+              <Label className="text-xs">3. {isYoutube ? "Title" : "Caption"}</Label>
+              <Input placeholder={isYoutube ? "Note title..." : "Caption..."} value={newNoteTitle} onChange={e => setNewNoteTitle(e.target.value)} className="font-semibold" />
+            </div>
+            <div className="space-y-1.5">
+              <Label className="text-xs">4. Video Link (optional)</Label>
+              <div className="flex items-center gap-2">
+                <LinkIcon className="h-4 w-4 text-muted-foreground shrink-0" />
+                <Input placeholder="https://..." value={newNoteVideoUrl} onChange={e => setNewNoteVideoUrl(e.target.value)} />
+              </div>
+            </div>
+            <RichTextEditor value={newNote} onChange={setNewNote} />
+          </div>
+          <DialogFooter>
+            <Button onClick={addNote} disabled={!newNote.trim()} className="gap-2"><Plus className="h-4 w-4" /> Add Note</Button>
+            <Button variant="outline" onClick={() => setAddOpen(false)}>Cancel</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
 
       {/* Notes List */}
       {loading ? (
@@ -248,7 +261,7 @@ const UserNotes = () => {
                 </div>
               )}
 
-              <div className="prose prose-sm dark:prose-invert max-w-none border rounded-md p-4 bg-muted/20"
+              <div className="prose prose-sm dark:prose-invert max-w-none border rounded-md p-4 bg-muted/20 note-content"
                 dangerouslySetInnerHTML={{ __html: selectedNote.text }} />
             </div>
           )}

@@ -103,3 +103,20 @@
     font-family: 'Playfair Display', serif;
   }
 }
+
+/* Rich text (Tiptap) content: keep blank lines and spacing after save */
+.rich-content,
+.note-content {
+  white-space: pre-wrap;
+}
+
+.rich-content p:empty::after,
+.note-content p:empty::after {
+  content: "\00a0";
+}
+
+.rich-content p,
+.note-content p {
+  margin: 0.4em 0;
+  min-height: 1em;
+}
