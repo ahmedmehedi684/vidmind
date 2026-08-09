@@ -783,7 +783,7 @@ const AdminDashboard = () => {
                         <LinkIcon className="h-4 w-4" /> Watch Video
                       </a>
                     )}
-                    <div className="prose prose-sm dark:prose-invert max-w-none border rounded-md p-4 bg-muted/20"
+                    <div className="prose prose-sm dark:prose-invert max-w-none border rounded-md p-4 bg-muted/20 note-content"
                       dangerouslySetInnerHTML={{ __html: selectedNote.text }} />
                     <p className="text-xs text-muted-foreground">{formatDate(selectedNote.created_at)}</p>
                   </div>

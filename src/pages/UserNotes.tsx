@@ -80,6 +80,7 @@ const UserNotes = () => {
     if (error) { toast.error("Failed to save note"); return; }
     if (data) setNotes([data as unknown as Note, ...notes]);
     setNewNote(""); setNewNoteTitle(""); setNewNoteChannelId("all"); setNewNoteVideoUrl("");
+    setAddOpen(false);
     toast.success("Note added");
     usageLimits.refreshCount();
   };
@@ -260,7 +261,7 @@ const UserNotes = () => {
                 </div>
               )}
 
-              <div className="prose prose-sm dark:prose-invert max-w-none border rounded-md p-4 bg-muted/20"
+              <div className="prose prose-sm dark:prose-invert max-w-none border rounded-md p-4 bg-muted/20 note-content"
                 dangerouslySetInnerHTML={{ __html: selectedNote.text }} />
             </div>
           )}
