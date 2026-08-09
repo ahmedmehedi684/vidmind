@@ -199,14 +199,14 @@ const RichTextEditor = ({ value, onChange, placeholder = "Write your note here..
     },
     editorProps: {
       attributes: {
-        class: "prose prose-sm dark:prose-invert max-w-none focus:outline-none min-h-[120px] p-3",
+        class: "prose prose-sm dark:prose-invert max-w-none focus:outline-none min-h-[120px] p-3 rich-content",
       },
     },
   });
 
   useEffect(() => {
-    if (editor && value !== editor.getHTML()) {
-      editor.commands.setContent(value);
+    if (editor && !editor.isFocused && value !== editor.getHTML()) {
+      editor.commands.setContent(value || "", { emitUpdate: false } as any);
     }
   }, [value, editor]);
 
