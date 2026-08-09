@@ -177,8 +177,13 @@ const MenuBar = ({ editor }: { editor: any }) => {
 
 const RichTextEditor = ({ value, onChange, placeholder = "Write your note here..." }: RichTextEditorProps) => {
   const editor = useEditor({
+    immediatelyRender: false,
     extensions: [
-      StarterKit.configure({ heading: { levels: [1, 2, 3] } }),
+      StarterKit.configure({
+        heading: { levels: [1, 2, 3] },
+        link: false,
+        underline: false,
+      } as any),
       Underline,
       LinkExtension.configure({ openOnClick: false }),
       ImageExtension,
