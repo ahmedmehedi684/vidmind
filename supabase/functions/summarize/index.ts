@@ -115,7 +115,10 @@ serve(async (req) => {
 
     if (!effectiveKey) {
       return new Response(
-        JSON.stringify({ error: `${provider} এর API Key দিন। Settings page-এ গিয়ে key সেট করুন।` }),
+        JSON.stringify({
+          errorCode: "no_api_key",
+          error: `কোনো API Key পাওয়া যায়নি। Settings page-এ গিয়ে ${provider} এর API Key সেট করুন।`,
+        }),
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
@@ -159,15 +162,39 @@ serve(async (req) => {
     if (!res.ok) {
       const errText = await res.text();
       console.error(`${provider} API error:`, res.status, errText);
-      const status = res.status === 429 ? 429 : 502;
       let detail = "";
       try { detail = JSON.parse(errText)?.error?.message ?? ""; } catch { detail = errText.slice(0, 200); }
+
+      const lower = `${detail} ${errText}`.toLowerCase();
+      const isCredit =
+        res.status === 402 ||
+        lower.includes("insufficient") ||
+        lower.includes("quota") ||
+        lower.includes("credit") ||
+        lower.includes("billing") ||
+        lower.includes("payment required");
+      const isAuth = res.status === 401 || res.status === 403 || lower.includes("invalid api key");
+
+      let errorCode = "api_error";
+      let message = `AI API error (${res.status})${detail ? `: ${detail}` : ""}`;
+      let status = 502;
+
+      if (isCredit) {
+        errorCode = "no_credits";
+        message = "API credit শেষ হয়ে গেছে। Settings page-এ গিয়ে নতুন API Key দিন অথবা credit যোগ করুন।";
+        status = 402;
+      } else if (isAuth) {
+        errorCode = "invalid_api_key";
+        message = "API Key ভুল বা মেয়াদ শেষ। Settings page-এ গিয়ে সঠিক API Key দিন।";
+        status = 401;
+      } else if (res.status === 429) {
+        errorCode = "rate_limit";
+        message = "Rate limit — কিছুক্ষণ পর আবার চেষ্টা করুন।";
+        status = 429;
+      }
+
       return new Response(
-        JSON.stringify({
-          error: status === 429
-            ? "Rate limit — কিছুক্ষণ পর চেষ্টা করুন"
-            : `AI API error (${res.status})${detail ? `: ${detail}` : ""}`,
-        }),
+        JSON.stringify({ errorCode, error: message, provider }),
         { status, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
