@@ -31,7 +31,7 @@ export function useBookReminders() {
           .from("books")
           .select("*")
           .eq("user_id", user.id)
-          .neq("status", "done")
+          .neq("status", "bought")
           .not("target_date", "is", null)
           .lte("target_date", limitStr);
 
