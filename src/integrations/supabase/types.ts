@@ -222,8 +222,11 @@ export type Database = {
           buy_link: string | null
           cover_url: string | null
           created_at: string
+          currency: string
           id: string
           note: string | null
+          price: number
+          reading_status: string
           reminded_at: string | null
           status: string
           target_date: string | null
@@ -236,8 +239,11 @@ export type Database = {
           buy_link?: string | null
           cover_url?: string | null
           created_at?: string
+          currency?: string
           id?: string
           note?: string | null
+          price?: number
+          reading_status?: string
           reminded_at?: string | null
           status?: string
           target_date?: string | null
@@ -250,8 +256,11 @@ export type Database = {
           buy_link?: string | null
           cover_url?: string | null
           created_at?: string
+          currency?: string
           id?: string
           note?: string | null
+          price?: number
+          reading_status?: string
           reminded_at?: string | null
           status?: string
           target_date?: string | null
