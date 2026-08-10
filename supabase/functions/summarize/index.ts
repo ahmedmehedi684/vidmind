@@ -142,8 +142,14 @@ serve(async (req) => {
       const errText = await res.text();
       console.error(`${provider} API error:`, res.status, errText);
       const status = res.status === 429 ? 429 : 502;
+      let detail = "";
+      try { detail = JSON.parse(errText)?.error?.message ?? ""; } catch { detail = errText.slice(0, 200); }
       return new Response(
-        JSON.stringify({ error: status === 429 ? "Rate limit — কিছুক্ষণ পর চেষ্টা করুন" : `AI API error (${res.status})` }),
+        JSON.stringify({
+          error: status === 429
+            ? "Rate limit — কিছুক্ষণ পর চেষ্টা করুন"
+            : `AI API error (${res.status})${detail ? `: ${detail}` : ""}`,
+        }),
         { status, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
