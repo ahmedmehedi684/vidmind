@@ -22,6 +22,8 @@ import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AdminSidebar } from "@/components/AdminSidebar";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
+import { parseAiError, type AiError } from "@/lib/ai-error";
+import AiErrorAlert from "@/components/AiErrorAlert";
 import { getSettings, saveSettings, saveSettingsToDb, PROVIDERS, getProviderConfig, type AIProvider, type AppSettings } from "@/lib/settings";
 import { addToHistory, updateHistoryConversation } from "@/lib/history";
 import { useAuth } from "@/contexts/AuthContext";
@@ -168,6 +170,7 @@ const AdminDashboard = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [result, setResult] = useState<SummaryResult | null>(null);
   const [error, setError] = useState("");
+  const [aiError, setAiError] = useState<AiError | null>(null);
   const [done, setDone] = useState(false);
   const [historyId, setHistoryId] = useState<string | null>(null);
   const [initialConversation, setInitialConversation] = useState<{ role: "user" | "assistant"; content: string }[] | undefined>();
@@ -453,7 +456,7 @@ const AdminDashboard = () => {
   const getUserEmail = (userId: string) => users.find(u => u.id === userId)?.email || userId.slice(0, 8) + "...";
 
   const handleSubmit = async () => {
-    setError(""); setResult(null); setDone(false);
+    setError(""); setAiError(null); setResult(null); setDone(false);
     if (!inputValue.trim()) { setError("Please paste a transcript"); return; }
     setIsLoading(true);
     try {
@@ -461,8 +464,8 @@ const AdminDashboard = () => {
       const { data, error: fnError } = await supabase.functions.invoke("summarize", {
         body: { content: inputValue, provider: aiSettings.provider, model: aiSettings.model, apiKey: aiSettings.apiKey },
       });
-      if (fnError) throw new Error(fnError.message);
-      if (data?.error) throw new Error(data.error);
+      const parsed = await parseAiError(fnError, data);
+      if (parsed) { setAiError(parsed); return; }
       const summary = data as SummaryResult;
       setResult(summary); setDone(true);
       if (user) {
@@ -586,7 +589,8 @@ const AdminDashboard = () => {
               </Card>
             )}
             {done && <div className="flex justify-center gap-3"><Button variant="outline" onClick={handleReset} className="gap-2"><RefreshCw className="h-4 w-4" /> New Summary</Button></div>}
-            {error && <Alert variant="destructive"><AlertDescription>{error}</AlertDescription></Alert>}
+            {aiError && <AiErrorAlert error={aiError} />}
+      {error && <Alert variant="destructive"><AlertDescription>{error}</AlertDescription></Alert>}
             {result && (
               <div className="space-y-5 animate-in fade-in-0 slide-in-from-bottom-4 duration-500">
                 <Card><CardHeader><CardTitle className="text-xl text-primary">Main Story</CardTitle></CardHeader><CardContent><p className="text-secondary-foreground leading-relaxed">{result.mainStory}</p></CardContent></Card>

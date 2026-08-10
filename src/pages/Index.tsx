@@ -9,6 +9,8 @@ import { Card, CardContent } from "@/components/ui/card";
 import { CardHeader, CardTitle } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { supabase } from "@/integrations/supabase/client";
+import { parseAiError, type AiError } from "@/lib/ai-error";
+import AiErrorAlert from "@/components/AiErrorAlert";
 import { addToHistory, updateHistoryConversation } from "@/lib/history";
 import { getSettings, syncSettingsFromDb, hasAnyKey } from "@/lib/settings";
 import { useAuth } from "@/contexts/AuthContext";
@@ -81,6 +83,7 @@ const Index = () => {
   const [isFetchingTranscript, setIsFetchingTranscript] = useState(false);
   const [result, setResult] = useState<SummaryResult | null>(null);
   const [error, setError] = useState("");
+  const [aiError, setAiError] = useState<AiError | null>(null);
   const [done, setDone] = useState(false);
   const [historyId, setHistoryId] = useState<string | null>(null);
   const [transcriptReady, setTranscriptReady] = useState(false);
@@ -145,7 +148,7 @@ const Index = () => {
   };
 
   const handleSubmit = async () => {
-    setError(""); setResult(null); setDone(false);
+    setError(""); setAiError(null); setResult(null); setDone(false);
     if (!inputValue.trim()) { setError("Please paste a transcript"); return; }
     if (!usageLimits.canCreate) { setUpgradeOpen(true); return; }
     setIsLoading(true);
@@ -154,8 +157,8 @@ const Index = () => {
       const { data, error: fnError } = await supabase.functions.invoke("summarize", {
         body: { content: inputValue, provider: aiSettings.provider, model: aiSettings.model, apiKey: aiSettings.apiKey },
       });
-      if (fnError) throw new Error(fnError.message);
-      if (data?.error) throw new Error(data.error);
+      const parsed = await parseAiError(fnError, data);
+      if (parsed) { setAiError(parsed); return; }
       const summary = data as SummaryResult;
       setResult(summary); setDone(true);
       if (user) {
@@ -271,6 +274,7 @@ const Index = () => {
         </div>
       )}
 
+      {aiError && <AiErrorAlert error={aiError} />}
       {error && <Alert variant="destructive"><AlertDescription>{error}</AlertDescription></Alert>}
 
       {result && (
