@@ -476,7 +476,7 @@ const AdminDashboard = () => {
     finally { setIsLoading(false); }
   };
 
-  const handleReset = () => { setInputValue(""); setResult(null); setError(""); setDone(false); setHistoryId(null); };
+  const handleReset = () => { setInputValue(""); setResult(null); setError(""); setAiError(null); setDone(false); setHistoryId(null); };
 
   const currentProvider = getProviderConfig(settings.provider);
   const handleProviderChange = (providerId: string) => {

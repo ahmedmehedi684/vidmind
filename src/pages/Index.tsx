@@ -172,7 +172,7 @@ const Index = () => {
   };
 
   const handleReset = () => {
-    setInputValue(""); setLinkValue(""); setResult(null); setError(""); setDone(false); setHistoryId(null); setTranscriptReady(false);
+    setInputValue(""); setLinkValue(""); setResult(null); setError(""); setAiError(null); setDone(false); setHistoryId(null); setTranscriptReady(false);
   };
 
   return (
