@@ -92,7 +92,8 @@ serve(async (req) => {
   try {
     const { content, provider = "groq", model = "llama-3.3-70b-versatile", apiKey } = await req.json();
 
-    const effectiveKey = apiKey?.trim() || null;
+    // Fall back to the server-side Groq key when the user has not saved their own key
+    const effectiveKey = apiKey?.trim() || (provider === "groq" ? Deno.env.get("GROQ_API_KEY") : null) || null;
 
     if (!effectiveKey) {
       return new Response(
@@ -108,18 +109,34 @@ serve(async (req) => {
       );
     }
 
+    // Keep the transcript within the model context window (~roughly 4 chars per token)
+    const MAX_CHARS = 40000;
+    const safeContent = content.length > MAX_CHARS
+      ? content.slice(0, MAX_CHARS) + "\n\n[transcript truncated]"
+      : content;
+
     const ep = getProviderEndpoint(provider);
     const messages = [
       { role: "system", content: buildSystemPrompt() },
-      { role: "user", content: `এই transcript টি বিশ্লেষণ করো:\n\n${content}` },
+      { role: "user", content: `এই transcript টি বিশ্লেষণ করো:\n\n${safeContent}` },
     ];
 
     const jsonMode = !ep.isAnthropic;
-    const res = await fetch(ep.url, {
+    let res = await fetch(ep.url, {
       method: "POST",
       headers: ep.headers(effectiveKey),
       body: JSON.stringify(buildBody(ep, model, messages, 0.3, 2000, jsonMode)),
     });
+
+    // Some models reject response_format json_object — retry once without it
+    if (!res.ok && jsonMode && (res.status === 400 || res.status === 422)) {
+      res = await fetch(ep.url, {
+        method: "POST",
+        headers: ep.headers(effectiveKey),
+        body: JSON.stringify(buildBody(ep, model, messages, 0.3, 2000, false)),
+      });
+    }
+
 
     if (!res.ok) {
       const errText = await res.text();
