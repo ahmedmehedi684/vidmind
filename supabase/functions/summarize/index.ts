@@ -21,6 +21,12 @@ function getProviderEndpoint(provider: string): ProviderEndpoint {
   });
 
   switch (provider) {
+    case "lovable":
+      return {
+        url: "https://ai.gateway.lovable.dev/v1/chat/completions",
+        headers: (key) => ({ "Lovable-API-Key": key, "Content-Type": "application/json" }),
+        extractContent: (d) => d.choices?.[0]?.message?.content,
+      };
     case "openrouter":
       return openaiCompatible("https://openrouter.ai/api/v1/chat/completions");
     case "openai":
@@ -90,10 +96,22 @@ serve(async (req) => {
   }
 
   try {
-    const { content, provider = "groq", model = "llama-3.3-70b-versatile", apiKey } = await req.json();
+    const body = await req.json();
+    const { content } = body;
+    let provider = body.provider || "groq";
+    let model = body.model || "llama-3.3-70b-versatile";
+    const apiKey = body.apiKey;
 
-    // Fall back to the server-side Groq key when the user has not saved their own key
-    const effectiveKey = apiKey?.trim() || (provider === "groq" ? Deno.env.get("GROQ_API_KEY") : null) || null;
+    // Use the user's own key if saved; otherwise fall back to Lovable AI
+    let effectiveKey = apiKey?.trim() || null;
+    if (!effectiveKey) {
+      const lovableKey = Deno.env.get("LOVABLE_API_KEY");
+      if (lovableKey) {
+        effectiveKey = lovableKey;
+        provider = "lovable";
+        model = "google/gemini-3.6-flash";
+      }
+    }
 
     if (!effectiveKey) {
       return new Response(
