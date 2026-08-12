@@ -25,6 +25,7 @@ interface WebLink {
 
 const CATEGORIES = [
   { value: "tools", label: "Tools" },
+  { value: "software", label: "Software" },
   { value: "learning", label: "Learning" },
   { value: "design", label: "Design" },
   { value: "ai", label: "AI" },
