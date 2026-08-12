@@ -1109,6 +1109,39 @@ export type Database = {
         }
         Relationships: []
       }
+      web_links: {
+        Row: {
+          category: string
+          created_at: string
+          id: string
+          purpose: string
+          site_name: string
+          site_url: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          category?: string
+          created_at?: string
+          id?: string
+          purpose?: string
+          site_name: string
+          site_url: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          id?: string
+          purpose?: string
+          site_name?: string
+          site_url?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
